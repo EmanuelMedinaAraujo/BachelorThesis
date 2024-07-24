@@ -1,0 +1,53 @@
+TODO:
+DONE - Start with DH parameters
+In Progress - Implementation of FK w. DH parameters
+Start with RL implementation based on the FK in the code
+
+Nächste Schritte:
+- Trainingsdaten generiern
+	https://gitlab.lrz.de/cps-robotics/differentiable-kinematic-synthesis/-/tree/main/transforms?ref_type=heads
+	https://gitlab.lrz.de/cps-robotics/differentiable-kinematic-synthesis/-/tree/main/robot?ref_type=heads
+- Erstes Modell erstellen
+	Actor critic (shc) benutzen
+	Simpler reward aus Abstand zwischen End-Effector und Ziel (linear)
+		Erstmal nur translatal	
+	Input:
+		Gewünschte end effector Position
+			Matrix mit Orientierung und Position
+		Beschreibung des Roboters
+			(Ignorieren von further constraints; zumindest nicht als Hauptpunkt)
+			DH Parameter benutzen
+				DH Parameters Explanation:
+					Traditional "Handbook of Robotics 2016"
+					Modified: "Craig, Introduction to Robotics"
+					Vollständige Beschreibung des Roboters, sodass durch Pattern 4 Variablen ausreichen um die drei Dimensionen und die drei Drehdimensionen zu beschreiben für jeden Joint
+					2 translationen und 2 Winkel 
+				2 Verschiedene Notationsarten verwenden (traditonal(handbook) und modifizierten(Craig))
+				
+			Mit DH Parameter Daten erzeugen
+
+Latex Tipps:
+
+Bibliography (settings.tex)
+- NumerischerRreference style (wie beim IEEE) -  done
+- konsistente Bibliography
+	keep_tags:
+	  - author
+	  - editor (for books only)
+	  - title
+	  - chapter (for book chapters only)
+	  - year
+	  - booktitle (for books or conference articles)
+	  - journal (for journal article only)
+	  - number (for journal article only)
+	  - volume (for journal article only)
+	  - edition (for books only)
+	  - pages
+	  - howpublished (for misc [arXiv] only)
+	Informationen müssen manuel zusammen gesucht werden
+	Python Skript zur Überprüfung am Ende verwenden
+		
+- Sachen die man häufig braucht - Latex Commands anlegen
+	https://github.com/JmlrOrg/tmlr-style-file/blob/main/math_commands.tex
+- Formatting Template benutzen
+- Custom Commands benutzen
