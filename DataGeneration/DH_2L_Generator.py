@@ -15,17 +15,12 @@ def generate_extended_planar_2_link_dh():
     dh_parameter[:,3] = 0
     return dh_parameter
 
-def generate_plana_2_link_dh():
+def generate_planar_2_link_dh():
     dh_parameter = torch.rand(2,4, dtype=torch.float32)
     return dh_parameter
 
 def generate_achievable_goal( dh_parameter: torch.Tensor):
     # Sum of second column of DH parameters
-    armLength = int(dh_parameter[:,1].sum().item())
-    randomInt = randint(0, armLength)
-    return torch.tensor([0, randomInt],dtype=torch.float32)
-
-# def calculate_solution(dh_parameter: torch.Tensor, goal: torch.Tensor):
-#     # Sum of second column of DH parameters
-#     armLength = int(dh_parameter[:,1].sum().item())
-#     return torch.tensor([0, armLength])
+    arm_length = int(dh_parameter[:,1].sum().item())
+    random_reachable_length = randint(0, arm_length)
+    return torch.tensor([0, random_reachable_length],dtype=torch.float32)

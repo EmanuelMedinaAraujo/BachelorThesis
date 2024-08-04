@@ -1,8 +1,6 @@
-gymnasium[box2d]~=0.29.1
 torch~=2.4.0
-pandas~=2.2.2
 stable_baselines3~=2.3.2
 numpy~=2.0.1
-ipython~=8.26.0
 matplotlib~=3.9.1
 omegaconf~=2.3.0
+wandb~=0.17.5
