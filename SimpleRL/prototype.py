@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from SimpleRL.ParameterDataset import CustomParameterDataset
-from DataGeneration.util import dh_conventions
+from DataGeneration import dh_conventions
 
 MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
 
@@ -120,7 +120,6 @@ def calculate_2d_end_effector_position(dh_param):
     return end_effector_position_3d[:2]
 
 def train_model():
-    print(f"Using {device} device")
     model = NeuralNetwork().to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     #model = torch.load(MODEL_SAVE_PATH)
