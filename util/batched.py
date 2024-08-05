@@ -39,7 +39,7 @@ import torch
 
 class BatchTransform:
     """
-    A class similar to pytorch3d transform3d objects that supports N batch levels.
+    A class similar to pytorch3d Transform3d objects that supports N batch levels.
     """
 
     def __init__(self, matrix: torch.Tensor) -> None:
@@ -197,19 +197,19 @@ class Translate(BatchTransform):
 class Rotate(BatchTransform):
     """A Transform that rotates points in 3D space."""
 
-    def __init__(self, R: torch.Tensor) -> None:
+    def __init__(self, r: torch.Tensor) -> None:
         """
         Create a new Transform representing 3D rotation using rotation matrices as the input.
 
         Args:
-            R: A tensor of rotation matrices with any number of batch dimensions.
+            r: A tensor of rotation matrices with any number of batch dimensions.
         """
-        if R.dim() == 2:
+        if r.dim() == 2:
             b = None
         else:
-            b = R.shape[:-2]
-        mat = batch_eye4(b, dtype=R.dtype, device=R.device)
-        mat[..., :3, :3] = R
+            b = r.shape[:-2]
+        mat = batch_eye4(b, dtype=r.dtype, device=r.device)
+        mat[..., :3, :3] = r
         super().__init__(mat)
 
     def inverse(self) -> Rotate:
@@ -242,15 +242,15 @@ class Rotate(BatchTransform):
         one = torch.ones_like(angle)
         zero = torch.zeros_like(angle)
         if axis == "X":
-            R_flat = (one, zero, zero, zero, cos, -sin, zero, sin, cos)
+            r_flat = (one, zero, zero, zero, cos, -sin, zero, sin, cos)
         elif axis == "Y":
-            R_flat = (cos, zero, sin, zero, one, zero, -sin, zero, cos)
+            r_flat = (cos, zero, sin, zero, one, zero, -sin, zero, cos)
         elif axis == "Z":
-            R_flat = (cos, -sin, zero, sin, cos, zero, zero, zero, one)
+            r_flat = (cos, -sin, zero, sin, cos, zero, zero, zero, one)
         else:
             raise ValueError("letter must be either X, Y or Z.")
 
-        rot = torch.stack(R_flat, -1).reshape(angle.shape + (3, 3))
+        rot = torch.stack(r_flat, -1).reshape(angle.shape + (3, 3))
         return cls(rot)
 
 

@@ -2,13 +2,15 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from SimpleRL.ParameterDataset import CustomParameterDataset
-from DataGeneration import dh_conventions
+from util import dh_conventions
+from util.forward_kinematics import forward_kinematics
 
 MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
 
 learning_rate = 1e-3
+dataset_length = 10000
 batch_size = 64
-epochs = 40
+epochs = 2
 device = (
     "cuda"
     if torch.cuda.is_available()
@@ -16,7 +18,8 @@ device = (
     if torch.backends.mps.is_available()
     else "cpu"
 )
-
+# The tolerance in accuracy that is still regarded as correct
+tolerable_accuracy_error = 0.5
 max_accuracy = 0.0
 max_epoch = -1
 
@@ -78,10 +81,13 @@ def test_loop(dataloader, model, t):
 
             adapted_param = param.clone()
             adapted_param[:, :, 3] = pred
-            for i in range(param.shape[0]):
-                end_effector_pos = calculate_2d_end_effector_position(adapted_param[i])
-                if torch.square(end_effector_pos - goal[i]).sum().sqrt() < 0.5 :
-                    correct += 1
+
+            fk = forward_kinematics(dh_conventions.dh_to_homogeneous(adapted_param))
+            eef_positions = fk.get_matrix()[..., :2, 3]
+
+            distances = torch.square(eef_positions - goal).sum(dim=1).sqrt()
+            # Increase correct for each value in distances that is less than 0.5
+            correct += (distances <= tolerable_accuracy_error).sum().item()
 
     test_loss /= num_batches
     correct /= size
@@ -96,35 +102,18 @@ def loss_fn(param, pred, goal):
     dh_param = param.clone()
     dh_param[:, :, 3] = pred
 
-    end_effector_positions = []
-    for i in range(batch_size):
-        end_effector_positions.append(calculate_2d_end_effector_position(dh_param[i]))
-    
-    end_effector_positions = torch.stack(end_effector_positions)
+    fk = forward_kinematics(dh_conventions.dh_to_homogeneous(dh_param))
+    eef_positions = fk.get_matrix()[..., :2, 3]
 
-    # Calculate for each row the mse loss and return the mean
-    distance_loss = torch.zeros(end_effector_positions.shape[0], device=device)
-    for i in range(end_effector_positions.shape[0]):
-        distance_loss[i] = torch.square(end_effector_positions[i] - goal[i]).sum().sqrt()
-    return distance_loss.mean()
-
-
-def calculate_2d_end_effector_position(dh_param):
-    forward_kinematics = dh_conventions.dh_to_homogeneous(dh_param)
-    final_transform = torch.eye(4, device=device)
-    for i in range(forward_kinematics.shape[0]):
-        final_transform = torch.matmul(final_transform, forward_kinematics[i])
-
-    end_effector_position_3d = final_transform[:3, 3]
-
-    return end_effector_position_3d[:2]
+    # Calculate the mean distance between the eef position and the goal position
+    return torch.square(eef_positions - goal).sum(dim=1).sqrt().mean()
 
 def train_model():
     model = NeuralNetwork().to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     #model = torch.load(MODEL_SAVE_PATH)
-    train_dataloader = DataLoader(CustomParameterDataset(), batch_size, shuffle=True)
-    test_dataloader = DataLoader(CustomParameterDataset(), batch_size, shuffle=True)
+    train_dataloader = DataLoader(CustomParameterDataset(length = dataset_length, device_to_use=device), batch_size, shuffle=True)
+    test_dataloader = DataLoader(CustomParameterDataset(length = dataset_length,device_to_use=device), batch_size, shuffle=True)
     for t in range(epochs):
         print(f"Epoch {t+1}\n-------------------------------")
         train_loop(train_dataloader, model, optimizer)
@@ -133,3 +122,5 @@ def train_model():
     #torch.save(model, MODEL_SAVE_PATH)
 
     print("Done!")
+
+train_model()

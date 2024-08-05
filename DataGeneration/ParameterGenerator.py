@@ -4,6 +4,13 @@ import torch
 from enum import Enum
 from typing import Optional, Tuple, Union
 
+
+# DH Parameter of 2 Link Planar Robot with extended arm (alpha, a, d, theta)
+# DH_EXAMPLE = torch.tensor([
+#     [0, 15, 0, 0],
+#     [0, 10, 0, 0]
+# ])
+
 class ParameterConvention(Enum):
     """A parameter convention for a kinematic chain."""
     MDH = 1  # Modified Denavit-Hartenberg convention after Craig
@@ -15,11 +22,11 @@ class ParameterGenerator(Iterator, ABC):
     T = torch.Tensor
 
     def __init__(self,
-                 batch_size: int = 1,
+                 amount_parameters_to_generate: int = 1,
                  device: Optional[str] = None,
                  tensor_type: torch.dtype = torch.float32,
                  num_joints: int = 2,
-                 parameter_convention: Union[ParameterConvention, str] = 'MDH',
+                 parameter_convention: Union[ParameterConvention, str] = 'DH',
                  min_len: float = 0.,
                  max_len: float = 20.,
                  alpha_values: Tuple[float, ...] = (0, -torch.pi / 2, torch.pi / 2),
@@ -28,7 +35,7 @@ class ParameterGenerator(Iterator, ABC):
         """
         Initializes the problem generator.
 
-        :param batch_size: The batch size to use (number of problems to generate per call).
+        :param amount_parameters_to_generate: The batch size to use (number of problems to generate per call).
         :param num_joints: The number of joints of the robot.
         :param min_len: Limits the absolute value of the a, d parameters.
         :param max_len: Limits the absolute value of the a, d parameters.
@@ -36,10 +43,11 @@ class ParameterGenerator(Iterator, ABC):
         :param link_radius: The radius of the robot links, relevant to create collision-free goals.
         """
         super().__init__()
-        self.batch_size: int = batch_size
+        self.batch_size: int = amount_parameters_to_generate
         if device is None:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.device: str = device
+            self.device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+        else:
+            self.device: str = device
         print(f"Using {device} as device")
         self.tensor_type: torch.dtype = tensor_type
         self.alphas = alpha_values
@@ -79,7 +87,9 @@ class ParameterGenerator(Iterator, ABC):
         # Set d to zero as we are currently only interested in planar robots
         d = torch.zeros((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype)
 
-        return torch.cat([alpha, a, d], dim=-1)
+        theta = torch.zeros((self.batch_size, self.num_joints, 1), device=device).to(dtype=ttype)
+
+        return torch.cat([alpha, a, d, theta], dim=-1)
 
     def get_random_mdh_parameters(self) -> torch.Tensor:
         """
@@ -91,13 +101,15 @@ class ParameterGenerator(Iterator, ABC):
         # Set alpha to zero
         alpha = torch.zeros((self.batch_size, self.num_joints, 1), device=device).to(dtype=ttype)
 
-        # Randomly set some a to zero, but never for parallel joints
+        # Randomly set some 'a' to zero
         a = self.min_len + torch.rand((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype) * delta
 
         # Set d to zero as we are currently only interested in planar robots
         d = torch.zeros((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype)
 
-        return torch.cat([alpha, a, d], dim=-1)
+        theta = torch.zeros((self.batch_size, self.num_joints, 1), device=device).to(dtype=ttype)
+
+        return torch.cat([alpha, a, d, theta], dim=-1)
 
     def __call__(self, *args, **kwargs) -> T:
         """Implements the problem generation."""

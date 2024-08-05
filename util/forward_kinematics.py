@@ -5,7 +5,7 @@ from typing import Union
 
 import torch
 
-from transforms.batched import BatchTransform
+from util.batched import BatchTransform
 
 
 def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full: bool = False) -> BatchTransform:
@@ -39,3 +39,24 @@ def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full:
     if not full:
         return fk.eef
     return fk
+
+
+#Tests
+# dh_param = torch.tensor( [[[ 0.0000, 13.2026,  0.0000, -0.3302],
+#         [ 0.0000,  9.6462,  0.0000, -0.0560]],
+#
+#         [[ 0.0000, 13.,  0.0000, -0.0],
+#         [ 0.0000,  9.,  0.0000, -0.0]]
+#         ])
+# forward_kinematics_matrix = dh_conventions.dh_to_homogeneous(dh_param)
+#
+# expected_result = [21.4253, -7.9135]
+# fk_calc = forward_kinematics(forward_kinematics_matrix).get_matrix()
+# end_effector = fk_calc[..., :2, 3]
+# x, y = end_effector[0]
+# print(f"x: {x}, y: {y}")
+# x1, y1 = end_effector[1]
+# print(f"x: {x1}, y: {y1}")
+# print(fk_calc)
+
+
