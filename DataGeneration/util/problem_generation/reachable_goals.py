@@ -228,13 +228,3 @@ def get_training_data(goal_generator: GoalGenerator,
     parameters, poses, env = goal_generator(**kwargs)
     data = NetworkInput(goals=get_scalar_goals(poses, cfg.b, cfg.goals.goal_mode.value), env=env, step=step)
     return data, parameters
-
-
-def main():
-    MyGenerator = GoalGenerator(num_joints=2)
-    dh, fk,_= MyGenerator()
-    print(dh)
-    print(fk)
-
-main()
-

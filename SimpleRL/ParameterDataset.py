@@ -1,6 +1,5 @@
 import torch
 from torch.utils.data import Dataset
-from DataGeneration import DH_2L_Generator as dhGen
 from DataGeneration.ParameterGenerator import ParameterGenerator
 from random import *
 
@@ -12,8 +11,6 @@ class CustomParameterDataset(Dataset):
         generator = ParameterGenerator(amount_parameters_to_generate = length, device = device_to_use)
         self.dh_parameters = generator.get_random_dh_parameters()
         for i in range(length):
-            #dh_param = dhGen.generate_extended_planar_2_link_dh()
-            #self.dh_parameters.append(dh_param)
             goal = generate_achievable_goal(self.dh_parameters[i])
             self.goal.append(goal)
         # self.transform = transform
