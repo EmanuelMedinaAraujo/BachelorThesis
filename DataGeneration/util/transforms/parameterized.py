@@ -6,12 +6,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import partial
-from typing import Callable, Iterable, Tuple
+from typing import Callable, Tuple
 
 import numpy as np
 import torch
 
-from .batched import BatchTransform
+from util.batched import BatchTransform
 from .dh_conventions import dh_to_homogeneous, mdh_to_homogeneous, homogeneous_to_mdh, homogeneous_to_dh
 
 
