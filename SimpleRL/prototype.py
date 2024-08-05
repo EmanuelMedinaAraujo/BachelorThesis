@@ -10,6 +10,8 @@ from Util.forward_kinematics import forward_kinematics
 
 MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
 
+log_in_wandb = True
+
 learning_rate = 1e-3
 dataset_length = 10000
 batch_size = 64
@@ -23,11 +25,16 @@ device = (
 )
 # The tolerance in accuracy that is still regarded as correct
 tolerable_accuracy_error = 0.5
+
 max_accuracy = 0.0
 max_epoch = -1
-
-log_in_wandb = True
-
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
 
 class NeuralNetwork(nn.Module):
     def __init__(self):
@@ -147,8 +154,12 @@ def init_wandb():
         config={
             "learning_rate": learning_rate,
             "dataset": "Generated",
+            "dataset_length": dataset_length,
             "epochs": epochs,
-        }
+            "batch_size": batch_size,
+            "acc_error": tolerable_accuracy_error,
+        },
+        dir="WandBCache"
     )
 
 
