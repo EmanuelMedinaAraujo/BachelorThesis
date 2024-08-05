@@ -15,14 +15,7 @@ log_in_wandb = True
 learning_rate = 1e-3
 dataset_length = 10000
 batch_size = 64
-epochs = 70
-device = (
-    "cuda"
-    if torch.cuda.is_available()
-    else "mps"
-    if torch.backends.mps.is_available()
-    else "cpu"
-)
+epochs = 200
 # The tolerance in accuracy that is still regarded as correct
 tolerable_accuracy_error = 0.5
 
