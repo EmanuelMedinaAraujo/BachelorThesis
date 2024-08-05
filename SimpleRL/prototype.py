@@ -1,16 +1,19 @@
 import torch
+import wandb
+
 from torch import nn
 from torch.utils.data import DataLoader
 from SimpleRL.ParameterDataset import CustomParameterDataset
 from util import dh_conventions
 from util.forward_kinematics import forward_kinematics
 
+
 MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
 
 learning_rate = 1e-3
 dataset_length = 10000
 batch_size = 64
-epochs = 2
+epochs = 70
 device = (
     "cuda"
     if torch.cuda.is_available()
@@ -22,6 +25,9 @@ device = (
 tolerable_accuracy_error = 0.5
 max_accuracy = 0.0
 max_epoch = -1
+
+log_in_wandb = True
+
 
 class NeuralNetwork(nn.Module):
     def __init__(self):
@@ -93,6 +99,8 @@ def test_loop(dataloader, model, t):
     correct /= size
     accuracy = 100 * correct
     print(f"Test Error: \n Accuracy: {accuracy :>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    if log_in_wandb:
+        wandb.log({"acc": accuracy, "loss": test_loss})
     if accuracy > max_accuracy:
         max_accuracy = accuracy
         max_epoch = t
@@ -109,6 +117,9 @@ def loss_fn(param, pred, goal):
     return torch.square(eef_positions - goal).sum(dim=1).sqrt().mean()
 
 def train_model():
+    if log_in_wandb:
+        init_wandb()
+
     model = NeuralNetwork().to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     #model = torch.load(MODEL_SAVE_PATH)
@@ -121,6 +132,24 @@ def train_model():
     print("The max accuracy is in Epoch {} with the value {}".format(max_epoch + 1, max_accuracy))
     #torch.save(model, MODEL_SAVE_PATH)
 
+    if log_in_wandb:
+        wandb.finish()
     print("Done!")
+
+
+def init_wandb():
+    wandb.require("core")
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="bachelor-thesis-prototype-01",
+
+        # track hyperparameters and run metadata
+        config={
+            "learning_rate": learning_rate,
+            "dataset": "Generated",
+            "epochs": epochs,
+        }
+    )
+
 
 train_model()
