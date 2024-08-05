@@ -5,7 +5,7 @@ from typing import Union
 
 import torch
 
-from util.batched import BatchTransform
+from Util.batched import BatchTransform
 
 
 def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full: bool = False) -> BatchTransform:

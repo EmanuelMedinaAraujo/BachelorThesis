@@ -4,8 +4,8 @@ import wandb
 from torch import nn
 from torch.utils.data import DataLoader
 from SimpleRL.ParameterDataset import CustomParameterDataset
-from util import dh_conventions
-from util.forward_kinematics import forward_kinematics
+from Util import dh_conventions
+from Util.forward_kinematics import forward_kinematics
 
 
 MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"

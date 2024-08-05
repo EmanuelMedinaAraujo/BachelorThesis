@@ -11,7 +11,7 @@ from typing import Callable, Tuple
 import numpy as np
 import torch
 
-from util.batched import BatchTransform
+from Util.batched import BatchTransform
 from .dh_conventions import dh_to_homogeneous, mdh_to_homogeneous, homogeneous_to_mdh, homogeneous_to_dh
 
 
