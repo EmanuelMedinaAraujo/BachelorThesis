@@ -10,7 +10,7 @@ device = (
     else "cpu"
 )
 
-train_dataloader = DataLoader(CustomParameterDataset(length = 1, device_to_use=device), batch_size=64, shuffle=True)
+train_dataloader = DataLoader(CustomParameterDataset(length = 3, device_to_use=device), batch_size=64, shuffle=True)
 #test_dataloader = DataLoader(CustomParameterDataset(length = 1, device_to_use=device), batch_size=64, shuffle=True)
 
 # train_input, train_solution = next(iter(train_dataloader))
