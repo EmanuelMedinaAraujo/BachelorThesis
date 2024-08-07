@@ -7,7 +7,7 @@ FRAME_SIZE_SCALAR = 1.1
 DEFAULT_LINE_WIDTH = 1.5
 DEFAULT_LINE_TRANSPARENCY = 1.
 
-def visualize_planar_robot(dh_parameter, link_accuracy=None, standard_size=False, show_title=True):
+def visualize_planar_robot(dh_parameter, link_accuracy=None, goal=None, standard_size=False, show_title=True):
     if link_accuracy is None:
         # Create a tensor of length dh_parameter.shape[0] with DEFAULT_PROBABILITY as values
         link_accuracy = torch.full((dh_parameter.shape[0],), DEFAULT_LINE_TRANSPARENCY)
@@ -24,6 +24,9 @@ def visualize_planar_robot(dh_parameter, link_accuracy=None, standard_size=False
 
     if show_title :
         plt.title('Planar Robot')
+
+    if goal is not None:
+        ax.plot(goal[0], goal[1], '-x', label="Robot Goal")
 
     max_length = 0
     for i in range(dh_parameter.shape[0]):
@@ -73,23 +76,14 @@ def set_plot_limits(ax, max_length, standard_size):
 # DH Parameter of 2 Link Planar Robot (alpha, a, d, theta)
 # In the planar case only a and theta are relevant
 DH_EXAMPLES = torch.tensor([
-    [[0, 50, 0, np.pi/2],
-    [0, 10, 0, np.pi/2],
-    [0, 10, 0, 0]
-    ],
-
-    [[0, 50, 0, np.pi/4],
-    [0, 10, 0, np.pi/4],
-    [0, 10, 0, 0]
-    ],
-
-    [[0, 50, 0, np.pi/3],
-    [0, 10, 0, np.pi/3],
-    [0, 10, 0, 0]
+    [[0, 13.5994, 0, -4.8549],
+    [0, 18.755, 0, -2.336]
     ],
 ])
 # between 0 and 1
-accuracy= torch.tensor([0.3, 0.9, 0.5])
+#accuracy= torch.tensor([0.5, 0.3, 0.9])
+robot_goal = torch.tensor([13.4757,-1.3202])
 
 #visualize_planar_robot(DH_EXAMPLES)
-visualize_planar_robot(DH_EXAMPLES, accuracy)
+visualize_planar_robot(DH_EXAMPLES, goal=robot_goal)
+#visualize_planar_robot(DH_EXAMPLES, accuracy, robot_goal)
