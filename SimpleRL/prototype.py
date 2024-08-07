@@ -10,12 +10,12 @@ from Util.forward_kinematics import forward_kinematics
 
 MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
 
-log_in_wandb = True
+log_in_wandb = False
 
 learning_rate = 1e-3
 dataset_length = 10000
 batch_size = 64
-epochs = 200
+epochs = 50
 # The tolerance in accuracy that is still regarded as correct
 tolerable_accuracy_error = 0.5
 
@@ -29,14 +29,20 @@ device = (
     else "cpu"
 )
 
-class NeuralNetwork(nn.Module):
+class KinematicsNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(10, 8),
+            nn.Linear(10, 64),
             nn.ReLU(),
-            nn.Linear(8, 8),
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Linear(64, 8),
             nn.ReLU(),
             nn.Linear(8, 2),
         )
@@ -58,10 +64,12 @@ class NeuralNetwork(nn.Module):
 def train_loop(dataloader, model, optimizer):
     size = len(dataloader.dataset)
     model.train()
+    loss_ges = 0
     for batch, (param, goal) in enumerate(dataloader):
         param, goal = param.to(device), goal.to(device)
         pred = model((param, goal))
         loss = loss_fn(param, pred, goal)
+        loss_ges += loss
 
         optimizer.zero_grad()
         loss.backward()
@@ -70,6 +78,11 @@ def train_loop(dataloader, model, optimizer):
         if batch % 100 == 0:
             loss, current = loss.item(), batch * batch_size + len(param)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+
+    #if log_in_wandb:
+    #    wandb.log({"acc": accuracy, "loss": loss_ges/size})
+
+
 
 def test_loop(dataloader, model, t):
     global max_accuracy
@@ -120,8 +133,8 @@ def train_model():
     if log_in_wandb:
         init_wandb()
 
-    model = NeuralNetwork().to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    model = KinematicsNetwork().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     #model = torch.load(MODEL_SAVE_PATH)
     train_dataloader = DataLoader(CustomParameterDataset(length = dataset_length, device_to_use=device), batch_size, shuffle=True)
     test_dataloader = DataLoader(CustomParameterDataset(length = dataset_length,device_to_use=device), batch_size, shuffle=True)

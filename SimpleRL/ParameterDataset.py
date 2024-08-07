@@ -1,7 +1,11 @@
 import torch
 from torch.utils.data import Dataset
+from math import pi
+
+from Util import dh_conventions
 from DataGeneration.ParameterGenerator import ParameterGenerator
-from random import *
+from Util.forward_kinematics import forward_kinematics
+
 
 
 class CustomParameterDataset(Dataset):
@@ -11,7 +15,7 @@ class CustomParameterDataset(Dataset):
         generator = ParameterGenerator(amount_parameters_to_generate = length, device = device_to_use)
         self.dh_parameters = generator.get_random_dh_parameters()
         for i in range(length):
-            goal = generate_achievable_goal(self.dh_parameters[i])
+            goal = generate_achievable_goal(self.dh_parameters[i], device_to_use)
             self.goal.append(goal)
         # self.transform = transform
         # self.target_transform = target_transform
@@ -28,8 +32,17 @@ class CustomParameterDataset(Dataset):
         #     target = self.target_transform(target)
         return param, goal
 
-def generate_achievable_goal( dh_parameter: torch.Tensor):
+def generate_achievable_goal( dh_parameter: torch.Tensor, device_to_use):
+    # Create random theta values from -2Π top 2Π
+    theta_values = (-2*pi - 2*pi ) * torch.rand(dh_parameter.shape[0], 1) + 2*pi
+    theta_values=theta_values.to(device_to_use)
+
+    print(theta_values)
+
+    # Add theta values to parameter to obtain valid parameter
+    valid_parameter = torch.cat((dh_parameter, theta_values), dim=1).to(device_to_use)
+
+    fk = forward_kinematics(dh_conventions.dh_to_homogeneous(valid_parameter))
+
     # Sum of second column of DH parameters
-    arm_length = int(dh_parameter[:,1].sum().item())
-    random_reachable_length = randint(0, arm_length)
-    return torch.tensor([0, random_reachable_length],dtype=torch.float32)
+    return fk.get_matrix()[:2,3].to(device_to_use)

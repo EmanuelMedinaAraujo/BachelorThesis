@@ -17,8 +17,6 @@ class ParameterConvention(Enum):
     DH = 2  # Denavit-Hartenberg convention
 
 class ParameterGenerator(Iterator, ABC):
-    """Base class for problem generators."""
-
     T = torch.Tensor
 
     def __init__(self,
@@ -87,9 +85,7 @@ class ParameterGenerator(Iterator, ABC):
         # Set d to zero as we are currently only interested in planar robots
         d = torch.zeros((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype)
 
-        theta = torch.zeros((self.batch_size, self.num_joints, 1), device=device).to(dtype=ttype)
-
-        return torch.cat([alpha, a, d, theta], dim=-1)
+        return torch.cat([alpha, a, d], dim=-1)
 
     def get_random_mdh_parameters(self) -> torch.Tensor:
         """
@@ -107,9 +103,7 @@ class ParameterGenerator(Iterator, ABC):
         # Set d to zero as we are currently only interested in planar robots
         d = torch.zeros((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype)
 
-        theta = torch.zeros((self.batch_size, self.num_joints, 1), device=device).to(dtype=ttype)
-
-        return torch.cat([alpha, a, d, theta], dim=-1)
+        return torch.cat([alpha, a, d], dim=-1)
 
     def __call__(self, *args, **kwargs) -> T:
         """Implements the problem generation."""
