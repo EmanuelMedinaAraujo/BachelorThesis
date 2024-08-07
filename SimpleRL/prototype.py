@@ -29,12 +29,14 @@ device = (
     else "cpu"
 )
 
+num_joints = 2
+
 class KinematicsNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(10, 64),
+            nn.Linear(num_joints * 3 + 2, 64),
             nn.ReLU(),
             nn.Linear(64, 64),
             nn.ReLU(),
@@ -51,7 +53,6 @@ class KinematicsNetwork(nn.Module):
         param, goal = model_input
 
         # Flatten the param
-        # Expected output: flatten_param = torch.Size([64, 8]) and goal = torch.Size([64, 2])
         flatten_param = self.flatten(param)
 
         # Concatenate flatten_param and goal along the second dimension
@@ -98,11 +99,7 @@ def test_loop(dataloader, model, t):
             pred = model((param, goal))
             test_loss += loss_fn(param, pred, goal).item()
 
-            adapted_param = param.clone()
-            adapted_param[:, :, 3] = pred
-
-            fk = forward_kinematics(dh_conventions.dh_to_homogeneous(adapted_param))
-            eef_positions = fk.get_matrix()[..., :2, 3]
+            eef_positions = calculate_eef_positions(param, pred)
 
             distances = torch.square(eef_positions - goal).sum(dim=1).sqrt()
             # Increase correct for each value in distances that is less than 0.5
@@ -120,14 +117,21 @@ def test_loop(dataloader, model, t):
         #torch.save(model, MODEL_SAVE_PATH)
 
 def loss_fn(param, pred, goal):
-    dh_param = param.clone()
-    dh_param[:, :, 3] = pred
-
-    fk = forward_kinematics(dh_conventions.dh_to_homogeneous(dh_param))
-    eef_positions = fk.get_matrix()[..., :2, 3]
+    eef_positions = calculate_eef_positions(param, pred)
 
     # Calculate the mean distance between the eef position and the goal position
     return torch.square(eef_positions - goal).sum(dim=1).sqrt().mean()
+
+
+def calculate_eef_positions(param, pred):
+    dh_param = param.clone()
+    # Add a dimension to include theta values
+    pred = pred.unsqueeze(-1)
+    dh_param = torch.cat((dh_param, pred), dim=-1)
+    fk = forward_kinematics(dh_conventions.dh_to_homogeneous(dh_param))
+    eef_positions = fk.get_matrix()[..., :2, 3]
+    return eef_positions
+
 
 def train_model():
     if log_in_wandb:
@@ -136,8 +140,8 @@ def train_model():
     model = KinematicsNetwork().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     #model = torch.load(MODEL_SAVE_PATH)
-    train_dataloader = DataLoader(CustomParameterDataset(length = dataset_length, device_to_use=device), batch_size, shuffle=True)
-    test_dataloader = DataLoader(CustomParameterDataset(length = dataset_length,device_to_use=device), batch_size, shuffle=True)
+    train_dataloader = DataLoader(CustomParameterDataset(length = dataset_length, device_to_use=device, num_of_joints=num_joints), batch_size, shuffle=True)
+    test_dataloader = DataLoader(CustomParameterDataset(length = dataset_length,device_to_use=device, num_of_joints=num_joints), batch_size, shuffle=True)
     for t in range(epochs):
         print(f"Epoch {t+1}\n-------------------------------")
         train_loop(train_dataloader, model, optimizer)
