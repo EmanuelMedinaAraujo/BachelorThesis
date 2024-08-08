@@ -16,6 +16,7 @@ class CustomParameterDataset(Dataset):
                  max_len=20.):
         self.dh_parameters = []
         self.goal = []
+        self.length=length
         generator = ParameterGenerator(batch_size=length,
                                        device=device_to_use,
                                        tensor_type=tensor_type,
@@ -28,7 +29,7 @@ class CustomParameterDataset(Dataset):
         self.goal = generate_achievable_goal(self.dh_parameters, device_to_use)
 
     def __len__(self):
-        return len(self.dh_parameters)
+        return self.length
 
     def __getitem__(self, idx):
         return self.dh_parameters[idx], self.goal[idx]

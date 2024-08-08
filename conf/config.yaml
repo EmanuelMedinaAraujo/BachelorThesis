@@ -2,11 +2,11 @@ hyperparams:
   project_name: bachelor-thesis-prototype-01
   learning_rate: 1e-3
   batch_size: 64
-  epochs: 50
+  epochs: 200
   testing_interval: 5             # Number of epochs to be run after which a test run is performed
   dataset_length: 10000
   number_of_joints: 2
-  log_in_wandb: false
+  log_in_wandb: true
   tolerable_accuracy_error: 0.1   # The tolerance in accuracy that is still regarded as correct
   parameter_convention: DH
   min_link_length: 0.1

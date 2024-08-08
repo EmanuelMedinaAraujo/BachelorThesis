@@ -1,23 +1,31 @@
+import torch
+
 from SimpleRL.kinematics_network import loss_fn
+from Util.forward_kinematics import update_theta_values, calculate_distance
 
 
-def train_loop(dataloader, model, optimizer, batch_size, device):
-    size = len(dataloader.dataset)
+def train_loop(dataloader, model, optimizer, device, logger, epoch_num, error_tolerance):
     model.train()
-    loss_ges = 0
+    num_correct, loss_sum = 0, 0
+
     for batch, (param, goal) in enumerate(dataloader):
         param, goal = param.to(device), goal.to(device)
         pred = model((param, goal))
-        loss = loss_fn(param, pred, goal)
-        loss_ges += loss
+
+        # Update theta values with predictions
+        updated_param = update_theta_values(param, pred)
+
+        loss = loss_fn(param=updated_param, goal=goal)
+
+        distances = calculate_distance(param=updated_param, goal=goal)
+        loss_sum += distances.sum().item()
+        num_correct += (distances <= error_tolerance).sum().item()
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        if batch % 100 == 0:
-            loss, current = loss.item(), batch * batch_size + len(param)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
-
-    # if log_in_wandb:
-    #    wandb.log({"acc": accuracy, "loss": loss_ges/size})
+    dataset_size = len(dataloader.dataset)
+    # Increase num_correct for each value in distances that is less than 0.5
+    accuracy = (num_correct * 100/ dataset_size)
+    logger.log_training(loss=loss_sum/dataset_size, epoch_num=epoch_num, accuracy=accuracy)
