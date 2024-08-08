@@ -1,13 +1,9 @@
 import torch
 
-from Util.forward_kinematics import update_theta_values, calculate_eef_positions
-from SimpleRL.kinematics_network import loss_fn
+from Util.forward_kinematics import update_theta_values, calculate_distance
 
-
-def test_loop(dataloader, model, device, tolerable_accuracy_error):
+def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
     model.eval()
-    size = len(dataloader.dataset)
-    num_batches = len(dataloader)
     test_loss, num_correct = 0, 0
 
     with torch.no_grad():
@@ -15,19 +11,17 @@ def test_loop(dataloader, model, device, tolerable_accuracy_error):
             param, goal = param.to(device), goal.to(device)
 
             pred = model((param, goal))
-            test_loss += loss_fn(param, pred, goal).item()
 
-            eef_positions = calculate_eef_positions(update_theta_values(param, pred))
+            # Update theta values with predictions
+            updated_param = update_theta_values(parameters=param, new_theta_values=pred)
 
-            distances = torch.square(eef_positions - goal).sum(dim=1).sqrt()
+            distances = calculate_distance(param=updated_param, goal=goal)
+            test_loss += distances.sum().item()
 
             # Increase num_correct for each value in distances that is less than 0.5
             num_correct += (distances <= tolerable_accuracy_error).sum().item()
 
-    test_loss /= num_batches
-    num_correct /= size
-    accuracy = 100 * num_correct
-    print(f"Test Error: \n Accuracy: {accuracy :>0.1f}%, Avg loss: {test_loss:>8f} \n")
-    # if LOG_IN_WANDB:
-    #   wandb.log({"acc": accuracy, "loss": test_loss})
-    # torch.save(model, MODEL_SAVE_PATH)
+    dataset_size = len(dataloader.dataset)
+    test_loss /= dataset_size
+    accuracy =  (num_correct * 100 / dataset_size)
+    logger.log_test(accuracy=accuracy, loss=test_loss)

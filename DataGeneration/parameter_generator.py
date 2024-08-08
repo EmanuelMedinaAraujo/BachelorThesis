@@ -2,7 +2,7 @@ from abc import ABC
 from collections.abc import Iterator
 import torch
 from enum import Enum
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 
 # DH Parameter of 2 Link Planar Robot with extended arm (alpha, a, d, theta)
@@ -18,7 +18,6 @@ class ParameterConvention(Enum):
 
 
 class ParameterGenerator(Iterator, ABC):
-    T = torch.Tensor
 
     def __init__(self,
                  batch_size: int = 1,
@@ -101,6 +100,6 @@ class ParameterGenerator(Iterator, ABC):
 
         return torch.cat([alpha, a, d], dim=-1)
 
-    def __call__(self, *args, **kwargs) -> T:
+    def __call__(self, *args, **kwargs) -> torch.Tensor:
         """Implements the problem generation."""
         return self.get_random_parameters()

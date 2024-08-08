@@ -61,3 +61,9 @@ def update_theta_values(parameters, new_theta_values):
             f"Received parameter have unsupported dimension. Expected was 3 or 4 but was {parameter_dimension}")
 
     return updated_parameters
+
+def calculate_distance(param, goal):
+    eef_positions = calculate_eef_positions(param)
+    # Calculate the Euclidean distance between the eef position and the goal position
+    distances = torch.square(eef_positions - goal).sum(dim=1).sqrt()
+    return distances
