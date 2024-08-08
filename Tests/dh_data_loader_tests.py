@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
-from SimpleRL.ParameterDataset import CustomParameterDataset
+from SimpleRL.parameter_dataset import CustomParameterDataset
 
 device = (
     "cuda"

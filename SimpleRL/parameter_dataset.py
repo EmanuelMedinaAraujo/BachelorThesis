@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 from math import pi
 from Util import dh_conventions
-from DataGeneration.ParameterGenerator import ParameterGenerator
+from DataGeneration.parameter_generator import ParameterGenerator
 from Util.forward_kinematics import forward_kinematics
 
 
