@@ -11,6 +11,8 @@ DONE:
 - Test loop nicht für jeden train loop starten
     Variable einfügen in welchen intervallen ein Test gestartet werden soll
 	1000 mal evaluieren für 1000000 epochen
+- Hydra
+    https://hydra.cc/docs/intro/#basic-example
 
 TODO:
 - Mit Netzwerkgröße rumprobieren:
@@ -19,8 +21,6 @@ TODO:
 - Visualization every x Steps of same Problem
     - Regular (e.g. every 100 epochs)
 - Separate logging of test and train performance
-- Hydra
-    https://hydra.cc/docs/intro/#basic-example
 - Constraint für output implementieren (0-2PI)
 	softmax als letztes eingeben.
 		input -> input zwischen 0 & 1

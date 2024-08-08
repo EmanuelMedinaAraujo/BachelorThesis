@@ -34,6 +34,7 @@ class KinematicsNetwork(nn.Module):
         logits = self.linear_relu_stack(flatten_input)
         return logits
 
+
 def loss_fn(param, pred, goal):
     # Update theta values
     updated_param = update_theta_values(param, pred)

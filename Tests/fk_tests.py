@@ -2,12 +2,12 @@ import torch
 from Util.dh_conventions import dh_to_homogeneous
 from Util.forward_kinematics import forward_kinematics
 
-dh_param = torch.tensor( [[[ 0.0000, 13.2026,  0.0000, -0.3302],
-        [ 0.0000,  9.6462,  0.0000, -0.0560]],
+dh_param = torch.tensor([[[0.0000, 13.2026, 0.0000, -0.3302],
+                          [0.0000, 9.6462, 0.0000, -0.0560]],
 
-        [[ 0.0000, 13.,  0.0000, -0.0],
-        [ 0.0000,  9.,  0.0000, -0.0]]
-        ])
+                         [[0.0000, 13., 0.0000, -0.0],
+                          [0.0000, 9., 0.0000, -0.0]]
+                         ])
 forward_kinematics_matrix = dh_to_homogeneous(dh_param)
 
 expected_result = [21.4253, -7.9135]

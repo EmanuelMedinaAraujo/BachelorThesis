@@ -19,5 +19,5 @@ def train_loop(dataloader, model, optimizer, batch_size, device):
             loss, current = loss.item(), batch * batch_size + len(param)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-    #if log_in_wandb:
+    # if log_in_wandb:
     #    wandb.log({"acc": accuracy, "loss": loss_ges/size})
