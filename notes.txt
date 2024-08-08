@@ -1,31 +1,52 @@
+DONE:
+- Joint angles not necessary as network input
+- Data generation process should ensure the possibility of 100% accuracy
+    - Use of random theta values and then calculating the fk
+- Adam optimizer
+    TODO read paper
+- Eigenes files für folgendes erstellen:
+		train
+		test
+		Model
+- Test loop nicht für jeden train loop starten
+    Variable einfügen in welchen intervallen ein Test gestartet werden soll
+	1000 mal evaluieren für 1000000 epochen
+
 TODO:
-DONE - Start with DH parameters
-In Progress - Implementation of FK w. DH parameters
-Start with RL implementation based on the FK in the code
+- Mit Netzwerkgröße rumprobieren:
+    Min. 2 Layer, Max. 5 Layer
+    Hidden layer size: 32 - 512
+- Visualization every x Steps of same Problem
+    - Regular (e.g. every 100 epochs)
+- Separate logging of test and train performance
+- Hydra
+    https://hydra.cc/docs/intro/#basic-example
+- Constraint für output implementieren (0-2PI)
+	softmax als letztes eingeben.
+		input -> input zwischen 0 & 1
+			zu 0 und 2PI skalieren
+		Problem
+			0 == 2PI
+			Statt 1 Joint winkel. 2 Werte vorhersagen
+				Über arctan2 berechnen
+					Siehe Code von Jonathan
+						https://gitlab.lrz.de/cps-robotics/differentiable-kinematic-synthesis/-/blob/main/modules/ik_network.py?ref_type=heads#L60
+				doppelt so viele Outputs
+	prediction of angles using atan2
+- Doc für methoden schreiben
 
-Nächste Schritte:
-- Trainingsdaten generiern
-	https://gitlab.lrz.de/cps-robotics/differentiable-kinematic-synthesis/-/tree/main/transforms?ref_type=heads
-	https://gitlab.lrz.de/cps-robotics/differentiable-kinematic-synthesis/-/tree/main/robot?ref_type=heads
-- Erstes Modell erstellen
-	Actor critic (shc) benutzen
-	Simpler reward aus Abstand zwischen End-Effector und Ziel (linear)
-		Erstmal nur translatal	
-	Input:
-		Gewünschte end effector Position
-			Matrix mit Orientierung und Position
-		Beschreibung des Roboters
-			(Ignorieren von further constraints; zumindest nicht als Hauptpunkt)
-			DH Parameter benutzen
-				DH Parameters Explanation:
-					Traditional "Handbook of Robotics 2016"
-					Modified: "Craig, Introduction to Robotics"
-					Vollständige Beschreibung des Roboters, sodass durch Pattern 4 Variablen ausreichen um die drei Dimensionen und die drei Drehdimensionen zu beschreiben für jeden Joint
-					2 translationen und 2 Winkel 
-				2 Verschiedene Notationsarten verwenden (traditonal(handbook) und modifizierten(Craig))
-				
-			Mit DH Parameter Daten erzeugen
 
+--------------------------------------------------------------------------------------
+Theoretical notes:
+Neural Network Tradeoff:
+Size vs. Difficulty of Training
+
+ADAM Optimizer
+    https://arxiv.org/abs/1412.6980
+
+Nicht erreichbare Goals erst für Evaluierung Interessant
+
+--------------------------------------------------------------------------------------
 Latex Tipps:
 
 Bibliography (settings.tex)

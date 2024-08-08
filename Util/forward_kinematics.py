@@ -2,10 +2,9 @@
 # Author: Jonathan Külz
 # Date: 19.06.24
 from typing import Union
-
 import torch
-
 from Util.batched import BatchTransform
+from Util.dh_conventions import dh_to_homogeneous
 
 
 def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full: bool = False) -> BatchTransform:
@@ -40,23 +39,24 @@ def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full:
         return fk.eef
     return fk
 
+def calculate_eef_positions(dh_param):
+    fk = forward_kinematics(dh_to_homogeneous(dh_param))
+    eef_positions = fk.get_matrix()[..., :2, 3]
+    return eef_positions
 
-#Tests
-# dh_param = torch.tensor( [[[ 0.0000, 13.2026,  0.0000, -0.3302],
-#         [ 0.0000,  9.6462,  0.0000, -0.0560]],
-#
-#         [[ 0.0000, 13.,  0.0000, -0.0],
-#         [ 0.0000,  9.,  0.0000, -0.0]]
-#         ])
-# forward_kinematics_matrix = dh_conventions.dh_to_homogeneous(dh_param)
-#
-# expected_result = [21.4253, -7.9135]
-# fk_calc = forward_kinematics(forward_kinematics_matrix).get_matrix()
-# end_effector = fk_calc[..., :2, 3]
-# x, y = end_effector[0]
-# print(f"x: {x}, y: {y}")
-# x1, y1 = end_effector[1]
-# print(f"x: {x1}, y: {y1}")
-# print(fk_calc)
+def update_theta_values(parameters, new_theta_values):
+    parameter_dimension = parameters.shape[2]
+    dh_parameter = parameters.clone()
+    if parameter_dimension == 4:
+        dh_parameter[:, :, 3] = new_theta_values
+    elif parameter_dimension == 3:
+        # Add a dimension to include theta values
+        new_theta_values = new_theta_values.unsqueeze(-1)
+        dh_parameter = torch.cat((parameters, new_theta_values), dim=-1)
+    else:
+        raise Exception(f"Received parameter have unsupported dimension. Expected was 3 or 4 but was {parameter_dimension}")
+    return dh_parameter
+
+
 
 
