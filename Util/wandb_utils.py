@@ -1,10 +1,11 @@
 import wandb
 
-def init_wandb(learning_rate, dataset_length, epochs, batch_size, tolerable_accuracy_error):
+
+def init_wandb(learning_rate, dataset_length, epochs, batch_size, tolerable_accuracy_error, project_name):
     wandb.require("core")
     wandb.init(
         # set the wandb project where this run will be logged
-        project="bachelor-thesis-prototype-01",
+        project=project_name,
 
         # track hyperparameters and run metadata
         config={
@@ -14,7 +15,5 @@ def init_wandb(learning_rate, dataset_length, epochs, batch_size, tolerable_accu
             "epochs": epochs,
             "batch_size": batch_size,
             "acc_error": tolerable_accuracy_error,
-        },
-        dir="WandBCache"
+        }
     )
-

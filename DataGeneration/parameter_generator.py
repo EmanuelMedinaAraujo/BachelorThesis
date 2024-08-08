@@ -16,43 +16,39 @@ class ParameterConvention(Enum):
     MDH = 1  # Modified Denavit-Hartenberg convention after Craig
     DH = 2  # Denavit-Hartenberg convention
 
+
 class ParameterGenerator(Iterator, ABC):
     T = torch.Tensor
 
     def __init__(self,
-                 amount_parameters_to_generate: int = 1,
+                 batch_size: int = 1,
                  device: Optional[str] = None,
                  tensor_type: torch.dtype = torch.float32,
                  num_joints: int = 2,
                  parameter_convention: Union[ParameterConvention, str] = 'DH',
-                 min_len: float = 0.,
+                 min_len: float = 0.1,
                  max_len: float = 20.,
-                 alpha_values: Tuple[float, ...] = (0, -torch.pi / 2, torch.pi / 2),
-                 link_radius: float = 0.1,
                  ):
         """
         Initializes the problem generator.
 
-        :param amount_parameters_to_generate: The batch size to use (number of problems to generate per call).
+        :param batch_size: The batch size to use (number of problems to generate per call).
+        :param device: the device to use for torch tensors
         :param num_joints: The number of joints of the robot.
+        :param parameter_convention: Either 'DH' or 'MDH'.
         :param min_len: Limits the absolute value of the a, d parameters.
         :param max_len: Limits the absolute value of the a, d parameters.
-        :param alpha_values: A set of possible values for the alpha DH parameter to take on
-        :param link_radius: The radius of the robot links, relevant to create collision-free goals.
         """
         super().__init__()
-        self.batch_size: int = amount_parameters_to_generate
+        self.batch_size: int = batch_size
         if device is None:
             self.device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
         else:
             self.device: str = device
-        print(f"Using {device} as device")
         self.tensor_type: torch.dtype = tensor_type
-        self.alphas = alpha_values
         if not isinstance(parameter_convention, ParameterConvention):
             parameter_convention = ParameterConvention[parameter_convention.upper()]
         self.convention = parameter_convention
-        self.link_radius: float = link_radius
         self.num_joints: int = num_joints
         self.min_len: float = min_len
         self.max_len: float = max_len
@@ -71,7 +67,7 @@ class ParameterGenerator(Iterator, ABC):
 
     def get_random_dh_parameters(self) -> torch.Tensor:
         """
-        Generates (b x num_joints x 3) random DH parameters for alpha, a, d, theta.
+        Generates (b x num_joints x 3) random DH parameters for alpha, a, d.
         """
         delta = self.max_len - self.min_len
         ttype, device = self.tensor_type, self.device

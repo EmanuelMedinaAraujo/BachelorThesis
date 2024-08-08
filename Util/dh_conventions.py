@@ -23,6 +23,7 @@ def dh_to_homogeneous(dh_parameters: torch.Tensor) -> torch.Tensor:
                     dim=-1)
     ], dim=-2)
 
+
 def mdh_to_homogeneous(mdh_parameters: torch.Tensor) -> torch.Tensor:
     """
     Converts a set of MDH parameters to a homogeneous transformation matrix.

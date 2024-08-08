@@ -39,24 +39,25 @@ def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full:
         return fk.eef
     return fk
 
+
 def calculate_eef_positions(dh_param):
     fk = forward_kinematics(dh_to_homogeneous(dh_param))
     eef_positions = fk.get_matrix()[..., :2, 3]
     return eef_positions
 
+
 def update_theta_values(parameters, new_theta_values):
     parameter_dimension = parameters.shape[2]
-    dh_parameter = parameters.clone()
+    updated_parameters = parameters.clone()
+
     if parameter_dimension == 4:
-        dh_parameter[:, :, 3] = new_theta_values
+        updated_parameters[:, :, 3] = new_theta_values
     elif parameter_dimension == 3:
         # Add a dimension to include theta values
         new_theta_values = new_theta_values.unsqueeze(-1)
-        dh_parameter = torch.cat((parameters, new_theta_values), dim=-1)
+        updated_parameters = torch.cat((parameters, new_theta_values), dim=-1)
     else:
-        raise Exception(f"Received parameter have unsupported dimension. Expected was 3 or 4 but was {parameter_dimension}")
-    return dh_parameter
+        raise Exception(
+            f"Received parameter have unsupported dimension. Expected was 3 or 4 but was {parameter_dimension}")
 
-
-
-
+    return updated_parameters
