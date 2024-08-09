@@ -14,13 +14,13 @@ DONE:
 - Hydra
     https://hydra.cc/docs/intro/#basic-example
 - Separate logging of test and train performance
+- Visualization every x Steps of same Problem
+    - Regular (e.g. every 100 epochs)
 
 TODO:
 - Mit Netzwerkgröße rumprobieren:
     Min. 2 Layer, Max. 5 Layer
     Hidden layer size: 32 - 512
-- Visualization every x Steps of same Problem
-    - Regular (e.g. every 100 epochs)
 - Constraint für output implementieren (0-2PI)
 	softmax als letztes eingeben.
 		input -> input zwischen 0 & 1
