@@ -1,20 +1,32 @@
 hyperparams:
   project_name: bachelor-thesis-prototype-01
+
+  # Model architecture
+  num_layer: 5
+  layer_sizes: [64, 512, 256, 64]
+
+  # Model learning parameter
   learning_rate: 1e-3
+  dataset_length: 10000
   batch_size: 128
   epochs: 10
+
   testing_interval: 10             # Number of epochs to be run after which a test run is performed
-  dataset_length: 10000
+
+  # Problem Generation Parameter
   number_of_joints: 2
-  log_in_wandb: false
-  log_in_console: true
   tolerable_accuracy_error: 0.5   # The tolerance in accuracy that is still regarded as correct
   parameter_convention: DH
   min_link_length: 1.
   max_link_length: 20.
+
+  #Logging
+  log_in_wandb: false
+  log_in_console: false
+
   visualization:
     do_visualization: false
-    interval: 10
+    interval: 5
     default_line_transparency: 1.
     frame_size_scalar: 1.1
     default_line_width: 1.5
@@ -23,4 +35,4 @@ hyperparams:
     save_to_file: false
     show_plot: true
     show_joint_label: false
-    plot_all_in_one: true
+    plot_all_in_one: false

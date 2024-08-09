@@ -54,7 +54,7 @@ def train_and_test_model(cfg: DictConfig):
 
     hyperparams = cfg.hyperparams
 
-    model = KinematicsNetwork(hyperparams.number_of_joints).to(device)
+    model = KinematicsNetwork(num_joints=hyperparams.number_of_joints, num_layer=hyperparams.num_layer, layer_sizes=hyperparams.layer_sizes).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams.learning_rate)
 
     # model = torch.load(MODEL_SAVE_PATH)
