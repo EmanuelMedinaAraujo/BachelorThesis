@@ -3,6 +3,7 @@ import hydra
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 
+from Util.forward_kinematics import update_theta_values
 from Visualization.planar_robot_vis import visualize_planar_robot
 
 from Logging.loggger import Logger, log_used_device
@@ -15,7 +16,8 @@ MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
 
 
 def visualize_problem(model, param, goal, default_line_transparency, frame_size_scalar, default_line_width, device,
-                      use_color_per_robot, standard_size, save_to_file, show_plot, show_joint_label):
+                      use_color_per_robot, standard_size, save_to_file, show_plot, show_joint_label, param_history,
+                      plot_all_in_one):
     model.eval()
 
     with torch.no_grad():
@@ -24,10 +26,14 @@ def visualize_problem(model, param, goal, default_line_transparency, frame_size_
         # Add a dimension to include theta values
         new_theta_values = pred[0].unsqueeze(-1)
         updated_param = torch.cat((param[0], new_theta_values), dim=-1)
+        param_history.append(updated_param)
 
-        visualize_planar_robot(parameter=updated_param, goal=goal[0], device=device, standard_size=standard_size,
+        tensor_to_pass = updated_param if not plot_all_in_one else torch.stack(param_history, dim=0)
+
+        visualize_planar_robot(parameter=tensor_to_pass, goal=goal[0], device=device, standard_size=standard_size,
                                save_to_file=save_to_file,
-                               default_line_transparency=default_line_transparency, frame_size_scalar=frame_size_scalar,
+                               default_line_transparency=default_line_transparency,
+                               frame_size_scalar=frame_size_scalar,
                                default_line_width=default_line_width, use_color_per_robot=use_color_per_robot,
                                show_plot=show_plot, show_joint_label=show_joint_label)
 
@@ -68,6 +74,7 @@ def train_and_test_model(cfg: DictConfig):
     logger = Logger(dataset_length=hyperparams.dataset_length, log_in_wandb=hyperparams.log_in_wandb, cfg=cfg)
 
     visualization_param, visualization_goal = next(iter(test_dataloader))
+    vis_param = []
 
     for epoch_num in range(hyperparams.epochs):
         train_loop(dataloader=train_dataloader,
@@ -86,6 +93,7 @@ def train_and_test_model(cfg: DictConfig):
         vis_params = hyperparams.visualization
         if vis_params.do_visualization and epoch_num % vis_params.interval == 0:
             visualize_problem(model=model, device=device, param=visualization_param, goal=visualization_goal,
+                              param_history=vis_param,
                               default_line_transparency=vis_params.default_line_transparency,
                               frame_size_scalar=vis_params.frame_size_scalar,
                               default_line_width=vis_params.default_line_width,
@@ -93,7 +101,8 @@ def train_and_test_model(cfg: DictConfig):
                               standard_size=vis_params.standard_size,
                               save_to_file=vis_params.save_to_file,
                               show_plot=vis_params.show_plot,
-                              show_joint_label=vis_params.show_joint_label)
+                              show_joint_label=vis_params.show_joint_label,
+                              plot_all_in_one=vis_params.plot_all_in_one)
 
     # torch.save(model, MODEL_SAVE_PATH)
     print("Done!")

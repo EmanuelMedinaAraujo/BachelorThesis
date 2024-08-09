@@ -22,10 +22,8 @@ DONE:
     - Regular (e.g. every 100 epochs)
 - Constraint für output implementieren (0-2PI)
 	softmax als letztes eingeben.
-		input -> input zwischen 0 & 1
-			zu 0 und 2PI skalieren
-		Problem
-			0 == 2PI
+		input -> input zwischen 0 & 1 zu 0 und 2PI skalieren
+		Problem: 0 == 2PI
 			Statt 1 Joint winkel. 2 Werte vorhersagen
 				Über arctan2 berechnen
 					Siehe Code von Jonathan
@@ -38,6 +36,7 @@ TODO:
     Min. 2 Layer, Max. 5 Layer
     Hidden layer size: 32 - 512
 - Doc für methoden schreiben
+- Debug Visualisierung in einen Graphen anzeigen lassen
 
 
 --------------------------------------------------------------------------------------
