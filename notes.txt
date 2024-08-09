@@ -3,12 +3,9 @@ Frage:
 
 DONE:
 - tqdm debuggen
+- Netzwerkarchitektur in hydra exportieren
 
 TODO:
-- Mit Netzwerkgröße rumprobieren:
-    Min. 2 Layer, Max. 5 Layer
-    Hidden layer size: 32 - 512
-- Netzwerkarchitektur in hydra exportieren
 - In Debug Visualiesierung farbverlauf benutzen anstatt bunte farben
 
 - Reinforcement Learning implementieren
