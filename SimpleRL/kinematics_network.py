@@ -11,13 +11,11 @@ class KinematicsNetwork(nn.Module):
         self.linear_relu_stack = nn.Sequential(
             nn.Linear(num_joints * 3 + 2, 64),
             nn.ReLU(),
-            nn.Linear(64, 128),
+            nn.Linear(64, 512),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(512, 128),
             nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 8),
+            nn.Linear(128, 8),
             nn.ReLU(),
             nn.Linear(8, 2),
         )

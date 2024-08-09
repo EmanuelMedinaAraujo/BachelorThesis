@@ -1,5 +1,3 @@
-import torch
-
 from SimpleRL.kinematics_network import loss_fn
 from Util.forward_kinematics import update_theta_values, calculate_distance
 
