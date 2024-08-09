@@ -1,3 +1,7 @@
+Frage:
+	Richtig softmax benutzt?
+	Wie kennzeichne ich, dass Teile von repo abgeleitet wurden?
+
 DONE:
 - Joint angles not necessary as network input
 - Data generation process should ensure the possibility of 100% accuracy
@@ -16,11 +20,6 @@ DONE:
 - Separate logging of test and train performance
 - Visualization every x Steps of same Problem
     - Regular (e.g. every 100 epochs)
-
-TODO:
-- Mit Netzwerkgröße rumprobieren:
-    Min. 2 Layer, Max. 5 Layer
-    Hidden layer size: 32 - 512
 - Constraint für output implementieren (0-2PI)
 	softmax als letztes eingeben.
 		input -> input zwischen 0 & 1
@@ -33,6 +32,11 @@ TODO:
 						https://gitlab.lrz.de/cps-robotics/differentiable-kinematic-synthesis/-/blob/main/modules/ik_network.py?ref_type=heads#L60
 				doppelt so viele Outputs
 	prediction of angles using atan2
+
+TODO:
+- Mit Netzwerkgröße rumprobieren:
+    Min. 2 Layer, Max. 5 Layer
+    Hidden layer size: 32 - 512
 - Doc für methoden schreiben
 
 
