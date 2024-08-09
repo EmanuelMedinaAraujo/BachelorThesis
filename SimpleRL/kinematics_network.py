@@ -17,7 +17,7 @@ class KinematicsNetwork(nn.Module):
             nn.Linear(512, 256),
             nn.ReLU(),
             nn.Linear(256, 64),
-            nn.Softmax(dim=1),
+            nn.ReLU(),
             nn.Linear(64, num_joints*2)
         )
 

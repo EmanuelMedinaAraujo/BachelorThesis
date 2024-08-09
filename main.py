@@ -1,5 +1,8 @@
+import sys
+
 import torch
 import hydra
+from tqdm import tqdm
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 
@@ -71,12 +74,12 @@ def train_and_test_model(cfg: DictConfig):
                                                         max_len=hyperparams.max_link_length),
                                  hyperparams.batch_size, shuffle=True)
 
-    logger = Logger(dataset_length=hyperparams.dataset_length, log_in_wandb=hyperparams.log_in_wandb, cfg=cfg)
+    logger = Logger(dataset_length=hyperparams.dataset_length, log_in_wandb=hyperparams.log_in_wandb, log_in_console=hyperparams.log_in_console, cfg=cfg)
 
     visualization_param, visualization_goal = next(iter(test_dataloader))
     vis_param = []
 
-    for epoch_num in range(hyperparams.epochs):
+    for epoch_num in tqdm(range(hyperparams.epochs), colour='green', ncols=80, file=sys.stdout):
         train_loop(dataloader=train_dataloader,
                    model=model,
                    optimizer=optimizer,
@@ -105,7 +108,7 @@ def train_and_test_model(cfg: DictConfig):
                               plot_all_in_one=vis_params.plot_all_in_one)
 
     # torch.save(model, MODEL_SAVE_PATH)
-    print("Done!")
+    tqdm.write("Done!")
 
 
 if __name__ == "__main__":

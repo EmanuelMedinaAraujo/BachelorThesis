@@ -1,43 +1,26 @@
 Frage:
-	Richtig softmax benutzt?
 	Wie kennzeichne ich, dass Teile von repo abgeleitet wurden?
 
 DONE:
-- Joint angles not necessary as network input
-- Data generation process should ensure the possibility of 100% accuracy
-    - Use of random theta values and then calculating the fk
-- Adam optimizer
-    TODO read paper
-- Eigenes files für folgendes erstellen:
-		train
-		test
-		Model
-- Test loop nicht für jeden train loop starten
-    Variable einfügen in welchen intervallen ein Test gestartet werden soll
-	1000 mal evaluieren für 1000000 epochen
-- Hydra
-    https://hydra.cc/docs/intro/#basic-example
-- Separate logging of test and train performance
-- Visualization every x Steps of same Problem
-    - Regular (e.g. every 100 epochs)
-- Constraint für output implementieren (0-2PI)
-	softmax als letztes eingeben.
-		input -> input zwischen 0 & 1 zu 0 und 2PI skalieren
-		Problem: 0 == 2PI
-			Statt 1 Joint winkel. 2 Werte vorhersagen
-				Über arctan2 berechnen
-					Siehe Code von Jonathan
-						https://gitlab.lrz.de/cps-robotics/differentiable-kinematic-synthesis/-/blob/main/modules/ik_network.py?ref_type=heads#L60
-				doppelt so viele Outputs
-	prediction of angles using atan2
+- tqdm debuggen
 
 TODO:
 - Mit Netzwerkgröße rumprobieren:
     Min. 2 Layer, Max. 5 Layer
     Hidden layer size: 32 - 512
-- Doc für methoden schreiben
-- Debug Visualisierung in einen Graphen anzeigen lassen
+- Netzwerkarchitektur in hydra exportieren
+- In Debug Visualiesierung farbverlauf benutzen anstatt bunte farben
 
+- Reinforcement Learning implementieren
+    - PPO
+        (Über config entscheiden können ob PPO oder Analytisch verwendet soll)
+        (stablebaseline3; policy=mlpPolicy)
+	    reward (float detach())
+	    in learn() callback parameter verwenden um wandb zu loggen
+- Doc für methoden schreiben
+
+- Read Adam optimizer Paper
+- Read PPO optimizer Paper
 
 --------------------------------------------------------------------------------------
 Theoretical notes:
