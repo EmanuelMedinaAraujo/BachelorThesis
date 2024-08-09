@@ -18,13 +18,13 @@ class Logger:
             init_wandb(cfg)
 
     def log_training(self, loss , epoch_num: int, accuracy):
-        print(f"Epoch {epoch_num + 1}:\tAccuracy: {accuracy:>0.1f}%, Mean loss: {loss:>7f}")
+        print(f"Epoch {epoch_num + 1}:\tAccuracy: {accuracy:>0.2f}%, Mean loss: {loss:>7f}")
         if self.log_in_wandb:
             wandb.log({"train/acc": accuracy, "train/loss": loss})
             return
 
     def log_test(self, accuracy, loss):
-        print(f"Test Error: \n Accuracy: {accuracy :>0.1f}%, Avg loss: {loss:>8f} \n")
+        print(f"Test Error: \n Accuracy: {accuracy :>0.2f}%, Avg loss: {loss:>8f} \n")
         if self.log_in_wandb:
             wandb.log({"test/acc": accuracy, "test/loss": loss})
 

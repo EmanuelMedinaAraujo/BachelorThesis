@@ -1,15 +1,15 @@
 hyperparams:
   project_name: bachelor-thesis-prototype-01
   learning_rate: 1e-3
-  batch_size: 64
+  batch_size: 128
   epochs: 50
-  testing_interval: 25             # Number of epochs to be run after which a test run is performed
+  testing_interval: 5             # Number of epochs to be run after which a test run is performed
   dataset_length: 10000
   number_of_joints: 2
   log_in_wandb: false
-  tolerable_accuracy_error: 0.01   # The tolerance in accuracy that is still regarded as correct
+  tolerable_accuracy_error: 0.1   # The tolerance in accuracy that is still regarded as correct
   parameter_convention: DH
-  min_link_length: 0.1
+  min_link_length: 1.
   max_link_length: 20.
   visualization:
     do_visualization: true
@@ -22,3 +22,4 @@ hyperparams:
     save_to_file: false
     show_plot: true
     show_joint_label: true
+    plot_all_in_one: true
