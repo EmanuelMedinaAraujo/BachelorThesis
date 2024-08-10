@@ -3,10 +3,13 @@ Frage:
 
 DONE:
 - tqdm debuggen
+    Der Balken wird in std.err geprintet was dann zu synchronisierungsproblemen im run output führt
+    -> Auf std.out ausgeben löst das Problem
 - Netzwerkarchitektur in hydra exportieren
+- In Debug Visualiesierung farbverlauf benutzen anstatt bunte farben
+
 
 TODO:
-- In Debug Visualiesierung farbverlauf benutzen anstatt bunte farben
 
 - Reinforcement Learning implementieren
     - PPO
