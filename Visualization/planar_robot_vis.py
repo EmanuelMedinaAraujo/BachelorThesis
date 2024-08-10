@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar, device='cpu',
+def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar,
+                           use_gradual_transparency=False, device='cpu',
                            use_color_per_robot=False, goal=None, link_accuracy=None, standard_size=False,
                            save_to_file=False, show_joint_label=True, show_plot=True, robot_label_note=""):
     multiple_robots = len(parameter.size()) == 3
@@ -38,9 +39,13 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         # Multiple Robots arm were given as parameter
         for i in range(parameter.shape[0]):
             # Plot the planar robot
-            arm_length = plot_planar_robot(ax, parameter[i], link_accuracy[i].item(), default_line_width,
-                                           use_color_per_robot, robot_num=i + 1, show_joint_label=show_joint_label,
-                                           robot_label_note=robot_label_note)
+            arm_length = plot_planar_robot(ax=ax, parameter=parameter[i], link_accuracy=link_accuracy[i].item(),
+                                           default_line_width=default_line_width,
+                                           use_color_per_robot=use_color_per_robot,
+                                           robot_num=(i + 1, parameter.shape[0]),
+                                           show_joint_label=show_joint_label,
+                                           robot_label_note=robot_label_note,
+                                           use_gradual_transparency=use_gradual_transparency)
             max_length = max(arm_length, max_length)
     else:
         # One Robot arm was given as parameter
@@ -61,7 +66,8 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         plt.show()
 
 
-def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_color_per_robot=False, robot_num=1,
+def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_gradual_transparency=False,
+                      use_color_per_robot=False, robot_num=(1, 1),
                       show_joint_label=True, robot_label_note=""):
     start_coordinates = np.array([0, 0])
     max_length = 0.0
@@ -78,13 +84,19 @@ def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_colo
         end_coordinates = start_coordinates + np.array(
             [link_length * math.cos(total_angle), link_length * math.sin(total_angle)])
 
+
+        transparency = link_accuracy
+        if use_gradual_transparency:
+            transparency_steps = 0.9 / robot_num[1]
+            transparency = 0.1 + transparency_steps * robot_num[0]
+
         # Plot link
         link_line, = ax.plot([start_coordinates[0], end_coordinates[0]], [start_coordinates[1], end_coordinates[1]],
-                             color=color if use_color_per_robot else 'r', lw=default_line_width, alpha=link_accuracy)
+                             color=color if use_color_per_robot else 'r', lw=default_line_width, alpha=transparency)
         if color is None:
             color = link_line.get_color()
 
-            link_line.set_label(f"Robot Arm {robot_num} " + robot_label_note)
+            link_line.set_label(f"Robot Arm {robot_num[0]} " + robot_label_note)
         joint_label = f'$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}' if show_joint_label else None
         ax.plot(start_coordinates[0], start_coordinates[1], '-o', label=joint_label)
         start_coordinates = end_coordinates

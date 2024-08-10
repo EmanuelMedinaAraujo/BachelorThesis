@@ -20,7 +20,7 @@ MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
 
 def visualize_problem(model, param, goal, default_line_transparency, frame_size_scalar, default_line_width, device,
                       use_color_per_robot, standard_size, save_to_file, show_plot, show_joint_label, param_history,
-                      plot_all_in_one):
+                      plot_all_in_one, use_gradual_transparency):
     model.eval()
 
     with torch.no_grad():
@@ -38,6 +38,7 @@ def visualize_problem(model, param, goal, default_line_transparency, frame_size_
                                default_line_transparency=default_line_transparency,
                                frame_size_scalar=frame_size_scalar,
                                default_line_width=default_line_width, use_color_per_robot=use_color_per_robot,
+                               use_gradual_transparency=use_gradual_transparency,
                                show_plot=show_plot, show_joint_label=show_joint_label)
 
 
@@ -101,6 +102,7 @@ def train_and_test_model(cfg: DictConfig):
                               frame_size_scalar=vis_params.frame_size_scalar,
                               default_line_width=vis_params.default_line_width,
                               use_color_per_robot=vis_params.use_color_per_robot,
+                              use_gradual_transparency=vis_params.use_gradual_transparency,
                               standard_size=vis_params.standard_size,
                               save_to_file=vis_params.save_to_file,
                               show_plot=vis_params.show_plot,

@@ -25,14 +25,15 @@ hyperparams:
   log_in_console: false
 
   visualization:
-    do_visualization: false
-    interval: 5
+    do_visualization: true
+    interval: 2
     default_line_transparency: 1.
     frame_size_scalar: 1.1
     default_line_width: 1.5
-    use_color_per_robot: true
+    use_color_per_robot: false
+    use_gradual_transparency: true
     standard_size: true
     save_to_file: false
     show_plot: true
     show_joint_label: false
-    plot_all_in_one: false
+    plot_all_in_one: true
