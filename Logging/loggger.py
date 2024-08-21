@@ -1,25 +1,36 @@
 import wandb
-from tqdm.gui import tqdm
 from omegaconf import DictConfig, OmegaConf
+from tqdm.gui import tqdm
 
-
-def log_used_device(device):
-    tqdm.write(f"Using {device} as device")
 
 class Logger:
+    """
+    A class responsible for logging the process of model training and testing in the console and in wandb.
+    For logging in the console tqdm is used.
+    """
 
-    def __init__(self, dataset_length, log_in_wandb=False, cfg: DictConfig = None,
+    def __init__(self, log_in_wandb=False, cfg: DictConfig = None,
                  log_in_console=False):
+        """
+        Initializes the logger.
+
+        :param log_in_wandb: If True, the logger will log to wandb.
+        :param cfg: The configuration that will be used by wandb to track the hyperparameters and run metadata.
+        :param log_in_console: If True, the logger will log to the console using tqdm.
+        """
         self.log_in_wandb = log_in_wandb
         self.log_in_console = log_in_console
-        self.dataset_length = dataset_length
 
         if self.log_in_wandb:
             if cfg is None:
                 raise RuntimeError("Could not read the configuration correctly")
             init_wandb(cfg)
 
-    def log_training(self, loss , epoch_num: int, accuracy):
+    @staticmethod
+    def log_used_device(device):
+        tqdm.write(f"Using {device} as device")
+
+    def log_training(self, loss, epoch_num: int, accuracy):
         if self.log_in_console:
             tqdm.write(f"Epoch {epoch_num + 1}: Accuracy: {accuracy:>0.2f}%, Mean loss: {loss:>7f}")
         if self.log_in_wandb:
@@ -38,7 +49,6 @@ def init_wandb(cfg: DictConfig):
     wandb.init(
         # set the wandb project where this run will be logged
         project=cfg.hyperparams.project_name,
-
         # track hyperparameters and run metadata
         config=OmegaConf.to_container(cfg)
     )

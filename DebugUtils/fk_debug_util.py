@@ -1,6 +1,11 @@
 import torch
+
 from Util.dh_conventions import dh_to_homogeneous
 from Util.forward_kinematics import forward_kinematics
+
+"""
+This script is used to rapidly debug the forward kinematics function.
+"""
 
 dh_param = torch.tensor([[[0.0000, 13.2026, 0.0000, -0.3302],
                           [0.0000, 9.6462, 0.0000, -0.0560]],

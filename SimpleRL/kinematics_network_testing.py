@@ -1,9 +1,26 @@
 import torch
 
-from Util.forward_kinematics import update_theta_values, calculate_distance
+from Util.forward_kinematics import update_theta_values, calculate_distances
 
 
 def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
+    """
+    Tests the model on the given dataloader and logs the accuracy and loss with the given logger.
+
+    The accuracy is calculated by counting the number of correct predictions. A prediction is considered correct if the
+    distance between the predicted end effector position and the goal is less than the tolerable_accuracy_error.
+
+    The loss is calculated as the sum of the distances between the predicted end effector position and the goal
+    divided by the dataset_size.
+
+    Args:
+        dataloader: DataLoader object containing the test data
+        model: The Kinematics Network
+        device: The device used for torch operations
+        tolerable_accuracy_error: The maximum distance between the predicted end effector position and the goal
+                                         that is considered as a correct prediction
+        logger: The logger object used for logging
+    """
     model.eval()
     test_loss, num_correct = 0, 0
 
@@ -13,14 +30,13 @@ def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
 
             pred = model((param, goal))
 
-            # Update theta values with predictions
+            # Update theta values with predictions from model
             updated_param = update_theta_values(parameters=param, new_theta_values=pred)
 
-            distances = calculate_distance(param=updated_param, goal=goal)
+            distances = calculate_distances(param=updated_param, goal=goal)
             test_loss += distances.sum().item()
-
-            # Increase num_correct for each value in distances that is less than tolerable_accuracy_error
-            num_correct += torch.ge(distances, tolerable_accuracy_error).int().sum().item()
+            # Increase num_correct for each distance that is less than the tolerable_accuracy_error
+            num_correct += torch.le(distances, tolerable_accuracy_error).int().sum().item()
 
     dataset_size = len(dataloader.dataset)
     test_loss /= dataset_size
