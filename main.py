@@ -6,17 +6,20 @@ from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from AnalyticalRL.kinematics_network import KinematicsNetwork
+from AnalyticalRL.kinematics_network_testing import test_loop
+from AnalyticalRL.kinematics_network_training import train_loop
+from AnalyticalRL.parameter_dataset import CustomParameterDataset
 from Logging.loggger import Logger
-from SimpleRL.kinematics_network import KinematicsNetwork
-from SimpleRL.kinematics_network_testing import test_loop
-from SimpleRL.kinematics_network_training import train_loop
-from SimpleRL.parameter_dataset import CustomParameterDataset
 from Visualization.planar_robot_vis import visualize_planar_robot
 
 
 def visualize_problem(model, param, goal, default_line_transparency, frame_size_scalar, default_line_width, device,
                       use_color_per_robot, standard_size, save_to_file, show_plot, show_joint_label, param_history,
                       plot_all_in_one, use_gradual_transparency):
+    """
+    Visualize a single robot arm with the given parameters and goal.
+    """
     model.eval()
 
     with torch.no_grad():
@@ -40,6 +43,9 @@ def visualize_problem(model, param, goal, default_line_transparency, frame_size_
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def train_and_test_model(cfg: DictConfig):
+    """
+    Train and test the model with the given hydra configuration.
+    """
     device = (
         "cuda"
         if torch.cuda.is_available()
@@ -90,6 +96,7 @@ def train_and_test_model(cfg: DictConfig):
                       logger=logger,
                       tolerable_accuracy_error=hyperparams.tolerable_accuracy_error)
         vis_params = hyperparams.visualization
+        # Visualize the same problem every interval epochs
         if vis_params.do_visualization and epoch_num % vis_params.interval == 0:
             visualize_problem(model=model, device=device, param=visualization_param, goal=visualization_goal,
                               param_history=vis_param,

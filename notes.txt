@@ -9,7 +9,7 @@ DONE:
     -> Auf std.out ausgeben löst das Problem
 - Netzwerkarchitektur in hydra exportieren
 - In Debug Visualiesierung farbverlauf benutzen anstatt bunte farben
-
+- Doc für methoden schreiben
 
 TODO:
 
@@ -19,7 +19,6 @@ TODO:
         (stablebaseline3; policy=mlpPolicy)
 	    reward (float detach())
 	    in learn() callback parameter verwenden um wandb zu loggen
-- Doc für methoden schreiben
 
 - Read Adam optimizer Paper
 - Read PPO optimizer Paper
