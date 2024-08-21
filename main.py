@@ -6,7 +6,7 @@ from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from Logging.loggger import Logger, log_used_device
+from Logging.loggger import Logger
 from SimpleRL.kinematics_network import KinematicsNetwork
 from SimpleRL.kinematics_network_testing import test_loop
 from SimpleRL.kinematics_network_training import train_loop
@@ -47,9 +47,11 @@ def train_and_test_model(cfg: DictConfig):
         if torch.backends.mps.is_available()
         else "cpu"
     )
-    log_used_device(device=device)
-
     hyperparams = cfg.hyperparams
+    logger = Logger(log_in_wandb=hyperparams.log_in_wandb,
+                    log_in_console=hyperparams.log_in_console, cfg=cfg)
+
+    logger.log_used_device(device=device)
 
     model = KinematicsNetwork(num_joints=hyperparams.number_of_joints, num_layer=hyperparams.num_layer,
                               layer_sizes=hyperparams.layer_sizes).to(device)
@@ -59,19 +61,16 @@ def train_and_test_model(cfg: DictConfig):
                                                          device_to_use=device,
                                                          num_of_joints=hyperparams.number_of_joints,
                                                          parameter_convention=hyperparams.parameter_convention,
-                                                         min_len=hyperparams.min_link_length,
-                                                         max_len=hyperparams.max_link_length),
+                                                         min_link_len=hyperparams.min_link_length,
+                                                         max_link_len=hyperparams.max_link_length),
                                   hyperparams.batch_size, shuffle=True)
     test_dataloader = DataLoader(CustomParameterDataset(length=hyperparams.dataset_length,
                                                         device_to_use=device,
                                                         num_of_joints=hyperparams.number_of_joints,
                                                         parameter_convention=hyperparams.parameter_convention,
-                                                        min_len=hyperparams.min_link_length,
-                                                        max_len=hyperparams.max_link_length),
+                                                        min_link_len=hyperparams.min_link_length,
+                                                        max_link_len=hyperparams.max_link_length),
                                  hyperparams.batch_size, shuffle=True)
-
-    logger = Logger(dataset_length=hyperparams.dataset_length, log_in_wandb=hyperparams.log_in_wandb,
-                    log_in_console=hyperparams.log_in_console, cfg=cfg)
 
     visualization_param, visualization_goal = next(iter(test_dataloader))
     vis_param = []

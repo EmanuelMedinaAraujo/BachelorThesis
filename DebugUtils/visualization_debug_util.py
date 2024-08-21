@@ -1,5 +1,10 @@
 import torch
+
 from Visualization.planar_robot_vis import visualize_planar_robot
+
+"""
+This script is used to rapidly debug the visualization of the planar robot with various options. 
+"""
 
 # DH Parameter of 2 Link Planar Robot (alpha, a, d, theta)
 # In the planar case only a and theta are relevant

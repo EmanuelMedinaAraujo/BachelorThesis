@@ -1,5 +1,7 @@
 Frage:
 	Wie kennzeichne ich, dass Teile von repo abgeleitet wurden?
+	    z.B. batched.py
+	Brauch ich Copyright Header?
 
 DONE:
 - tqdm debuggen

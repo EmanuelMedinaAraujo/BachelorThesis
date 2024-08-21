@@ -1,14 +1,32 @@
 import math
 
-import torch
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 
 def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar,
                            use_gradual_transparency=False, device='cpu',
                            use_color_per_robot=False, goal=None, link_accuracy=None, standard_size=False,
                            save_to_file=False, show_joint_label=True, show_plot=True, robot_label_note=""):
+    """
+    Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
+    Args:
+        parameter: The parameters of the robot arm(s).
+        default_line_transparency: The default transparency of the robot arm links.
+        default_line_width: The default line width of the robot arm links.
+        frame_size_scalar: The scalar to multiply the frame size with.
+        use_gradual_transparency: If True, the transparency of the robot arm links will be gradually increased.
+        device: The device to use for torch operations.
+        use_color_per_robot: If True, the robot arm links will be colored based on the robot number.
+        goal: The goal of the robot arm(s).
+        link_accuracy: The transparency of the robot arm links. If None, the default_line_transparency will be used.
+        standard_size: If True, the plot size will be set to the maximum theoretical length of the robot arm.
+        save_to_file: If True, the plot will be saved to a file.
+        show_joint_label: If True, the joint labels will be shown in the legend.
+        show_plot: If True, a plot will be opened
+        robot_label_note: A string to add to each robot label.
+    """
     multiple_robots = len(parameter.size()) == 3
     if link_accuracy is None:
         if multiple_robots:
@@ -69,6 +87,20 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
 def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_gradual_transparency=False,
                       use_color_per_robot=False, robot_num=(1, 1),
                       show_joint_label=True, robot_label_note=""):
+    """
+    Plot a planar robot arm based on the given parameters.
+    Args:
+        ax: The axis to plot the robot arm on.
+        parameter: The parameters of the robot arm. The parameters are expected to be in the format
+            [alpha, a, d, theta] with alpha and d being 0.
+        link_accuracy: The transparency of the robot arm links.
+        default_line_width: The default line width of the robot arm links.
+        use_gradual_transparency: If True, the transparency of the robot arm links will be gradually increased.
+        use_color_per_robot: If True, the robot arm links will be colored based on the robot number.
+        robot_num: The number of the robot arm and the total number of robot arms.
+        show_joint_label: If True, the joint labels will be shown in the legend
+        robot_label_note: A string to add to the robot label.
+    """
     start_coordinates = np.array([0, 0])
     max_length = 0.0
     total_angle = 0.0
@@ -83,7 +115,6 @@ def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_grad
 
         end_coordinates = start_coordinates + np.array(
             [link_length * math.cos(total_angle), link_length * math.sin(total_angle)])
-
 
         transparency = link_accuracy
         if use_gradual_transparency:
@@ -104,6 +135,11 @@ def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_grad
 
 
 def set_plot_limits(ax, max_length, standard_size, frame_size_scalar):
+    """
+    Set the plot limits for the given axis. The limits are set based on the length of the robot arm.
+    If standard_size is True, the limits are set to the maximum theoretical length of the robot arm.
+    If standard_size is False, the limits are set in a way that only the robot arm is visible.
+    """
     if standard_size:
         # Ensure that the entire robot is visible by setting the limits as the maximum length of the robot
         # Show the same size for every arm position

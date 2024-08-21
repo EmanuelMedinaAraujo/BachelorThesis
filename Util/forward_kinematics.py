@@ -2,7 +2,9 @@
 # Author: Jonathan Külz
 # Date: 19.06.24
 from typing import Union
+
 import torch
+
 from Util.batched import BatchTransform
 from Util.dh_conventions import dh_to_homogeneous
 
@@ -40,17 +42,28 @@ def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full:
     return fk
 
 
-def calculate_eef_positions(dh_param):
-    fk = forward_kinematics(dh_to_homogeneous(dh_param))
+def calculate_eef_positions(parameters):
+    """
+    Calculate the end effector positions of a robot arm given the parameters.
+    To calculate the end effector positions, the forward kinematics is used.
+    Supports batched input.
+    """
+    fk = forward_kinematics(dh_to_homogeneous(parameters))
     eef_positions = fk.get_matrix()[..., :2, 3]
     return eef_positions
 
 
 def update_theta_values(parameters, new_theta_values):
+    """
+    Update the theta values of the parameters with the new theta values.
+    Supports batched input.
+    Supports parameters with theta values and without theta values.
+    """
     parameter_dimension = parameters.shape[2]
     updated_parameters = parameters.clone()
 
     if parameter_dimension == 4:
+        # Update the theta values
         updated_parameters[:, :, 3] = new_theta_values
     elif parameter_dimension == 3:
         # Add a dimension to include theta values
@@ -62,7 +75,12 @@ def update_theta_values(parameters, new_theta_values):
 
     return updated_parameters
 
-def calculate_distance(param, goal):
+
+def calculate_distances(param, goal):
+    """
+    Calculate the Euclidean distance between the end effector position and the goal position.
+    Supports batched input.
+    """
     eef_positions = calculate_eef_positions(param)
     # Calculate the Euclidean distance between the eef position and the goal position
     distances = torch.square(eef_positions - goal).sum(dim=1).sqrt()
