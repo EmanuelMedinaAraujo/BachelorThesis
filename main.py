@@ -1,21 +1,17 @@
 import sys
 
-import torch
 import hydra
-from tqdm import tqdm
+import torch
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
-
-from Util.forward_kinematics import update_theta_values
-from Visualization.planar_robot_vis import visualize_planar_robot
+from tqdm import tqdm
 
 from Logging.loggger import Logger, log_used_device
+from SimpleRL.kinematics_network import KinematicsNetwork
 from SimpleRL.kinematics_network_testing import test_loop
 from SimpleRL.kinematics_network_training import train_loop
 from SimpleRL.parameter_dataset import CustomParameterDataset
-from SimpleRL.kinematics_network import KinematicsNetwork
-
-MODEL_SAVE_PATH = "ModelSaves/model_prototype1.pth"
+from Visualization.planar_robot_vis import visualize_planar_robot
 
 
 def visualize_problem(model, param, goal, default_line_transparency, frame_size_scalar, default_line_width, device,
@@ -55,10 +51,9 @@ def train_and_test_model(cfg: DictConfig):
 
     hyperparams = cfg.hyperparams
 
-    model = KinematicsNetwork(num_joints=hyperparams.number_of_joints, num_layer=hyperparams.num_layer, layer_sizes=hyperparams.layer_sizes).to(device)
+    model = KinematicsNetwork(num_joints=hyperparams.number_of_joints, num_layer=hyperparams.num_layer,
+                              layer_sizes=hyperparams.layer_sizes).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams.learning_rate)
-
-    # model = torch.load(MODEL_SAVE_PATH)
 
     train_dataloader = DataLoader(CustomParameterDataset(length=hyperparams.dataset_length,
                                                          device_to_use=device,
@@ -75,7 +70,8 @@ def train_and_test_model(cfg: DictConfig):
                                                         max_len=hyperparams.max_link_length),
                                  hyperparams.batch_size, shuffle=True)
 
-    logger = Logger(dataset_length=hyperparams.dataset_length, log_in_wandb=hyperparams.log_in_wandb, log_in_console=hyperparams.log_in_console, cfg=cfg)
+    logger = Logger(dataset_length=hyperparams.dataset_length, log_in_wandb=hyperparams.log_in_wandb,
+                    log_in_console=hyperparams.log_in_console, cfg=cfg)
 
     visualization_param, visualization_goal = next(iter(test_dataloader))
     vis_param = []
@@ -108,8 +104,6 @@ def train_and_test_model(cfg: DictConfig):
                               show_plot=vis_params.show_plot,
                               show_joint_label=vis_params.show_joint_label,
                               plot_all_in_one=vis_params.plot_all_in_one)
-
-    # torch.save(model, MODEL_SAVE_PATH)
     tqdm.write("Done!")
 
 

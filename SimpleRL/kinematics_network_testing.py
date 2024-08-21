@@ -2,6 +2,7 @@ import torch
 
 from Util.forward_kinematics import update_theta_values, calculate_distance
 
+
 def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
     model.eval()
     test_loss, num_correct = 0, 0
@@ -18,10 +19,10 @@ def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
             distances = calculate_distance(param=updated_param, goal=goal)
             test_loss += distances.sum().item()
 
-            # Increase num_correct for each value in distances that is less than 0.5
-            num_correct += (distances <= tolerable_accuracy_error).sum().item()
+            # Increase num_correct for each value in distances that is less than tolerable_accuracy_error
+            num_correct += torch.ge(distances, tolerable_accuracy_error).int().sum().item()
 
     dataset_size = len(dataloader.dataset)
     test_loss /= dataset_size
-    accuracy =  (num_correct * 100 / dataset_size)
+    accuracy = (num_correct * 100 / dataset_size)
     logger.log_test(accuracy=accuracy, loss=test_loss)

@@ -1,3 +1,5 @@
+import torch
+
 from SimpleRL.kinematics_network import loss_fn
 from Util.forward_kinematics import update_theta_values, calculate_distance
 
@@ -17,7 +19,7 @@ def train_loop(dataloader, model, optimizer, device, logger, epoch_num, error_to
 
         distances = calculate_distance(param=updated_param, goal=goal)
         loss_sum += distances.sum().item()
-        num_correct += (distances <= error_tolerance).sum().item()
+        num_correct += torch.ge(distances, error_tolerance).int().sum().item()
 
         optimizer.zero_grad()
         loss.backward()
@@ -25,5 +27,5 @@ def train_loop(dataloader, model, optimizer, device, logger, epoch_num, error_to
 
     dataset_size = len(dataloader.dataset)
     # Increase num_correct for each value in distances that is less than 0.5
-    accuracy = (num_correct * 100/ dataset_size)
-    logger.log_training(loss=loss_sum/dataset_size, epoch_num=epoch_num, accuracy=accuracy)
+    accuracy = (num_correct * 100 / dataset_size)
+    logger.log_training(loss=loss_sum / dataset_size, epoch_num=epoch_num, accuracy=accuracy)

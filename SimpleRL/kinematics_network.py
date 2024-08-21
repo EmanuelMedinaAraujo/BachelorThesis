@@ -1,6 +1,5 @@
 from torch import nn
 import torch
-from torch.nn.functional import linear
 
 from Util.forward_kinematics import calculate_distance
 
