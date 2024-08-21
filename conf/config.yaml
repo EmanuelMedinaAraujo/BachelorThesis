@@ -3,7 +3,7 @@ hyperparams:
 
   # Model architecture
   num_layer: 5
-  layer_sizes: [64, 512, 256, 64]
+  layer_sizes: [ 64, 512, 256, 64 ]
 
   # Model learning parameter
   learning_rate: 1e-3
@@ -25,7 +25,7 @@ hyperparams:
   log_in_console: false
 
   visualization:
-    do_visualization: true
+    do_visualization: false
     interval: 2
     default_line_transparency: 1.
     frame_size_scalar: 1.1
