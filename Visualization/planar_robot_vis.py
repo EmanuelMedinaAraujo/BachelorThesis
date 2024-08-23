@@ -120,6 +120,8 @@ def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_grad
         if use_gradual_transparency:
             transparency_steps = 0.9 / robot_num[1]
             transparency = 0.1 + transparency_steps * robot_num[0]
+            if transparency > 1:
+                transparency = 1
 
         # Plot link
         link_line, = ax.plot([start_coordinates[0], end_coordinates[0]], [start_coordinates[1], end_coordinates[1]],
