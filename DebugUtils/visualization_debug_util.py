@@ -31,7 +31,7 @@ frame_size_scalar = 1.1
 default_line_width = 1.5
 
 # visualize_planar_robot(DH_EXAMPLES)
-visualize_planar_robot(DH_EXAMPLES, default_line_transparency=default_line_transparency,
+visualize_planar_robot(DH_EXAMPLE, default_line_transparency=default_line_transparency,
                        default_line_width=default_line_width, frame_size_scalar=frame_size_scalar,
                        use_gradual_transparency=True, goal=robot_goal)
 # visualize_planar_robot(DH_EXAMPLES, accuracy, robot_goal)

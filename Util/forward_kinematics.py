@@ -3,6 +3,7 @@
 # Date: 19.06.24
 from typing import Union
 
+import numpy as np
 import torch
 
 from Util.batched import BatchTransform
@@ -53,14 +54,17 @@ def calculate_eef_positions(parameters):
     return eef_positions
 
 
-def update_theta_values(parameters, new_theta_values):
+def update_theta_values(parameters, new_theta_values: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
     """
     Update the theta values of the parameters with the new theta values.
     Supports batched input.
     Supports parameters with theta values and without theta values.
     """
-    parameter_dimension = parameters.shape[2]
+    parameter_dimension = parameters.shape[2] if len(parameters.shape) == 3 else parameters.shape[1]
     updated_parameters = parameters.clone()
+
+    if isinstance(new_theta_values, np.ndarray):
+        new_theta_values = torch.tensor(new_theta_values).to(parameters.device)
 
     if parameter_dimension == 4:
         # Update the theta values
@@ -76,12 +80,16 @@ def update_theta_values(parameters, new_theta_values):
     return updated_parameters
 
 
-def calculate_distances(param, goal):
+def calculate_distances(param, goal: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
     """
     Calculate the Euclidean distance between the end effector position and the goal position.
     Supports batched input.
     """
     eef_positions = calculate_eef_positions(param)
+    if isinstance(goal, np.ndarray):
+        goal = torch.tensor(goal).to(param.device)
     # Calculate the Euclidean distance between the eef position and the goal position
-    distances = torch.square(eef_positions - goal).sum(dim=1).sqrt()
+    squared_distances = torch.square(eef_positions - goal)
+    sum_dim = 1 if len(squared_distances.shape) == 2 else 0
+    distances = squared_distances.sum(dim=sum_dim).sqrt()
     return distances

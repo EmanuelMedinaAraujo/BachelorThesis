@@ -3,42 +3,57 @@ import sys
 import hydra
 import torch
 from omegaconf import DictConfig
+from stable_baselines3 import PPO
+from stable_baselines3.common.env_util import make_vec_env
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from wandb.integration.sb3 import WandbCallback
 
 from AnalyticalRL.kinematics_network import KinematicsNetwork
 from AnalyticalRL.kinematics_network_testing import test_loop
 from AnalyticalRL.kinematics_network_training import train_loop
 from AnalyticalRL.parameter_dataset import CustomParameterDataset
 from Logging.loggger import Logger
+from PPO.kinematics_environment import KinematicsEnvironment
+from PPO.logger_callback import LoggerCallback
 from Visualization.planar_robot_vis import visualize_planar_robot
 
 
-def visualize_problem(model, param, goal, default_line_transparency, frame_size_scalar, default_line_width, device,
-                      use_color_per_robot, standard_size, save_to_file, show_plot, show_joint_label, param_history,
-                      plot_all_in_one, use_gradual_transparency):
+def visualize_problem(model, param, goal, device, param_history, hyperparams):
     """
     Visualize a single robot arm with the given parameters and goal.
     """
-    model.eval()
+    if not hyperparams.use_stable_baselines3:
+        model.eval()
 
     with torch.no_grad():
-        pred = model((param, goal))
+        if hyperparams.use_stable_baselines3:
+            kin_env = KinematicsEnvironment(device=device, parameter=param, goal_coordinates=goal,
+                                            num_joints=hyperparams.number_of_joints)
+            env = make_vec_env(lambda: kin_env, n_envs=1)
+            obs = env.reset()
+            pred, _ = model.predict(obs)
+            pred = torch.tensor(pred).to(device)
+        else:
+            pred = model((param, goal))
 
         # Add a dimension to include theta values
         new_theta_values = pred[0].unsqueeze(-1)
         updated_param = torch.cat((param[0], new_theta_values), dim=-1)
         param_history.append(updated_param)
 
-        tensor_to_pass = updated_param if not plot_all_in_one else torch.stack(param_history, dim=0)
+        vis_params = hyperparams.visualization
+        tensor_to_pass = updated_param if not vis_params.plot_all_in_one else torch.stack(param_history, dim=0)
 
-        visualize_planar_robot(parameter=tensor_to_pass, goal=goal[0], device=device, standard_size=standard_size,
-                               save_to_file=save_to_file,
-                               default_line_transparency=default_line_transparency,
-                               frame_size_scalar=frame_size_scalar,
-                               default_line_width=default_line_width, use_color_per_robot=use_color_per_robot,
-                               use_gradual_transparency=use_gradual_transparency,
-                               show_plot=show_plot, show_joint_label=show_joint_label)
+        visualize_planar_robot(parameter=tensor_to_pass, goal=goal[0], device=device,
+                               standard_size=vis_params.standard_size,
+                               save_to_file=vis_params.save_to_file,
+                               default_line_transparency=vis_params.default_line_transparency,
+                               frame_size_scalar=vis_params.frame_size_scalar,
+                               default_line_width=vis_params.default_line_width,
+                               use_color_per_robot=vis_params.use_color_per_robot,
+                               use_gradual_transparency=vis_params.use_gradual_transparency,
+                               show_plot=vis_params.show_plot, show_joint_label=vis_params.show_joint_label)
 
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
@@ -59,10 +74,6 @@ def train_and_test_model(cfg: DictConfig):
 
     logger.log_used_device(device=device)
 
-    model = KinematicsNetwork(num_joints=hyperparams.number_of_joints, num_layer=hyperparams.num_layer,
-                              layer_sizes=hyperparams.layer_sizes).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams.learning_rate)
-
     train_dataloader = DataLoader(CustomParameterDataset(length=hyperparams.dataset_length,
                                                          device_to_use=device,
                                                          num_of_joints=hyperparams.number_of_joints,
@@ -79,8 +90,44 @@ def train_and_test_model(cfg: DictConfig):
                                  hyperparams.batch_size, shuffle=True)
 
     visualization_param, visualization_goal = next(iter(test_dataloader))
-    vis_param = []
+    visualization_history = []
 
+    if hyperparams.use_stable_baselines3:
+        do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, visualization_history,
+                                      visualization_goal, visualization_param)
+    else:
+        do_analytical_learning(device, hyperparams, logger, test_dataloader, train_dataloader, visualization_history,
+                               visualization_goal, visualization_param)
+    tqdm.write("Done!")
+
+
+def do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, visualization_history,
+                                  visualization_goal, visualization_param):
+    env = make_vec_env(lambda: make_environment(device, train_dataloader, hyperparams.number_of_joints),
+                       n_envs=2)
+    # Define the model
+    model = PPO(policy=hyperparams.policy, env=env, batch_size=hyperparams.batch_size,
+                learning_rate=hyperparams.learning_rate, n_epochs=hyperparams.epochs,
+                n_steps=1028, verbose=2)
+
+    # Train the model
+    logger_callback = LoggerCallback(logger=logger, visualization_history=visualization_history,
+                                     goal_to_vis=visualization_goal, param_to_vis=visualization_param, verbose=2,
+                                     hyperparams=hyperparams, visualization_call=visualize_problem, device=device)
+
+    if hyperparams.log_in_wandb:
+        model.learn(total_timesteps=1,
+                    callback=WandbCallback, progress_bar=True)
+    else:
+        model.learn(total_timesteps=1, callback=logger_callback,
+                    progress_bar=True)
+
+
+def do_analytical_learning(device, hyperparams, logger, test_dataloader, train_dataloader, visualization_history,
+                           visualization_goal, visualization_param):
+    model = KinematicsNetwork(num_joints=hyperparams.number_of_joints, num_layer=hyperparams.num_layer,
+                              layer_sizes=hyperparams.layer_sizes).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams.learning_rate)
     for epoch_num in tqdm(range(hyperparams.epochs), colour='green', ncols=80, file=sys.stdout):
         train_loop(dataloader=train_dataloader,
                    model=model,
@@ -99,18 +146,13 @@ def train_and_test_model(cfg: DictConfig):
         # Visualize the same problem every interval epochs
         if vis_params.do_visualization and epoch_num % vis_params.interval == 0:
             visualize_problem(model=model, device=device, param=visualization_param, goal=visualization_goal,
-                              param_history=vis_param,
-                              default_line_transparency=vis_params.default_line_transparency,
-                              frame_size_scalar=vis_params.frame_size_scalar,
-                              default_line_width=vis_params.default_line_width,
-                              use_color_per_robot=vis_params.use_color_per_robot,
-                              use_gradual_transparency=vis_params.use_gradual_transparency,
-                              standard_size=vis_params.standard_size,
-                              save_to_file=vis_params.save_to_file,
-                              show_plot=vis_params.show_plot,
-                              show_joint_label=vis_params.show_joint_label,
-                              plot_all_in_one=vis_params.plot_all_in_one)
-    tqdm.write("Done!")
+                              param_history=visualization_history,
+                              hyperparams=hyperparams)
+
+
+def make_environment(device, dataloader, num_joints):
+    parameters, goals = next(iter(dataloader))
+    return KinematicsEnvironment(device, parameters[0], goal_coordinates=goals[0], num_joints=num_joints)
 
 
 if __name__ == "__main__":
