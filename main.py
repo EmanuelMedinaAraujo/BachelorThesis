@@ -7,7 +7,6 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from wandb.integration.sb3 import WandbCallback
 
 from AnalyticalRL.kinematics_network import KinematicsNetwork
 from AnalyticalRL.kinematics_network_testing import test_loop
@@ -104,23 +103,20 @@ def train_and_test_model(cfg: DictConfig):
 def do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, visualization_history,
                                   visualization_goal, visualization_param):
     env = make_vec_env(lambda: make_environment(device, train_dataloader, hyperparams.number_of_joints),
-                       n_envs=2)
+                       n_envs=hyperparams.n_envs)
     # Define the model
     model = PPO(policy=hyperparams.policy, env=env, batch_size=hyperparams.batch_size,
                 learning_rate=hyperparams.learning_rate, n_epochs=hyperparams.epochs,
-                n_steps=1028, verbose=2)
+                n_steps=hyperparams.n_steps, verbose=hyperparams.log_verbosity)
 
     # Train the model
     logger_callback = LoggerCallback(logger=logger, visualization_history=visualization_history,
-                                     goal_to_vis=visualization_goal, param_to_vis=visualization_param, verbose=2,
+                                     goal_to_vis=visualization_goal, param_to_vis=visualization_param,
+                                     verbose=hyperparams.log_verbosity,
                                      hyperparams=hyperparams, visualization_call=visualize_problem, device=device)
 
-    if hyperparams.log_in_wandb:
-        model.learn(total_timesteps=1,
-                    callback=WandbCallback, progress_bar=True)
-    else:
-        model.learn(total_timesteps=1, callback=logger_callback,
-                    progress_bar=True)
+    model.learn(total_timesteps=hyperparams.total_timesteps, callback=logger_callback,
+                progress_bar=True)
 
 
 def do_analytical_learning(device, hyperparams, logger, test_dataloader, train_dataloader, visualization_history,
