@@ -1,27 +1,11 @@
 Frage:
-	Wie kennzeichne ich, dass Teile von repo abgeleitet wurden?
-	    z.B. batched.py
-	Brauch ich Copyright Header?
 
 DONE:
-- tqdm debuggen
-    Der Balken wird in std.err geprintet was dann zu synchronisierungsproblemen im run output führt
-    -> Auf std.out ausgeben löst das Problem
-- Netzwerkarchitektur in hydra exportieren
-- In Debug Visualiesierung farbverlauf benutzen anstatt bunte farben
-- Doc für methoden schreiben
 
 TODO:
-
-- Reinforcement Learning implementieren
-    - PPO
-        (Über config entscheiden können ob PPO oder Analytisch verwendet soll)
-        (stablebaseline3; policy=mlpPolicy)
-	    reward (float detach())
-	    in learn() callback parameter verwenden um wandb zu loggen
+- reread PPO optimizer Paper
 
 - Read Adam optimizer Paper
-- Read PPO optimizer Paper
 
 --------------------------------------------------------------------------------------
 Theoretical notes:
