@@ -3,8 +3,8 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.env_util import make_vec_env
 
+from Logging.logger_callback import LoggerCallback
 from PPO.kinematics_environment import KinematicsEnvironment
-from PPO.logger_callback import LoggerCallback
 from Util.forward_kinematics import calculate_distances, update_theta_values
 
 DH_EXAMPLE = torch.tensor(
@@ -21,7 +21,8 @@ device = (
 )
 solution = torch.tensor([-4.8549, -2.336])
 robot_goal = torch.tensor([13.4757, -1.3202])
-kin_env = KinematicsEnvironment(device, DH_EXAMPLE, goal_coordinates=robot_goal, num_joints=2)
+
+kin_env = KinematicsEnvironment(device, dataloader=[(DH_EXAMPLE, robot_goal)], num_joints=2)
 check_env(kin_env)
 env = make_vec_env(lambda: kin_env, n_envs=1)
 # Define the model

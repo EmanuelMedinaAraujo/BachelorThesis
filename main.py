@@ -12,9 +12,9 @@ from AnalyticalRL.kinematics_network import KinematicsNetwork
 from AnalyticalRL.kinematics_network_testing import test_loop
 from AnalyticalRL.kinematics_network_training import train_loop
 from AnalyticalRL.parameter_dataset import CustomParameterDataset
-from Logging.loggger import Logger
+from Logging.custom_loggger import GeneralLogger
+from Logging.logger_callback import LoggerCallback
 from PPO.kinematics_environment import KinematicsEnvironment
-from PPO.logger_callback import LoggerCallback
 from Visualization.planar_robot_vis import visualize_planar_robot
 
 
@@ -27,8 +27,10 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams):
 
     with torch.no_grad():
         if hyperparams.use_stable_baselines3:
-            kin_env = KinematicsEnvironment(device=device, parameter=param, goal_coordinates=goal,
-                                            num_joints=hyperparams.number_of_joints)
+            data_list = [(param, goal)]
+            kin_env = KinematicsEnvironment(device=device, dataloader=data_list,
+                                            num_joints=hyperparams.number_of_joints,
+                                            tolerable_accuracy_error=hyperparams.tolerable_accuracy_error)
             env = make_vec_env(lambda: kin_env, n_envs=1)
             obs = env.reset()
             pred, _ = model.predict(obs)
@@ -68,8 +70,8 @@ def train_and_test_model(cfg: DictConfig):
         else "cpu"
     )
     hyperparams = cfg.hyperparams
-    logger = Logger(log_in_wandb=hyperparams.log_in_wandb,
-                    log_in_console=hyperparams.log_in_console, cfg=cfg)
+    logger = GeneralLogger(log_in_wandb=hyperparams.log_in_wandb,
+                           log_in_console=hyperparams.log_in_console, cfg=cfg)
 
     logger.log_used_device(device=device)
 
@@ -102,7 +104,8 @@ def train_and_test_model(cfg: DictConfig):
 
 def do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, visualization_history,
                                   visualization_goal, visualization_param):
-    env = make_vec_env(lambda: make_environment(device, train_dataloader, hyperparams.number_of_joints),
+    env = make_vec_env(lambda: make_environment(device, train_dataloader, hyperparams.number_of_joints,
+                                                hyperparams.tolerable_accuracy_error),
                        n_envs=hyperparams.n_envs)
     # Define the model
     model = PPO(policy=hyperparams.policy, env=env, batch_size=hyperparams.batch_size,
@@ -146,9 +149,9 @@ def do_analytical_learning(device, hyperparams, logger, test_dataloader, train_d
                               hyperparams=hyperparams)
 
 
-def make_environment(device, dataloader, num_joints):
-    parameters, goals = next(iter(dataloader))
-    return KinematicsEnvironment(device, parameters[0], goal_coordinates=goals[0], num_joints=num_joints)
+def make_environment(device, dataloader, num_joints, tolerable_accuracy_error):
+    return KinematicsEnvironment(device, dataloader, num_joints=num_joints,
+                                 tolerable_accuracy_error=tolerable_accuracy_error)
 
 
 if __name__ == "__main__":

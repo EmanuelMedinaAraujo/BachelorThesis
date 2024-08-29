@@ -6,7 +6,7 @@ hyperparams:
   policy: "MlpPolicy"
   n_envs: 1
   n_steps: 2048
-  total_timesteps: 10000
+  total_timesteps: 20000
 
   # Model architecture
   num_layer: 5
@@ -22,18 +22,18 @@ hyperparams:
 
   # Problem Generation Parameter
   number_of_joints: 2
-  tolerable_accuracy_error: 0.5 # The tolerance in accuracy that is still regarded as correct
+  tolerable_accuracy_error: 1 # The tolerance in accuracy that is still regarded as correct
   parameter_convention: DH
   min_link_length: 1.
   max_link_length: 20.
 
   #Logging
-  log_in_wandb: false
-  log_in_console: false
-  log_verbosity: 1
+  log_in_wandb: true
+  log_in_console: true
+  log_verbosity: 0
 
   visualization:
-    do_visualization: true
+    do_visualization: false
     interval: 2000
     default_line_transparency: 1.
     frame_size_scalar: 1.1
