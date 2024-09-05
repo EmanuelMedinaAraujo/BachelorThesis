@@ -1,12 +1,18 @@
 hyperparams:
   project_name: thesis-pt-02
 
+  random_seed: 42
+
   use_stable_baselines3: true
   # Stable Baselines 3 parameters
   policy: "MlpPolicy"
   n_envs: 1
-  n_steps: 2048
-  total_timesteps: 20000
+  # TODO random seed nutzen
+  # TODO mit paramter spielen
+  # TODO 128
+  n_steps: 32
+  # TODO 100...* n_steps = total_timesteps
+  total_timesteps: 50000
 
   # Model architecture
   num_layer: 5
@@ -14,11 +20,11 @@ hyperparams:
 
   # Model learning parameter
   learning_rate: 1e-3
-  dataset_length: 10000
+  dataset_length: 1
   batch_size: 64 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
   epochs: 10
 
-  testing_interval: 10 # Number of epochs to be run after which a test run is performed
+  testing_interval: 100 # Number of epochs to be run after which a test run is performed
 
   # Problem Generation Parameter
   number_of_joints: 2
@@ -29,7 +35,7 @@ hyperparams:
 
   #Logging
   log_in_wandb: true
-  log_in_console: true
+  log_in_console: false
   log_verbosity: 0
 
   visualization:
