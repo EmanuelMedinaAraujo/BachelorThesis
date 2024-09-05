@@ -83,3 +83,9 @@ class GeneralLogger:
             wandb.log({"rollout/mean_reward": ep_rew_mean,
                        "rollout/success_rate": success_rate,
                        "rollout/buf_mean_reward": rollout_buf_mean_rew})
+
+    def log_rollout_test(self, test_mean_reward, test_std_reward):
+        if self.log_in_console:
+            tqdm.write(f"Rollout: Mean Test reward: {test_mean_reward}, Std Test reward: {test_std_reward}")
+        if self.log_in_wandb:
+            wandb.log({"test/mean_reward": test_mean_reward, "test/std_reward": test_std_reward})

@@ -2,6 +2,7 @@ import sys
 
 import hydra
 import torch
+import numpy as np
 from omegaconf import DictConfig
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
@@ -73,6 +74,10 @@ def train_and_test_model(cfg: DictConfig):
     logger = GeneralLogger(log_in_wandb=hyperparams.log_in_wandb,
                            log_in_console=hyperparams.log_in_console, cfg=cfg)
 
+    np.random.seed(hyperparams.random_seed)
+    torch.manual_seed(hyperparams.random_seed)
+    torch.use_deterministic_algorithms(True)
+
     logger.log_used_device(device=device)
 
     train_dataloader = DataLoader(CustomParameterDataset(length=hyperparams.dataset_length,
@@ -94,7 +99,7 @@ def train_and_test_model(cfg: DictConfig):
     visualization_history = []
 
     if hyperparams.use_stable_baselines3:
-        do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, visualization_history,
+        do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, test_dataloader, visualization_history,
                                       visualization_goal, visualization_param)
     else:
         do_analytical_learning(device, hyperparams, logger, test_dataloader, train_dataloader, visualization_history,
@@ -102,7 +107,7 @@ def train_and_test_model(cfg: DictConfig):
     tqdm.write("Done!")
 
 
-def do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, visualization_history,
+def do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader, test_dataloader, visualization_history,
                                   visualization_goal, visualization_param):
     env = make_vec_env(lambda: make_environment(device, train_dataloader, hyperparams.number_of_joints,
                                                 hyperparams.tolerable_accuracy_error),
@@ -115,8 +120,8 @@ def do_stable_baselines3_learning(device, hyperparams, logger, train_dataloader,
     # Train the model
     logger_callback = LoggerCallback(logger=logger, visualization_history=visualization_history,
                                      goal_to_vis=visualization_goal, param_to_vis=visualization_param,
-                                     verbose=hyperparams.log_verbosity,
-                                     hyperparams=hyperparams, visualization_call=visualize_problem, device=device)
+                                     verbose=hyperparams.log_verbosity, test_dataloader=test_dataloader,
+                                     hyperparams=hyperparams, visualization_call=visualize_problem, device=device, num_joints=hyperparams.number_of_joints,tolerable_accuracy_error=hyperparams.tolerable_accuracy_error)
 
     model.learn(total_timesteps=hyperparams.total_timesteps, callback=logger_callback,
                 progress_bar=True)
