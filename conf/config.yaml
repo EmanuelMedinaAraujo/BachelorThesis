@@ -1,30 +1,27 @@
 hyperparams:
-  project_name: thesis-pt-02
+  project_name: thesis-pt-03
 
   random_seed: 42
 
-  use_stable_baselines3: false
+  use_stable_baselines3: true
   # Stable Baselines 3 parameters
   policy: "MlpPolicy"
   n_envs: 1
-  # TODO random seed nutzen
   # TODO mit paramter spielen
   # TODO 128
   n_steps: 32
   # TODO 100...* n_steps = total_timesteps
-  total_timesteps: 5000
-
-  # Model architecture
-  num_layer: 5
-  layer_sizes: [ 64, 512, 256, 64 ]
+  total_timesteps: 10000
 
   # Model learning parameter
   learning_rate: 1e-3
-  problems_per_epoch: 10000
-  batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
-  epochs: 15
+  batch_size: 64 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
+  epochs: 10
 
-  testing_interval: 1000 # Number of epochs to be run after which a test run is performed
+  # Model architecture for analytical neural network
+  num_layer: 5
+  layer_sizes: [ 64, 512, 256, 64 ]
+  problems_per_epoch: 10000
 
   # Problem Generation Parameter
   number_of_joints: 2
@@ -33,14 +30,18 @@ hyperparams:
   min_link_length: 1.
   max_link_length: 20.
 
+  # Test Parameter
+  testing_interval: 100000 # Number of epochs to be run after which a test run is performed
+  number_of_test_problems: 1000
+
   #Logging
-  log_in_wandb: true
+  log_in_wandb: false
   log_in_console: false
-  log_verbosity: 0
+  log_verbosity: 1 # 0: No logging, 1: Only important logs, 2: All logs. This parameter applies only to the logging of the PPO Model when using stable baselines 3
 
   visualization:
     do_visualization: false
-    interval: 10 # Number of epochs after which the visualization is updated
+    interval: 10000 # Number of epochs after which the visualization is updated
     default_line_transparency: 1.
     frame_size_scalar: 1.1
     default_line_width: 1.5

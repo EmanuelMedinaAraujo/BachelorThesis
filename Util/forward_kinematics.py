@@ -54,7 +54,7 @@ def calculate_eef_positions(parameters):
     return eef_positions
 
 
-def update_theta_values(parameters, new_theta_values: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
+def update_theta_values(parameters:torch.Tensor, new_theta_values: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
     """
     Update the theta values of the parameters with the new theta values.
     Supports batched input.
@@ -80,7 +80,7 @@ def update_theta_values(parameters, new_theta_values: Union[torch.Tensor, np.nda
     return updated_parameters
 
 
-def calculate_distances(param, goal: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
+def calculate_distances(param: torch.Tensor, goal: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
     """
     Calculate the Euclidean distance between the end effector position and the goal position.
     Supports batched input.
