@@ -37,11 +37,19 @@ class KinematicsNetwork(nn.Module):
     def forward(self, model_input):
         param, goal = model_input
 
+        is_single_parameter = False
         # Flatten the param
         flatten_param = self.flatten(param)
+        if param.dim() == 2:
+            # If the input is a single parameter
+            is_single_parameter = True
+            flatten_param = torch.flatten(param)
 
         # Concatenate flatten_param and goal along the second dimension
-        flatten_input = torch.cat((flatten_param, goal), dim=1)
+        if is_single_parameter:
+            flatten_input = torch.cat((flatten_param, goal))
+        else:
+            flatten_input = torch.cat((flatten_param, goal), dim=1)
 
         # Pass the flatten input through the linear_relu_stack
         network_output = self.linear_relu_stack(flatten_input)
@@ -53,13 +61,20 @@ class KinematicsNetwork(nn.Module):
         all_angles = None
         for joint_number in range(self.num_joints):
             index = 2 * joint_number
-            sin_x = network_output[:, index]
-            cos_y = network_output[:, index + 1]
+            if is_single_parameter:
+                sin_x = network_output[index]
+                cos_y = network_output[index + 1]
+            else:
+                sin_x = network_output[:, index]
+                cos_y = network_output[:, index + 1]
             angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
             if all_angles is None:
                 all_angles = angle
             else:
-                all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
+                if is_single_parameter:
+                    all_angles = torch.cat([all_angles, angle]).to(param.device)
+                else:
+                    all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
 
         return all_angles
 
