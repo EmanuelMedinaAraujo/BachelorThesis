@@ -3,7 +3,7 @@ hyperparams:
 
   random_seed: 42
 
-  use_stable_baselines3: true
+  use_stable_baselines3: false
   # Stable Baselines 3 parameters
   policy: "MlpPolicy"
   n_envs: 1
@@ -12,7 +12,7 @@ hyperparams:
   # TODO 128
   n_steps: 32
   # TODO 100...* n_steps = total_timesteps
-  total_timesteps: 50000
+  total_timesteps: 5000
 
   # Model architecture
   num_layer: 5
@@ -20,11 +20,11 @@ hyperparams:
 
   # Model learning parameter
   learning_rate: 1e-3
-  dataset_length: 1
-  batch_size: 64 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
-  epochs: 10
+  problems_per_epoch: 10000
+  batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
+  epochs: 15
 
-  testing_interval: 100 # Number of epochs to be run after which a test run is performed
+  testing_interval: 1000 # Number of epochs to be run after which a test run is performed
 
   # Problem Generation Parameter
   number_of_joints: 2
@@ -40,7 +40,7 @@ hyperparams:
 
   visualization:
     do_visualization: false
-    interval: 2000
+    interval: 10 # Number of epochs after which the visualization is updated
     default_line_transparency: 1.
     frame_size_scalar: 1.1
     default_line_width: 1.5

@@ -3,9 +3,9 @@ import torch
 from Util.forward_kinematics import update_theta_values, calculate_distances
 
 
-def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
+def test_loop(test_dataset, model, device, tolerable_accuracy_error, logger):
     """
-    Tests the model on the given dataloader and logs the accuracy and loss with the given logger.
+    Tests the model on the given dataset and logs the accuracy and loss with the given logger.
 
     The accuracy is calculated by counting the number of correct predictions. A prediction is considered correct if the
     distance between the predicted end effector position and the goal is less than the tolerable_accuracy_error.
@@ -14,7 +14,7 @@ def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
     divided by the dataset_size.
 
     Args:
-        dataloader: DataLoader object containing the test data
+        test_dataset: test data set
         model: The Kinematics Network
         device: The device used for torch operations
         tolerable_accuracy_error: The maximum distance between the predicted end effector position and the goal
@@ -25,7 +25,7 @@ def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
     test_loss, num_correct = 0, 0
 
     with torch.no_grad():
-        for param, goal in dataloader:
+        for param, goal in test_dataset:
             param, goal = param.to(device), goal.to(device)
 
             pred = model((param, goal))
@@ -38,7 +38,7 @@ def test_loop(dataloader, model, device, tolerable_accuracy_error, logger):
             # Increase num_correct for each distance that is less than the tolerable_accuracy_error
             num_correct += torch.le(distances, tolerable_accuracy_error).int().sum().item()
 
-    dataset_size = len(dataloader.dataset)
+    dataset_size = len(test_dataset)
     test_loss /= dataset_size
     accuracy = (num_correct * 100 / dataset_size)
     logger.log_test(accuracy=accuracy, loss=test_loss)
