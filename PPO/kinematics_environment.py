@@ -42,3 +42,15 @@ class KinematicsEnvironment(gym.Env):
         visualize_planar_robot(parameter=updated_parameter, goal=self.goals[0], default_line_transparency=1.,
                                default_line_width=1.5,
                                frame_size_scalar=1.1, device=self.device)
+
+    def set_goal(self, new_goal):
+        self.goal = new_goal
+
+    def set_parameter(self, new_parameter):
+        self.parameter = new_parameter
+
+    def get_goal(self):
+        return self.goal
+
+    def get_parameter(self):
+        return self.parameter

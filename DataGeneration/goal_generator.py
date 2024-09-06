@@ -11,8 +11,12 @@ def generate_achievable_goal(dh_parameter: torch.Tensor, device_to_use):
     kinematics to obtain an achievable end effector position.
     """
     # Create random theta values from -2Π top 2Π
-    theta_values = (-2 * pi - 2 * pi) * torch.rand(dh_parameter.shape[0], dh_parameter.shape[1]) + 2 * pi
-    theta_values = theta_values.unsqueeze(-1)
+    if dh_parameter.dim() == 2:
+        # If the input is a single set of DH parameters
+        theta_values = (-2 * pi - 2 * pi) * torch.rand(dh_parameter.shape[0], 1) + 2 * pi
+    else:
+        theta_values = (-2 * pi - 2 * pi) * torch.rand(dh_parameter.shape[0], dh_parameter.shape[1]) + 2 * pi
+        theta_values = theta_values.unsqueeze(-1)
 
     # Ensure that the same device is used
     theta_values = theta_values.to(device_to_use)

@@ -85,7 +85,8 @@ class ParameterGeneratorForPlanarRobot(Iterator, ABC):
         # Set d to zero as we are currently only interested in planar robots
         d = torch.zeros((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype)
 
-        return torch.cat([alpha, a, d], dim=-1)
+        concatenated_parameters = torch.cat([alpha, a, d], dim=-1)
+        return concatenated_parameters[0] if self.batch_size == 1 else concatenated_parameters
 
     def __call__(self, *args, **kwargs) -> torch.Tensor:
         """Implements the problem generation."""
