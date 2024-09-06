@@ -2,7 +2,6 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.utils import safe_mean
 
-from PPO.kinematics_environment import KinematicsEnvironment
 from Visualization.problem_vis import visualize_problem
 
 
@@ -46,8 +45,10 @@ class LoggerCallback(BaseCallback):
         self.rollout_counter += 1
 
         # Evaluate the model
-        # if self.n_calls % self.hyperparams.testing_interval == 0:
-        # self.custom_logger.log_rollout_test(mean_reward, std_reward)
+        if self.n_calls % self.hyperparams.testing_interval == 0:
+            mean_reward, std_reward = evaluate_policy(self.model, self.model.get_env() , n_eval_episodes=100)
+            self.custom_logger.log_rollout_test(mean_reward, std_reward)
+
 
         return True
 

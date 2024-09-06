@@ -50,7 +50,8 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams):
                                use_color_per_robot=vis_params.use_color_per_robot,
                                use_gradual_transparency=vis_params.use_gradual_transparency,
                                show_plot=vis_params.show_plot,
-                               show_joint_label=vis_params.show_joint_label)
+                               show_joint_label=vis_params.show_joint_label,
+                               show_distance=vis_params.show_distance_in_legend)
 
         if not hyperparams.use_stable_baselines3:
             model.train()
