@@ -5,7 +5,8 @@ from DataGeneration.goal_generator import generate_achievable_goal
 from Util.forward_kinematics import update_theta_values, calculate_distances
 
 
-def train_loop(model, optimizer, problem_generator, problems_per_epoch, batch_size, device, logger, epoch_num, error_tolerance):
+def train_loop(model, optimizer, problem_generator, problems_per_epoch, batch_size, device, logger, epoch_num,
+               error_tolerance):
     """
     The training loop for the kinematics network. This function trains the model on random parameters and goals and
     logs the training loss and accuracy at the end of each epoch.
