@@ -4,11 +4,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
+from Util.forward_kinematics import calculate_distances
+
 
 def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar,
-                           use_gradual_transparency=False, device='cpu',
-                           use_color_per_robot=False, goal=None, link_accuracy=None, standard_size=False,
-                           save_to_file=False, show_joint_label=True, show_plot=True, robot_label_note=""):
+                           use_gradual_transparency=False,
+                           device='cpu',
+                           use_color_per_robot=False,
+                           goal=None,
+                           link_accuracy=None,
+                           standard_size=False,
+                           save_to_file=False,
+                           show_joint_label=True,
+                           show_plot=True,
+                           robot_label_note="",
+                           show_distance=False):
     """
     Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
     Args:
@@ -26,6 +36,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         show_joint_label: If True, the joint labels will be shown in the legend.
         show_plot: If True, a plot will be opened
         robot_label_note: A string to add to each robot label.
+        show_distance: If True, the distance to the goal will be shown in the legend.
     """
     multiple_robots = len(parameter.size()) == 3
     if link_accuracy is None:
@@ -57,18 +68,27 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         # Multiple Robots arm were given as parameter
         for i in range(parameter.shape[0]):
             # Plot the planar robot
-            arm_length = plot_planar_robot(ax=ax, parameter=parameter[i], link_accuracy=link_accuracy[i].item(),
+            arm_length = plot_planar_robot(ax=ax,
+                                           parameter=parameter[i],
+                                           link_accuracy=link_accuracy[i].item(),
                                            default_line_width=default_line_width,
                                            use_color_per_robot=use_color_per_robot,
                                            robot_num=(i + 1, parameter.shape[0]),
                                            show_joint_label=show_joint_label,
                                            robot_label_note=robot_label_note,
-                                           use_gradual_transparency=use_gradual_transparency)
+                                           use_gradual_transparency=use_gradual_transparency,
+                                           show_distance=show_distance,
+                                        goal=goal)
             max_length = max(arm_length, max_length)
     else:
         # One Robot arm was given as parameter
-        max_length = plot_planar_robot(ax, parameter, link_accuracy.item(), default_line_width,
-                                       show_joint_label=show_joint_label)
+        max_length = plot_planar_robot(ax=ax,
+                                       parameter=parameter,
+                                       link_accuracy=link_accuracy.item(),
+                                       default_line_width=default_line_width,
+                                       show_joint_label=show_joint_label,
+                                       show_distance=show_distance,
+                                       goal=goal)
 
     # Set the plot size
     set_plot_limits(ax, max_length, standard_size, frame_size_scalar)
@@ -84,9 +104,15 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         plt.show()
 
 
-def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_gradual_transparency=False,
-                      use_color_per_robot=False, robot_num=(1, 1),
-                      show_joint_label=True, robot_label_note=""):
+def plot_planar_robot(ax, parameter, link_accuracy,
+                      default_line_width,
+                      show_distance,
+                      use_gradual_transparency=False,
+                      use_color_per_robot=False,
+                      robot_num=(1, 1),
+                      show_joint_label=True,
+                      robot_label_note="",
+                      goal=None):
     """
     Plot a planar robot arm based on the given parameters.
     Args:
@@ -100,6 +126,8 @@ def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_grad
         robot_num: The number of the robot arm and the total number of robot arms.
         show_joint_label: If True, the joint labels will be shown in the legend
         robot_label_note: A string to add to the robot label.
+        show_distance: If True, the distance to the goal will be shown in the legend.
+        goal: The goal of the robot arm. Is needed to calculate the distance to the goal.
     """
     start_coordinates = np.array([0, 0])
     max_length = 0.0
@@ -128,8 +156,12 @@ def plot_planar_robot(ax, parameter, link_accuracy, default_line_width, use_grad
                              color=color if use_color_per_robot else 'r', lw=default_line_width, alpha=transparency)
         if color is None:
             color = link_line.get_color()
-
-            link_line.set_label(f"Robot Arm {robot_num[0]} " + robot_label_note)
+            distance_label = ""
+            if show_distance and goal is not None:
+                goal_coordinate = torch.tensor(goal).to(parameter.device)
+                distance = calculate_distances(parameter, goal_coordinate)
+                distance_label = f"({distance:.2f})"
+            link_line.set_label(f"Robot Arm {robot_num[0]}" + distance_label + " " + robot_label_note)
         joint_label = f'$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}' if show_joint_label else None
         ax.plot(start_coordinates[0], start_coordinates[1], '-o', label=joint_label)
         start_coordinates = end_coordinates
