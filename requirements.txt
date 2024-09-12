@@ -8,3 +8,5 @@ tqdm~=4.66.5
 gymnasium~=0.29.1
 stable_baselines3~=2.3.2
 rich~=13.7.1
+sb3-contrib~=2.3.0
+plotly~=5.24.0

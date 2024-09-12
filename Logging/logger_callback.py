@@ -38,7 +38,8 @@ class LoggerCallback(BaseCallback):
                                   param=self.param_to_vis,
                                   goal=self.goal_to_vis,
                                   param_history=self.visualization_history,
-                                  hyperparams=self.hyperparams)
+                                  hyperparams=self.hyperparams,
+                                  logger=self.custom_logger)
 
         reward = self.locals.get('rewards')[0]
         self.rew_buf += reward
@@ -102,8 +103,19 @@ class LoggerCallback(BaseCallback):
             env.env_method("set_parameter", param)
 
             observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
+            # cell and hidden state of the LSTM
+            lstm_states = None
+            num_envs = 1
+            # Episode start signals are used to reset the lstm states
+            episode_starts = np.ones((num_envs,), dtype=bool)
 
-            pred, _ = self.model.predict(observation)
+            if self.hyperparams.use_recurrent_policy:
+                # cell and hidden state of the LSTM
+                lstm_states = None
+                episode_starts = np.ones((1,), dtype=bool)
+                pred, _ = self.model.predict(observation, state=lstm_states, episode_start=episode_starts)
+            else:
+                pred, _ = self.model.predict(observation)
             pred = torch.tensor(pred).to(self.device)
 
             # Evaluate prediction
