@@ -22,7 +22,9 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams):
             env.env_method("set_goal", goal)
             env.env_method("set_parameter", param)
 
-            pred, _ = model.predict(np.array([1000]).astype(np.float32))
+            observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
+
+            pred, _ = model.predict(observation)
             pred = torch.tensor(pred).to(device)
 
             # Reset goal and parameter
@@ -35,6 +37,10 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams):
         # Concatenate the predicted theta values to the parameter
         updated_param = torch.cat((param, pred.unsqueeze(1)), dim=-1)
         param_history.append(updated_param)
+
+        # Check if max history length is reached
+        if len(param_history) > hyperparams.visualization.max_history_length:
+            param_history.pop(0)
 
         vis_params = hyperparams.visualization
         tensor_to_pass = updated_param if not vis_params.plot_all_in_one else torch.stack(param_history)

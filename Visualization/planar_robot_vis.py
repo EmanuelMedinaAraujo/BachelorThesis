@@ -158,8 +158,7 @@ def plot_planar_robot(ax, parameter, link_accuracy,
             color = link_line.get_color()
             distance_label = ""
             if show_distance and goal is not None:
-                goal_coordinate = torch.tensor(goal).to(parameter.device)
-                distance = calculate_distances(parameter, goal_coordinate)
+                distance = calculate_distances(parameter, goal)
                 distance_label = f"({distance:.2f})"
             link_line.set_label(f"Robot Arm {robot_num[0]}" + distance_label + " " + robot_label_note)
         joint_label = f'$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}' if show_joint_label else None

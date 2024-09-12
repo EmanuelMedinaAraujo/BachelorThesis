@@ -1,7 +1,10 @@
+import numpy as np
+import torch
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.utils import safe_mean
 
+from Util.forward_kinematics import calculate_distances
 from Visualization.problem_vis import visualize_problem
 
 
@@ -16,6 +19,7 @@ class LoggerCallback(BaseCallback):
         self.param_to_vis = param_to_vis
         self.hyperparams = hyperparams
         self.device = device
+        self.test_dataloader = test_dataloader
 
         self.skip_first_log = True
 
@@ -28,7 +32,7 @@ class LoggerCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         if self.hyperparams.visualization.do_visualization:
-            if self.n_calls % self.hyperparams.visualization.interval == 0:
+            if self.num_timesteps % self.hyperparams.visualization.interval == 0:
                 visualize_problem(model=self.model,
                                   device=self.device,
                                   param=self.param_to_vis,
@@ -45,10 +49,19 @@ class LoggerCallback(BaseCallback):
         self.rollout_counter += 1
 
         # Evaluate the model
-        if self.n_calls % self.hyperparams.testing_interval == 0:
-            mean_reward, std_reward = evaluate_policy(self.model, self.model.get_env() , n_eval_episodes=100)
-            self.custom_logger.log_rollout_test(mean_reward, std_reward)
+        if self.num_timesteps % self.hyperparams.testing_interval == 0:
+            with torch.no_grad():
+                env = self.model.get_env()
+                # Get goal and parameter from model environment
+                old_goal = env.env_method("get_wrapper_attr", "goal")
+                old_param = env.env_method("get_wrapper_attr", "parameter")
 
+                accuracy, mean_reward = self.test_model(env)
+                self.custom_logger.log_test(accuracy, mean_reward)
+
+                # Reset goal and parameter
+                env.env_method("set_goal", old_goal[0])
+                env.env_method("set_parameter", old_param[0])
 
         return True
 
@@ -56,6 +69,7 @@ class LoggerCallback(BaseCallback):
         rollout_buf_mean_rew = safe_mean([ep_info["r"] for ep_info in self.model.ep_info_buffer])
         success_rate = safe_mean(self.success_buf)
         mean_reward = self.rew_buf / self.rollout_counter
+
         self.custom_logger.log_rollout(mean_reward, success_rate, rollout_buf_mean_rew)
 
         # Reset success buffer
@@ -63,6 +77,7 @@ class LoggerCallback(BaseCallback):
         self.rollout_counter = 0
         self.rew_buf = 0
 
+        # Skip first log because it is not a full rollout
         if not self.skip_first_log:
             self.custom_logger.log_train_rollout(self.model.logger.name_to_value['train/approx_kl'],
                                                  self.model.logger.name_to_value['train/clip_fraction'],
@@ -77,3 +92,26 @@ class LoggerCallback(BaseCallback):
                                                  self.model.logger.name_to_value['train/std'])
         else:
             self.skip_first_log = False
+
+    def test_model(self, env):
+        counter_success = 0
+        distance_sum = 0
+        for param, goal in self.test_dataloader:
+            # Set visualization goal and parameter to training_env
+            env.env_method("set_goal", goal)
+            env.env_method("set_parameter", param)
+
+            observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
+
+            pred, _ = self.model.predict(observation)
+            pred = torch.tensor(pred).to(self.device)
+
+            # Evaluate prediction
+            updated_param = torch.cat((param, pred.unsqueeze(1)), dim=-1)
+            distance = calculate_distances(updated_param, goal).detach().item()
+            distance_sum += distance
+            if distance <= self.tolerable_accuracy_error:
+                counter_success += 1
+        accuracy = counter_success / len(self.test_dataloader)
+        mean_reward = distance_sum / len(self.test_dataloader)
+        return accuracy, mean_reward
