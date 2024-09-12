@@ -2,7 +2,6 @@ import gymnasium as gym
 import numpy as np
 import torch
 from gymnasium import spaces
-from itertools import cycle
 
 from DataGeneration.goal_generator import generate_achievable_goal
 from DataGeneration.parameter_generator import ParameterGeneratorForPlanarRobot
@@ -21,7 +20,7 @@ class KinematicsEnvironment(gym.Env):
         self.problem_generator = ParameterGeneratorForPlanarRobot(batch_size=1,
                                                                   device=device,
                                                                   tensor_type=tensor_type,
-                                                                num_joints=num_joints,
+                                                                  num_joints=num_joints,
                                                                   parameter_convention=hyperparams.parameter_convention,
                                                                   min_len=hyperparams.min_link_length,
                                                                   max_len=hyperparams.max_link_length)
@@ -32,11 +31,11 @@ class KinematicsEnvironment(gym.Env):
         observation_dimension = num_joints * 3 + 2
         # The minimum value of the observation space is the smallest possible goal coordinate
         max_observation_value = hyperparams.max_link_length * num_joints
-        self.observation_space = spaces.Box(low=-max_observation_value, high=max_observation_value, shape=(observation_dimension,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-max_observation_value, high=max_observation_value,
+                                            shape=(observation_dimension,), dtype=np.float32)
 
         self.parameter = self.problem_generator.get_random_parameters()
         self.goal = generate_achievable_goal(self.parameter, self.device)
-
 
     def reset(self, seed=None, options=None):
         self.parameter = self.problem_generator.get_random_parameters()
@@ -56,13 +55,8 @@ class KinematicsEnvironment(gym.Env):
     def render_action(self, action):
         updated_parameter = update_theta_values(self.parameter, action)
         # Visualize the robot arm using the updated parameters and using visualize_planar_robot
-        visualize_planar_robot(parameter=updated_parameter,
-                               goal=self.goal,
-                               default_line_transparency=1.,
-                               default_line_width=1.5,
-                               frame_size_scalar=1.1,
-                               device=self.device,
-                               standard_size=True,
+        visualize_planar_robot(parameter=updated_parameter, default_line_transparency=1., default_line_width=1.5,
+                               frame_size_scalar=1.1, device=self.device, goal=self.goal, standard_size=True,
                                show_distance=True)
 
     def set_goal(self, new_goal):

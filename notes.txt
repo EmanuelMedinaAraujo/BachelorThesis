@@ -1,9 +1,21 @@
 Frage:
+- Lohnt es sich auf Google Colab zu trainieren?
 
 DONE:
+- reread PPO optimizer Paper
+- Recurrent PPO mit config implementieren
+- Predict mehrmals aufrufen und ergebnisse plotten
 
 TODO:
 - reread PPO optimizer Paper
+
+- Gymnasium für analytical erstellen
+	wrapper
+		base environment
+			alle return sind torch.tensoren
+		stable baselines environment erbt
+			gibt numpy arrays zurück
+
 
 - Read Adam optimizer Paper
 

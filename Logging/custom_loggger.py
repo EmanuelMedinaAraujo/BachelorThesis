@@ -83,3 +83,7 @@ class GeneralLogger:
             wandb.log({"rollout/mean_reward": ep_rew_mean,
                        "rollout/success_rate": success_rate,
                        "rollout/buf_mean_reward": rollout_buf_mean_rew})
+
+    def log_plot(self, path):
+        if self.log_in_wandb:
+            wandb.log({"plot": wandb.Image(path)})

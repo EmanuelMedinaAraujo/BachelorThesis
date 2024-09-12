@@ -7,6 +7,8 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.utils import set_random_seed
+from sb3_contrib import RecurrentPPO
+
 from tqdm import tqdm
 
 from AnalyticalRL.kinematics_network import KinematicsNetwork
@@ -64,17 +66,26 @@ def train_and_test_model(cfg: DictConfig):
 
 def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, visualization_history,
                                   visualization_goal, visualization_param, tensor_type):
-    env = make_vec_env(lambda: make_environment(device, hyperparams, tensor_type),n_envs=hyperparams.n_envs)
-    #check_env(make_environment(device, hyperparams, tensor_type), warn=True)
+    env = make_vec_env(lambda: make_environment(device, hyperparams, tensor_type), n_envs=hyperparams.n_envs)
+    # check_env(make_environment(device, hyperparams, tensor_type), warn=True)
 
     # Define the model
-    model = PPO(policy=hyperparams.policy,
+    model = PPO(policy=hyperparams.non_recurrent_policy,
                 env=env,
                 batch_size=hyperparams.batch_size,
                 learning_rate=hyperparams.learning_rate,
                 n_epochs=hyperparams.epochs,
                 n_steps=hyperparams.n_steps,
                 verbose=hyperparams.log_verbosity)
+
+    if hyperparams.use_recurrent_policy:
+        model = RecurrentPPO(policy=hyperparams.recurrent_policy,
+                             env=env,
+                             batch_size=hyperparams.batch_size,
+                             learning_rate=hyperparams.learning_rate,
+                             n_epochs=hyperparams.epochs,
+                             n_steps=hyperparams.n_steps,
+                             verbose=hyperparams.log_verbosity)
 
     logger_callback = LoggerCallback(logger=logger,
                                      visualization_history=visualization_history,
@@ -129,12 +140,8 @@ def do_analytical_learning(device, hyperparams, logger, test_dataset, visualizat
 
         # Visualize the same problem every hyperparams.visualization.interval epochs
         if hyperparams.visualization.do_visualization and epoch_num % hyperparams.visualization.interval == 0:
-            visualize_problem(model=model,
-                              device=device,
-                              param=visualization_param,
-                              goal=visualization_goal,
-                              param_history=visualization_history,
-                              hyperparams=hyperparams)
+            visualize_problem(model=model, param=visualization_param, goal=visualization_goal, device=device,
+                              param_history=visualization_history, hyperparams=hyperparams)
 
 
 def make_environment(device, hyperparams, tensor_type):

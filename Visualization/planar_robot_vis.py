@@ -3,22 +3,16 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import os
 
 from Util.forward_kinematics import calculate_distances
 
 
-def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar,
-                           use_gradual_transparency=False,
-                           device='cpu',
-                           use_color_per_robot=False,
-                           goal=None,
-                           link_accuracy=None,
-                           standard_size=False,
-                           save_to_file=False,
-                           show_joint_label=True,
-                           show_plot=True,
-                           robot_label_note="",
-                           show_distance=False):
+def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar, max_legend_length,
+                           is_distribution=False, use_gradual_transparency=False, device='cpu',
+                           use_color_per_robot=False, goal=None, link_accuracy=None, standard_size=False,
+                           save_to_file=False, show_joint_label=True, show_plot=True, robot_label_note="",
+                           show_distance=False, logger=None):
     """
     Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
     Args:
@@ -37,6 +31,9 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         show_plot: If True, a plot will be opened
         robot_label_note: A string to add to each robot label.
         show_distance: If True, the distance to the goal will be shown in the legend.
+        is_distribution: If True, a distribution of parameters needs to be visualized.
+        max_legend_length: The maximum length of the legend.
+        logger: The logger to use for plot logging.
     """
     multiple_robots = len(parameter.size()) == 3
     if link_accuracy is None:
@@ -47,7 +44,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
             link_accuracy = torch.full([1], default_line_transparency).to(device)
     else:
         assert parameter.shape[0] == link_accuracy.shape[
-            0], "The amount of robots arm and the amount of probabilities is not equal"
+            0], "The amount of robots arms and the amount of probabilities is not equal"
 
     # General settings
     fig, ax = plt.subplots()
@@ -78,7 +75,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
                                            robot_label_note=robot_label_note,
                                            use_gradual_transparency=use_gradual_transparency,
                                            show_distance=show_distance,
-                                        goal=goal)
+                                           goal=goal)
             max_length = max(arm_length, max_length)
     else:
         # One Robot arm was given as parameter
@@ -93,11 +90,16 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
     # Set the plot size
     set_plot_limits(ax, max_length, standard_size, frame_size_scalar)
 
-    if standard_size:
-        ax.legend()
-    else:
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        plt.tight_layout()
+    # Only show first 20 entries and '...' if there are more
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[:max_legend_length], labels[:max_legend_length] + (['...'] if len(labels) > max_legend_length else []), loc='upper left', bbox_to_anchor=(1, 1))
+    plt.tight_layout()
+    if logger is not None:
+        # Save the plot to a file temporarily
+        plt.savefig('temp_plot.png')
+        logger.log_plot('temp_plot.png')
+        # Delete the temporary file
+        os.remove('temp_plot.png')
     if save_to_file:
         plt.savefig('')
     if show_plot:
