@@ -1,6 +1,8 @@
 import gymnasium as gym
 import numpy as np
+import torch
 from gymnasium import spaces
+from itertools import cycle
 
 from DataGeneration.goal_generator import generate_achievable_goal
 from DataGeneration.parameter_generator import ParameterGeneratorForPlanarRobot
@@ -14,26 +16,33 @@ class KinematicsEnvironment(gym.Env):
 
         self.device = device
         self.tolerable_accuracy_error = hyperparams.tolerable_accuracy_error
-        self.num_joints = hyperparams.number_of_joints
 
+        num_joints = hyperparams.number_of_joints
         self.problem_generator = ParameterGeneratorForPlanarRobot(batch_size=1,
                                                                   device=device,
                                                                   tensor_type=tensor_type,
-                                                                  num_joints=self.num_joints,
+                                                                num_joints=num_joints,
                                                                   parameter_convention=hyperparams.parameter_convention,
                                                                   min_len=hyperparams.min_link_length,
                                                                   max_len=hyperparams.max_link_length)
 
-        self.action_space = spaces.Box(low=-np.pi, high=np.pi, shape=(self.num_joints,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=0, high=1000, dtype=np.float32)
+        self.action_space = spaces.Box(low=-np.pi, high=np.pi, shape=(num_joints,), dtype=np.float32)
+
+        # The observation space is the concatenation of the parameter and the goal
+        observation_dimension = num_joints * 3 + 2
+        # The minimum value of the observation space is the smallest possible goal coordinate
+        max_observation_value = hyperparams.max_link_length * num_joints
+        self.observation_space = spaces.Box(low=-max_observation_value, high=max_observation_value, shape=(observation_dimension,), dtype=np.float32)
 
         self.parameter = self.problem_generator.get_random_parameters()
         self.goal = generate_achievable_goal(self.parameter, self.device)
+
 
     def reset(self, seed=None, options=None):
         self.parameter = self.problem_generator.get_random_parameters()
         self.goal = generate_achievable_goal(self.parameter, self.device)
-        return np.array([1000]).astype(np.float32), {}
+
+        return torch.concat([self.parameter.flatten(), self.goal]).detach().cpu().numpy(), {}
 
     def step(self, action):
         updated_parameter = update_theta_values(self.parameter, action)
@@ -41,7 +50,7 @@ class KinematicsEnvironment(gym.Env):
         reward = -distance
         done = True  # One-step episode
         success = distance <= self.tolerable_accuracy_error
-        observation = np.array([distance]).astype(np.float32)
+        observation = torch.concat([self.parameter.flatten(), self.goal]).detach().cpu().numpy()
         return observation, reward, done, success, {}
 
     def render_action(self, action):

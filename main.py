@@ -43,7 +43,7 @@ def train_and_test_model(cfg: DictConfig):
                            cfg=cfg)
     logger.log_used_device(device=device)
 
-    test_dataset = CustomParameterDataset(length=hyperparams.problems_per_epoch,
+    test_dataset = CustomParameterDataset(length=hyperparams.number_of_test_problems,
                                           device_to_use=device,
                                           num_of_joints=hyperparams.number_of_joints,
                                           parameter_convention=hyperparams.parameter_convention,
@@ -65,10 +65,8 @@ def train_and_test_model(cfg: DictConfig):
 def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, visualization_history,
                                   visualization_goal, visualization_param, tensor_type):
     env = make_vec_env(lambda: make_environment(device, hyperparams, tensor_type),n_envs=hyperparams.n_envs)
-
-    #env = make_environment(device, hyperparams, tensor_type)
-
     #check_env(make_environment(device, hyperparams, tensor_type), warn=True)
+
     # Define the model
     model = PPO(policy=hyperparams.policy,
                 env=env,
