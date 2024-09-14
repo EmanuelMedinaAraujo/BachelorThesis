@@ -1,13 +1,37 @@
+Server:
+@tars.cps.in.tum.de
+Resourcen nicht überlegen
+
 Frage:
-- Lohnt es sich auf Google Colab zu trainieren?
 
 DONE:
-- reread PPO optimizer Paper
-- Recurrent PPO mit config implementieren
-- Predict mehrmals aufrufen und ergebnisse plotten
 
 TODO:
+- angles wie bei analytical berechnen
+- seaborn anschauen und benutzen
+    - pandas für data
+- conda einrichten
+- ssh keys erstellen
+- joints kleiner machen / komplett ausblenden
+- distribution sample error rausnehmen
+- endeffector erstellen
+- heatmap für endeffector erstellen
+- ein zwei parameter sätze auswählen und value loss diskretisieren
+    - heatmap für value loss erstellen (ein parameter pro grafik)
+- prime-leaf21 lauf mit grafik laufen lassen
+    - distribution sollte kleiner werden
+- recurrent vs non-recurrent vergleichen
+    - Laufen lassen
+- gamma auf 0 setzen
+- mit entropy coefficient rumspielen (0.01, (im paper))
 - reread PPO optimizer Paper
+- 5 Runs (1 Random seed)
+    - 1 Normal
+    - 1 mit erhöhter std (x1.5)
+    - 1 mit verkleinerter std
+    - 1 mit entropy coefficient 0.01 (sonst 0)
+    - 1 mit erhöhter std und entropy coefficient 0.01
+
 
 - Gymnasium für analytical erstellen
 	wrapper
@@ -16,7 +40,7 @@ TODO:
 		stable baselines environment erbt
 			gibt numpy arrays zurück
 
-
+- reread PPO optimizer Paper
 - Read Adam optimizer Paper
 
 --------------------------------------------------------------------------------------

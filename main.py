@@ -76,7 +76,8 @@ def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, 
                 learning_rate=hyperparams.learning_rate,
                 n_epochs=hyperparams.epochs,
                 n_steps=hyperparams.n_steps,
-                verbose=hyperparams.log_verbosity)
+                verbose=hyperparams.log_verbosity,
+                gamma=hyperparams.gamma)
 
     if hyperparams.use_recurrent_policy:
         model = RecurrentPPO(policy=hyperparams.recurrent_policy,
