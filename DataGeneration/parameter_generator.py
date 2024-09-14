@@ -35,8 +35,8 @@ class ParameterGeneratorForPlanarRobot(Iterator, ABC):
             device: the device to use for torch tensors
             num_joints: The number of joints of the robot.
             parameter_convention: Either 'DH' or 'MDH'. (As of now, only 'DH' is supported)
-            min_len: Limits the minimum value of a.
-            max_len: Limits the maximum value of a.
+            min_len: Limits the minimum value of a
+            max_len: Limits the maximum value of a
         """
         super().__init__()
         self.batch_size: int = batch_size

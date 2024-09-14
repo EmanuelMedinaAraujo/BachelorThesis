@@ -15,6 +15,7 @@ class KinematicsEnvironment(gym.Env):
 
         self.device = device
         self.tolerable_accuracy_error = hyperparams.tolerable_accuracy_error
+        self.max_legend_length = hyperparams.visualization.max_legend_length
 
         num_joints = hyperparams.number_of_joints
         self.problem_generator = ParameterGeneratorForPlanarRobot(batch_size=1,
@@ -57,7 +58,7 @@ class KinematicsEnvironment(gym.Env):
         # Visualize the robot arm using the updated parameters and using visualize_planar_robot
         visualize_planar_robot(parameter=updated_parameter, default_line_transparency=1., default_line_width=1.5,
                                frame_size_scalar=1.1, device=self.device, goal=self.goal, standard_size=True,
-                               show_distance=True)
+                               show_distance=True, max_legend_length=self.max_legend_length)
 
     def set_goal(self, new_goal):
         self.goal = new_goal

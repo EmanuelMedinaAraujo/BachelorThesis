@@ -4,7 +4,6 @@ import hydra
 import torch
 from omegaconf import DictConfig
 from stable_baselines3 import PPO
-from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.utils import set_random_seed
 from sb3_contrib import RecurrentPPO
@@ -96,9 +95,7 @@ def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, 
                                      test_dataloader=test_dataloader,
                                      hyperparams=hyperparams,
                                      device=device,
-                                     num_joints=hyperparams.number_of_joints,
-                                     tolerable_accuracy_error=hyperparams.tolerable_accuracy_error,
-                                     tensor_type=tensor_type)
+                                     tolerable_accuracy_error=hyperparams.tolerable_accuracy_error)
     # Train the model
     model.learn(total_timesteps=hyperparams.total_timesteps, callback=logger_callback,
                 progress_bar=True)
