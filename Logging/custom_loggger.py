@@ -4,7 +4,6 @@ from tqdm.gui import tqdm
 
 
 def init_wandb(cfg: DictConfig):
-    wandb.require("core")
     wandb.init(
         # set the wandb project where this run will be logged
         project=cfg.hyperparams.project_name,

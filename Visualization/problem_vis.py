@@ -104,7 +104,6 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams, lo
                                show_plot=vis_params.show_plot,
                                show_joint_label=vis_params.show_joint_label,
                                show_distance=vis_params.show_distance_in_legend,
-                               is_distribution=vis_params.visualize_distribution,
                                link_accuracy=link_accuracy if vis_params.visualize_distribution else None,
                                max_legend_length=vis_params.max_legend_length,
                                logger=logger if hyperparams.log_visualization_plots else None)

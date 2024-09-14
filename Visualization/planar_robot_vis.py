@@ -8,8 +8,7 @@ import os
 from Util.forward_kinematics import calculate_distances
 
 
-def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar, max_legend_length,
-                           is_distribution=False, use_gradual_transparency=False, device='cpu',
+def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar, max_legend_length, use_gradual_transparency=False, device='cpu',
                            use_color_per_robot=False, goal=None, link_accuracy=None, standard_size=False,
                            save_to_file=False, show_joint_label=True, show_plot=True, robot_label_note="",
                            show_distance=False, logger=None):
@@ -31,7 +30,6 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         show_plot: If True, a plot will be opened
         robot_label_note: A string to add to each robot label.
         show_distance: If True, the distance to the goal will be shown in the legend.
-        is_distribution: If True, a distribution of parameters needs to be visualized.
         max_legend_length: The maximum length of the legend.
         logger: The logger to use for plot logging.
     """

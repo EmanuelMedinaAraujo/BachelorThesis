@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 from stable_baselines3.common.callbacks import BaseCallback
-from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.utils import safe_mean
 
 from Util.forward_kinematics import calculate_distances
@@ -11,7 +10,7 @@ from Visualization.problem_vis import visualize_problem
 class LoggerCallback(BaseCallback):
 
     def __init__(self, logger, visualization_history, goal_to_vis, param_to_vis, hyperparams,
-                 device, test_dataloader, num_joints, tensor_type, tolerable_accuracy_error, verbose: int = 2):
+                 device, test_dataloader, tolerable_accuracy_error, verbose: int = 2):
         super(LoggerCallback, self).__init__(verbose)
         self.custom_logger = logger
         self.visualization_history = visualization_history
@@ -104,14 +103,10 @@ class LoggerCallback(BaseCallback):
 
             observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
             # cell and hidden state of the LSTM
-            lstm_states = None
-            num_envs = 1
-            # Episode start signals are used to reset the lstm states
-            episode_starts = np.ones((num_envs,), dtype=bool)
-
             if self.hyperparams.use_recurrent_policy:
                 # cell and hidden state of the LSTM
                 lstm_states = None
+                # Episode start signals are used to reset the lstm states
                 episode_starts = np.ones((1,), dtype=bool)
                 pred, _ = self.model.predict(observation, state=lstm_states, episode_start=episode_starts)
             else:
