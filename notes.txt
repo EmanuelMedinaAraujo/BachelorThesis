@@ -14,7 +14,7 @@ TODO:
 - ssh keys erstellen
 - joints kleiner machen / komplett ausblenden
 - distribution sample error rausnehmen
-- endeffector erstellen
+- endeffector in visualisierung erstellen
 - heatmap für endeffector erstellen
 - ein zwei parameter sätze auswählen und value loss diskretisieren
     - heatmap für value loss erstellen (ein parameter pro grafik)
