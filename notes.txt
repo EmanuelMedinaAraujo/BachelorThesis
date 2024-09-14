@@ -5,24 +5,27 @@ Resourcen nicht überlegen
 Frage:
 
 DONE:
+- ssh keys erstellen
+- conda einrichten
+- Visualisierung:
+    - Zusammenfassung verschiedener sample rausnehmen (error parameter rausnehmen)
+    - joints kleiner machen / komplett ausblenden
+    - endeffector in visualisierung erstellen
+- gamma auf 0 setzen
+
+- prime-leaf21 lauf mit grafik laufen lassen
+    - distribution sollte kleiner werden
 
 TODO:
 - angles wie bei analytical berechnen
 - seaborn anschauen und benutzen
     - pandas für data
-- conda einrichten
-- ssh keys erstellen
-- joints kleiner machen / komplett ausblenden
-- distribution sample error rausnehmen
-- endeffector in visualisierung erstellen
 - heatmap für endeffector erstellen
 - ein zwei parameter sätze auswählen und value loss diskretisieren
     - heatmap für value loss erstellen (ein parameter pro grafik)
-- prime-leaf21 lauf mit grafik laufen lassen
-    - distribution sollte kleiner werden
 - recurrent vs non-recurrent vergleichen
     - Laufen lassen
-- gamma auf 0 setzen
+
 - mit entropy coefficient rumspielen (0.01, (im paper))
 - reread PPO optimizer Paper
 - 5 Runs (1 Random seed)

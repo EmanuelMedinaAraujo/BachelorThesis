@@ -53,25 +53,12 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams, lo
         vis_params = hyperparams.visualization
         # Concatenate the predicted theta values to the parameter
         if vis_params.visualize_distribution:
-
-            # Check if the predictions are equal within a certain error margin and replace them with the same value
-            for i in range(vis_params.num_distribution_samples):
-                error_margin = vis_params.distribution_sample_error
-                for j in range(i,vis_params.num_distribution_samples):
-                    # Check if the predictions are equal within a certain error margin
-                    if torch.all(torch.abs(predictions[i] - predictions[j]) < error_margin):
-                        predictions[j] = predictions[i]
-
             predictions, link_accuracy = torch.unique(torch.stack(predictions), dim=0,
                                                return_counts=True)
             link_accuracy = link_accuracy / vis_params.num_distribution_samples
             if len(torch.unique(link_accuracy)) == 1:
                 # If all link accuracies are the same, set all to the default value
                 link_accuracy = torch.full([len(link_accuracy)], vis_params.default_line_transparency).to(device)
-
-            if vis_params.scale_distribution_probabilities:
-                scaling_summand = (1 - torch.max(link_accuracy))/2
-                link_accuracy = link_accuracy + scaling_summand
 
             # Sort link_accuracy in descending order and predictions accordingly
             link_accuracy, indices = torch.sort(link_accuracy, descending=True)
@@ -102,6 +89,8 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams, lo
                                use_color_per_robot=vis_params.use_color_per_robot,
                                use_gradual_transparency=vis_params.use_gradual_transparency,
                                show_plot=vis_params.show_plot,
+                               show_joints=vis_params.show_joints,
+                               show_end_effectors=vis_params.show_end_effectors,
                                show_joint_label=vis_params.show_joint_label,
                                show_distance=vis_params.show_distance_in_legend,
                                link_accuracy=link_accuracy if vis_params.visualize_distribution else None,

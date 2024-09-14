@@ -1,5 +1,5 @@
 hyperparams:
-  project_name: thesis-pt-02
+  project_name: thesis-pt-03
 
   random_seed: 42
 
@@ -9,9 +9,9 @@ hyperparams:
 
   use_recurrent_policy: false
   recurrent_policy: "MlpLstmPolicy"
-  n_envs: 16
+  n_envs: 128
   n_steps: 128
-  total_timesteps: 10000
+  total_timesteps: 10000000
 
   # Model learning parameter
   learning_rate: 1e-5
@@ -37,7 +37,7 @@ hyperparams:
 
   #Logging
   log_in_wandb: true
-  log_in_console: true
+  log_in_console: false
   log_verbosity: 0 # 0: No logging, 1: Only important logs, 2: All logs. This parameter applies only to the logging of the PPO Model when using stable baselines 3
   log_visualization_plots: false
 
@@ -45,11 +45,9 @@ hyperparams:
     do_visualization: true
     visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
     num_distribution_samples: 1000
-    distribution_sample_error: 0.2
-    scale_distribution_probabilities: true
     max_history_length: 10
-    interval: 1000 # Number of epochs after which the visualization is updated
-    default_line_transparency: 1.
+    interval: 500000 # Number of epochs after which the visualization is updated
+    default_line_transparency: .1
     frame_size_scalar: 1.1
     default_line_width: 1.5
     use_color_per_robot: false
@@ -58,6 +56,8 @@ hyperparams:
     save_to_file: false
     show_plot: false
     show_joint_label: false
+    show_joints: false
+    show_end_effectors: false
     plot_all_in_one: false
     show_distance_in_legend: true
     max_legend_length: 15

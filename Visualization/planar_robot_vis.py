@@ -8,9 +8,10 @@ import os
 from Util.forward_kinematics import calculate_distances
 
 
-def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar, max_legend_length, use_gradual_transparency=False, device='cpu',
+def visualize_planar_robot(parameter, default_line_transparency, default_line_width, frame_size_scalar,
+                           max_legend_length, use_gradual_transparency=False, device='cpu',
                            use_color_per_robot=False, goal=None, link_accuracy=None, standard_size=False,
-                           save_to_file=False, show_joint_label=True, show_plot=True, robot_label_note="",
+                           save_to_file=False, show_joints=False, show_joint_label=True, show_end_effectors=False, show_plot=True, robot_label_note="",
                            show_distance=False, logger=None):
     """
     Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
@@ -26,6 +27,8 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         link_accuracy: The transparency of the robot arm links. If None, the default_line_transparency will be used.
         standard_size: If True, the plot size will be set to the maximum theoretical length of the robot arm.
         save_to_file: If True, the plot will be saved to a file.
+        show_end_effectors: If True, the end effector will be shown in the plot.
+        show_joints: If True, the joints will be plotted.
         show_joint_label: If True, the joint labels will be shown in the legend.
         show_plot: If True, a plot will be opened
         robot_label_note: A string to add to each robot label.
@@ -70,6 +73,8 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
                                            use_color_per_robot=use_color_per_robot,
                                            robot_num=(i + 1, parameter.shape[0]),
                                            show_joint_label=show_joint_label,
+                                           show_joints=show_joints,
+                                           show_end_effectors=show_end_effectors,
                                            robot_label_note=robot_label_note,
                                            use_gradual_transparency=use_gradual_transparency,
                                            show_distance=show_distance,
@@ -82,6 +87,8 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
                                        link_accuracy=link_accuracy.item(),
                                        default_line_width=default_line_width,
                                        show_joint_label=show_joint_label,
+                                       show_joints=show_joints,
+                                        show_end_effectors=show_end_effectors,
                                        show_distance=show_distance,
                                        goal=goal)
 
@@ -90,7 +97,9 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
 
     # Only show first 20 entries and '...' if there are more
     handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles[:max_legend_length], labels[:max_legend_length] + (['...'] if len(labels) > max_legend_length else []), loc='upper left', bbox_to_anchor=(1, 1))
+    ax.legend(handles[:max_legend_length],
+              labels[:max_legend_length] + (['...'] if len(labels) > max_legend_length else []), loc='upper left',
+              bbox_to_anchor=(1, 1))
     plt.tight_layout()
     if logger is not None:
         # Save the plot to a file temporarily
@@ -111,6 +120,8 @@ def plot_planar_robot(ax, parameter, link_accuracy,
                       use_color_per_robot=False,
                       robot_num=(1, 1),
                       show_joint_label=True,
+                      show_joints=True,
+                      show_end_effectors=False,
                       robot_label_note="",
                       goal=None):
     """
@@ -125,13 +136,24 @@ def plot_planar_robot(ax, parameter, link_accuracy,
         use_color_per_robot: If True, the robot arm links will be colored based on the robot number.
         robot_num: The number of the robot arm and the total number of robot arms.
         show_joint_label: If True, the joint labels will be shown in the legend
+        show_joints: If True, the joints will be plotted.
+        show_end_effectors: If True, the end effector will be shown in the plot.
         robot_label_note: A string to add to the robot label.
         show_distance: If True, the distance to the goal will be shown in the legend.
         goal: The goal of the robot arm. Is needed to calculate the distance to the goal.
+    Returns: The maximum length of the robot arm.
     """
     start_coordinates = np.array([0, 0])
+    end_coordinates = np.array([0, 0])
     max_length = 0.0
     total_angle = 0.0
+
+    transparency = link_accuracy
+    if use_gradual_transparency:
+        transparency_steps = 0.9 / robot_num[1]
+        transparency = 0.1 + transparency_steps * robot_num[0]
+        if transparency > 1:
+            transparency = 1
 
     color = None
     for i in range(parameter.shape[0]):
@@ -144,26 +166,29 @@ def plot_planar_robot(ax, parameter, link_accuracy,
         end_coordinates = start_coordinates + np.array(
             [link_length * math.cos(total_angle), link_length * math.sin(total_angle)])
 
-        transparency = link_accuracy
-        if use_gradual_transparency:
-            transparency_steps = 0.9 / robot_num[1]
-            transparency = 0.1 + transparency_steps * robot_num[0]
-            if transparency > 1:
-                transparency = 1
-
         # Plot link
         link_line, = ax.plot([start_coordinates[0], end_coordinates[0]], [start_coordinates[1], end_coordinates[1]],
                              color=color if use_color_per_robot else 'r', lw=default_line_width, alpha=transparency)
+        # Set the color for the next link to the color of the current link
         if color is None:
             color = link_line.get_color()
+            # Add a label only once for each robot arm, since this is only executed for the first link
             distance_label = ""
             if show_distance and goal is not None:
                 distance = calculate_distances(parameter, goal)
                 distance_label = f"({distance:.2f})"
             link_line.set_label(f"Robot Arm {robot_num[0]}" + distance_label + " " + robot_label_note)
         joint_label = f'$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}' if show_joint_label else None
-        ax.plot(start_coordinates[0], start_coordinates[1], '-o', label=joint_label)
+        # Plot joint
+        if show_joints:
+            ax.plot(start_coordinates[0], start_coordinates[1], '-o', label=joint_label, markersize=1, color=color,
+                    alpha=transparency)
         start_coordinates = end_coordinates
+
+    if show_end_effectors:
+        # Plot end effector
+        ax.plot(end_coordinates[0], end_coordinates[1], '-o', markersize=1,
+                color=color, alpha=transparency)
     return max_length
 
 
