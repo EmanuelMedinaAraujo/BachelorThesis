@@ -4,7 +4,7 @@ Server:
     Resourcen nicht überlegen
 
     Create tmux session:
-     tmux
+     tmux new -s name
     acitvate conda environment:
         conda activate thesis_env
     To detach tmux:
@@ -37,11 +37,18 @@ DONE:
 
 In Progress:
 - 5 Runs (1 Random seed - 42)
+    - Default Gamma (0.99; andere Runs haben 0.0)
+        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/2l7qvhi0
     - 1 Normal
-    - 1 mit erhöhter std (x1.5)
-    - 1 mit verkleinerter std
+        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/alxzzve9
+    - 1 mit erhöhter log_std_init (2.0 [default 0.0])
+        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/y749d0gk
+    - 1 mit verkleinerter log_std_init (-3.0)
+        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/jdbdbsaf
     - 1 mit entropy coefficient 0.01 (sonst 0)
-    - 1 mit erhöhter std und entropy coefficient 0.01
+        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/641h9cwa
+    - 1 mit erhöhter log_std_init und entropy coefficient 0.01
+        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/o9t2yscc
 
 TODO:
 - angles wie bei analytical berechnen

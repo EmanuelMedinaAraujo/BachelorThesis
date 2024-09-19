@@ -41,7 +41,8 @@ hyperparams:
   log_in_wandb: true
   log_in_console: false
   log_verbosity: 0 # 0: No logging, 1: Only important logs, 2: All logs. This parameter applies only to the logging of the PPO Model when using stable baselines 3
-  log_visualization_plots: true
+  log_visualization_plots: false
+  wand_callback_logging_freq: 1000
 
   visualization:
     do_visualization: true
