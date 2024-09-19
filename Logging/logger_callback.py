@@ -26,19 +26,21 @@ class LoggerCallback(BaseCallback):
         self.rollout_counter = 0
         self.rew_buf = 0
         self.tolerable_accuracy_error = tolerable_accuracy_error
-
-        # self.test_env = KinematicsEnvironment(device, test_dataloader, hyperparams)
+        self.last_vis_step = 0
+        self.last_testing_step = 0
 
     def _on_step(self) -> bool:
         if self.hyperparams.visualization.do_visualization:
-            if self.num_timesteps % self.hyperparams.visualization.interval == 0:
+            if self.num_timesteps - self.last_vis_step > self.hyperparams.visualization.interval:
+                self.last_vis_step = self.num_timesteps
                 visualize_problem(model=self.model,
                                   device=self.device,
                                   param=self.param_to_vis,
                                   goal=self.goal_to_vis,
                                   param_history=self.visualization_history,
                                   hyperparams=self.hyperparams,
-                                  logger=self.custom_logger)
+                                  logger=self.custom_logger,
+                                  current_step=self.num_timesteps)
 
         reward = self.locals.get('rewards')[0]
         self.rew_buf += reward
@@ -49,7 +51,8 @@ class LoggerCallback(BaseCallback):
         self.rollout_counter += 1
 
         # Evaluate the model
-        if self.num_timesteps % self.hyperparams.testing_interval == 0:
+        if self.num_timesteps - self.last_testing_step > self.hyperparams.testing_interval:
+            self.last_testing_step = self.num_timesteps
             with torch.no_grad():
                 env = self.model.get_env()
                 # Get goal and parameter from model environment
@@ -57,12 +60,11 @@ class LoggerCallback(BaseCallback):
                 old_param = env.env_method("get_wrapper_attr", "parameter")
 
                 accuracy, mean_reward = self.test_model(env)
-                self.custom_logger.log_test(accuracy, mean_reward)
+                self.custom_logger.log_test(accuracy, mean_reward, self.num_timesteps, self.num_timesteps)
 
                 # Reset goal and parameter
                 env.env_method("set_goal", old_goal[0])
                 env.env_method("set_parameter", old_param[0])
-
         return True
 
     def _on_rollout_end(self) -> None:
@@ -70,7 +72,7 @@ class LoggerCallback(BaseCallback):
         success_rate = safe_mean(self.success_buf)
         mean_reward = self.rew_buf / self.rollout_counter
 
-        self.custom_logger.log_rollout(mean_reward, success_rate, rollout_buf_mean_rew)
+        self.custom_logger.log_rollout(mean_reward, success_rate, rollout_buf_mean_rew, self.num_timesteps)
 
         # Reset success buffer
         self.success_buf = []
@@ -89,7 +91,8 @@ class LoggerCallback(BaseCallback):
                                                  self.model.logger.name_to_value['train/n_updates'],
                                                  self.model.logger.name_to_value['train/policy_gradient_loss'],
                                                  self.model.logger.name_to_value['train/value_loss'],
-                                                 self.model.logger.name_to_value['train/std'])
+                                                 self.model.logger.name_to_value['train/std'],
+                                                 self.num_timesteps)
         else:
             self.skip_first_log = False
 

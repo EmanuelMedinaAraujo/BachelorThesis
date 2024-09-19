@@ -4,7 +4,7 @@ import torch
 from Visualization.planar_robot_vis import visualize_planar_robot
 
 
-def visualize_problem(model, param, goal, device, param_history, hyperparams, logger=None):
+def visualize_problem(model, param, goal, device, param_history, hyperparams, logger=None, current_step=None):
     """
     Visualize a single robot arm with the given parameters and goal.
     """
@@ -95,7 +95,8 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams, lo
                                show_distance=vis_params.show_distance_in_legend,
                                link_accuracy=link_accuracy if vis_params.visualize_distribution else None,
                                max_legend_length=vis_params.max_legend_length,
-                               logger=logger if hyperparams.log_visualization_plots else None)
+                               logger=logger if hyperparams.log_visualization_plots else None,
+                               current_step=current_step)
 
         if not hyperparams.use_stable_baselines3:
             model.train()

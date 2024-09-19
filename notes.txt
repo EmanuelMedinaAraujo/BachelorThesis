@@ -1,8 +1,16 @@
 Server:
-@tars.cps.in.tum.de
-Resourcen nicht überlegen
+    @tars.cps.in.tum.de
+    nvidia-smi
+    Resourcen nicht überlegen
+
+    Create tmux session:
+     tmux
+    To detach tmux:
+        Ctrl+b, d
+    tmux attach
 
 Frage:
+nohup vs screen vs tmux? Ist eins viel besser?
 
 DONE:
 - ssh keys erstellen
@@ -11,10 +19,27 @@ DONE:
     - Zusammenfassung verschiedener sample rausnehmen (error parameter rausnehmen)
     - joints kleiner machen / komplett ausblenden
     - endeffector in visualisierung erstellen
-- gamma auf 0 setzen
 
-- prime-leaf21 lauf mit grafik laufen lassen
-    - distribution sollte kleiner werden
+- prime-leaf21 lauf mit grafik laufen lassen (https://wandb.ai/medina-tum/thesis-pt-03/runs/iomgb1qp/overview)
+    - distribution sollte kleiner werden (gamma ist dafür verantwortlich)
+    https://wandb.ai/medina-tum/thesis-pt-03/runs/05i950rg/overview
+
+- gamma auf 0 setzen
+        https://wandb.ai/medina-tum/thesis-pt-03/runs/05i950rg/overview (s. Non-recurrent)
+- recurrent vs non-recurrent vergleichen
+    - Laufen lassen
+        - Recurrent: https://wandb.ai/medina-tum/thesis-pt-03/runs/kp7m81h1/overview
+        - Non-Recurrent: https://wandb.ai/medina-tum/thesis-pt-03/runs/05i950rg/overview
+            - Non-Recurrent Base: (Gamma, Vis, TestInterval halbiert) https://wandb.ai/medina-tum/thesis-pt-03/runs/iomgb1qp/overview
+                -> Gamma Wert war verantwortlich für die verteilung. mit 0. nicht mehr gestreut in visualisierung
+
+In Progress:
+- 5 Runs (1 Random seed - 42)
+    - 1 Normal
+    - 1 mit erhöhter std (x1.5)
+    - 1 mit verkleinerter std
+    - 1 mit entropy coefficient 0.01 (sonst 0)
+    - 1 mit erhöhter std und entropy coefficient 0.01
 
 TODO:
 - angles wie bei analytical berechnen
@@ -23,17 +48,9 @@ TODO:
 - heatmap für endeffector erstellen
 - ein zwei parameter sätze auswählen und value loss diskretisieren
     - heatmap für value loss erstellen (ein parameter pro grafik)
-- recurrent vs non-recurrent vergleichen
-    - Laufen lassen
 
 - mit entropy coefficient rumspielen (0.01, (im paper))
-- reread PPO optimizer Paper
-- 5 Runs (1 Random seed)
-    - 1 Normal
-    - 1 mit erhöhter std (x1.5)
-    - 1 mit verkleinerter std
-    - 1 mit entropy coefficient 0.01 (sonst 0)
-    - 1 mit erhöhter std und entropy coefficient 0.01
+
 
 
 - Gymnasium für analytical erstellen

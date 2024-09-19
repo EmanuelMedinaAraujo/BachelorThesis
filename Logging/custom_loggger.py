@@ -46,14 +46,14 @@ class GeneralLogger:
             wandb.log({"train/acc": accuracy, "train/loss": loss})
             return
 
-    def log_test(self, accuracy, loss):
+    def log_test(self, accuracy, loss, current_step = None):
         if self.log_in_console:
             tqdm.write(f"Test: Accuracy: {accuracy :>0.2f}%, Avg loss: {loss:>8f}\n")
         if self.log_in_wandb:
-            wandb.log({"test/acc": accuracy, "test/loss": loss})
+            wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
 
     def log_train_rollout(self, approx_kl, clip_fraction, clip_range, entropy_loss, explained_variance, learning_rate,
-                          loss, n_updates, policy_gradient_loss, value_loss, std):
+                          loss, n_updates, policy_gradient_loss, value_loss, std, current_step = None):
         if self.log_in_console:
             tqdm.write(f"train/approx_kl: {approx_kl}")
             tqdm.write(f"train/clip_fraction: {clip_fraction}")
@@ -73,16 +73,16 @@ class GeneralLogger:
                        "train/explained_variance": explained_variance, "train/learning_rate": learning_rate,
                        "train/loss": loss, "train/n_updates": n_updates,
                        "train/policy_gradient_loss": policy_gradient_loss,
-                       "train/std": std, "train/value_loss": value_loss})
+                       "train/std": std, "train/value_loss": value_loss}, step=current_step)
 
-    def log_rollout(self, ep_rew_mean, success_rate, rollout_buf_mean_rew):
+    def log_rollout(self, ep_rew_mean, success_rate, rollout_buf_mean_rew, current_step = None):
         if self.log_in_console:
             tqdm.write(f"Rollout: Mean reward: {ep_rew_mean:>8f}, Success rate: {success_rate:>0.2f}%")
         if self.log_in_wandb:
             wandb.log({"rollout/mean_reward": ep_rew_mean,
                        "rollout/success_rate": success_rate,
-                       "rollout/buf_mean_reward": rollout_buf_mean_rew})
+                       "rollout/buf_mean_reward": rollout_buf_mean_rew}, step=current_step)
 
-    def log_plot(self, path):
+    def log_plot(self, path, current_step = None):
         if self.log_in_wandb:
-            wandb.log({"plot": wandb.Image(path)})
+            wandb.log({"plot": wandb.Image(path)}, step=current_step)
