@@ -5,6 +5,8 @@ Server:
 
     Create tmux session:
      tmux
+    acitvate conda environment:
+        conda activate thesis_env
     To detach tmux:
         Ctrl+b, d
     tmux attach

@@ -33,6 +33,10 @@ def train_and_test_model(cfg: DictConfig):
         if torch.backends.mps.is_available()
         else "cpu"
     )
+
+    # Print total timestep from config
+    print(f"Total Timesteps: {cfg.hyperparams.total_timesteps}")
+
     tensor_type = torch.float32
 
     hyperparams = cfg.hyperparams
@@ -60,6 +64,7 @@ def train_and_test_model(cfg: DictConfig):
     else:
         do_analytical_learning(device, hyperparams, logger, test_dataset, visualization_history,
                                visualization_goal, visualization_param, tensor_type)
+    logger.finish_logging()
     tqdm.write("Done!")
 
 
