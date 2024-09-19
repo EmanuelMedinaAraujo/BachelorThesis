@@ -76,7 +76,11 @@ def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, 
                 n_epochs=hyperparams.epochs,
                 n_steps=hyperparams.n_steps,
                 verbose=hyperparams.log_verbosity,
-                gamma=hyperparams.gamma)
+                gamma=hyperparams.gamma,
+                ent_coef=hyperparams.ent_coef,
+                seed=hyperparams.random_seed,
+                policy_kwargs=dict(log_std_init=hyperparams.log_std_init)  # Set initial standard deviation
+                )
 
     if hyperparams.use_recurrent_policy:
         model = RecurrentPPO(policy=hyperparams.recurrent_policy,
@@ -86,7 +90,11 @@ def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, 
                              n_epochs=hyperparams.epochs,
                              n_steps=hyperparams.n_steps,
                              verbose=hyperparams.log_verbosity,
-                             gamma=hyperparams.gamma)
+                             gamma=hyperparams.gamma,
+                             ent_coef=hyperparams.ent_coef,
+                             seed=hyperparams.random_seed,
+                             policy_kwargs=dict(log_std_init=hyperparams.log_std_init)  # Set initial standard deviation
+                             )
 
     logger_callback = LoggerCallback(logger=logger,
                                      visualization_history=visualization_history,
