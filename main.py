@@ -2,6 +2,8 @@ import sys
 
 import hydra
 import torch
+from stable_baselines3.common.callbacks import CallbackList
+from wandb.integration.sb3 import WandbCallback
 from omegaconf import DictConfig
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
@@ -33,9 +35,6 @@ def train_and_test_model(cfg: DictConfig):
         if torch.backends.mps.is_available()
         else "cpu"
     )
-
-    # Print total timestep from config
-    print(f"Total Timesteps: {cfg.hyperparams.total_timesteps}")
 
     tensor_type = torch.float32
 
@@ -110,6 +109,9 @@ def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, 
                                      hyperparams=hyperparams,
                                      device=device,
                                      tolerable_accuracy_error=hyperparams.tolerable_accuracy_error)
+    if hyperparams.log_in_wandb:
+        logger_callback = CallbackList([logger_callback, WandbCallback(gradient_save_freq=hyperparams.wand_callback_logging_freq)])
+
     # Train the model
     model.learn(total_timesteps=hyperparams.total_timesteps, callback=logger_callback,
                 progress_bar=True)
@@ -120,6 +122,7 @@ def do_analytical_learning(device, hyperparams, logger, test_dataset, visualizat
     model = KinematicsNetwork(num_joints=hyperparams.number_of_joints,
                               num_layer=hyperparams.num_layer,
                               layer_sizes=hyperparams.layer_sizes).to(device)
+    logger.watch_model(model)
     optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams.learning_rate)
 
     # Create Problem Generator

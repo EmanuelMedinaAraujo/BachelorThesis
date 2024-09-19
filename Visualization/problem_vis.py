@@ -49,12 +49,12 @@ def visualize_problem(model, param, goal, device, param_history, hyperparams, lo
 
         else:
             pred = model((param, goal))
+            predictions = [pred]
 
         vis_params = hyperparams.visualization
         # Concatenate the predicted theta values to the parameter
         if vis_params.visualize_distribution:
-            predictions, link_accuracy = torch.unique(torch.stack(predictions), dim=0,
-                                               return_counts=True)
+            predictions, link_accuracy = torch.unique(torch.stack(predictions), dim=0,return_counts=True)
             link_accuracy = link_accuracy / vis_params.num_distribution_samples
             if len(torch.unique(link_accuracy)) == 1:
                 # If all link accuracies are the same, set all to the default value

@@ -52,6 +52,10 @@ class GeneralLogger:
         if self.log_in_wandb:
             wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
 
+    def watch_model(self, model):
+        if self.log_in_wandb:
+            wandb.watch(model)
+
     def log_train_rollout(self, approx_kl, clip_fraction, clip_range, entropy_loss, explained_variance, learning_rate,
                           loss, n_updates, policy_gradient_loss, value_loss, std, current_step = None):
         if self.log_in_console:
