@@ -4,3 +4,4 @@
 *.pyc
 wandb/
 outputs/
+multirun/

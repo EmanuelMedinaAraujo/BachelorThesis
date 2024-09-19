@@ -86,3 +86,7 @@ class GeneralLogger:
     def log_plot(self, path, current_step = None):
         if self.log_in_wandb:
             wandb.log({"plot": wandb.Image(path)}, step=current_step)
+
+    def finish_logging(self):
+        if self.log_in_wandb:
+            wandb.finish()
