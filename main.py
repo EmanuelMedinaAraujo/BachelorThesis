@@ -110,7 +110,8 @@ def do_stable_baselines3_learning(device, hyperparams, logger, test_dataloader, 
                                      device=device,
                                      tolerable_accuracy_error=hyperparams.tolerable_accuracy_error)
     if hyperparams.log_in_wandb:
-        logger_callback = CallbackList([logger_callback, WandbCallback(gradient_save_freq=hyperparams.wand_callback_logging_freq)])
+        logger_callback = CallbackList(
+            [logger_callback, WandbCallback(gradient_save_freq=hyperparams.wand_callback_logging_freq)])
 
     # Train the model
     model.learn(total_timesteps=hyperparams.total_timesteps, callback=logger_callback,
