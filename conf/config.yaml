@@ -62,4 +62,4 @@ hyperparams:
     show_end_effectors: false
     plot_all_in_one: false
     show_distance_in_legend: true
-    max_legend_length: 15
+    max_legend_length: 10
