@@ -1,5 +1,5 @@
 hyperparams:
-  project_name: thesis-pt-03
+  project_name: thesis-compare-ppo
 
   random_seed: 42
 
@@ -11,13 +11,13 @@ hyperparams:
   recurrent_policy: "MlpLstmPolicy"
   n_envs: 128
   n_steps: 128
-  total_timesteps: 10000000
+  total_timesteps: 2000000
 
   # Model learning parameter
   learning_rate: 1e-5
   gamma: 0.
-  ent_coef: 0.0
-  log_std_init : 2.0
+  ent_coef: 0.0 # default value: 0.0
+  log_std_init : 0.0 # default value: 0.0
   batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
   epochs: 10
 
@@ -34,7 +34,7 @@ hyperparams:
   max_link_length: 0.5
 
   # Test Parameter
-  testing_interval: 500000 # Number of epochs to be run after which a test run is performed
+  testing_interval: 500000 # Number of epochs to be run after which a test run is performed (in stablebaselines3 use next possible step when using n_envs > 1 )
   number_of_test_problems: 1000
 
   #Logging
@@ -48,7 +48,7 @@ hyperparams:
     visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
     num_distribution_samples: 1000
     max_history_length: 10
-    interval: 500000 # Number of epochs after which the visualization is updated
+    interval: 200000 # Number of epochs after which the visualization is updated
     default_line_transparency: .1
     frame_size_scalar: 1.1
     default_line_width: 1.5

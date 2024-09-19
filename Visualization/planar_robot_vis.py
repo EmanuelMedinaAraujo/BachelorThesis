@@ -12,7 +12,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
                            max_legend_length, use_gradual_transparency=False, device='cpu',
                            use_color_per_robot=False, goal=None, link_accuracy=None, standard_size=False,
                            save_to_file=False, show_joints=False, show_joint_label=True, show_end_effectors=False, show_plot=True, robot_label_note="",
-                           show_distance=False, logger=None):
+                           show_distance=False, logger=None, current_step=None):
     """
     Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
     Args:
@@ -35,6 +35,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         show_distance: If True, the distance to the goal will be shown in the legend.
         max_legend_length: The maximum length of the legend.
         logger: The logger to use for plot logging.
+        current_step: The current step of the training.
     """
     multiple_robots = len(parameter.size()) == 3
     if link_accuracy is None:
@@ -104,7 +105,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
     if logger is not None:
         # Save the plot to a file temporarily
         plt.savefig('temp_plot.png')
-        logger.log_plot('temp_plot.png')
+        logger.log_plot('temp_plot.png', current_step)
         # Delete the temporary file
         os.remove('temp_plot.png')
     if save_to_file:
