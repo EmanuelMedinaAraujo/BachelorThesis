@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+from custom_logging.custom_loggger import GeneralLogger
 from util.forward_kinematics import calculate_distances
 
 
@@ -14,7 +15,7 @@ class KinematicsNetwork(nn.Module):
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
 
-    def __init__(self, num_joints, num_layer, layer_sizes):
+    def __init__(self, num_joints, num_layer, layer_sizes, logger:GeneralLogger):
         """
         Initializes the KinematicsNetwork.
 
@@ -32,7 +33,7 @@ class KinematicsNetwork(nn.Module):
             stack_list.append(nn.ReLU())
         stack_list.append(nn.Linear(layer_sizes[-1], num_joints * 2))
         self.linear_relu_stack = nn.Sequential(*stack_list)
-        print(self.linear_relu_stack)
+        logger.log_network_architecture(self.linear_relu_stack)
 
     def forward(self, model_input):
         param, goal = model_input

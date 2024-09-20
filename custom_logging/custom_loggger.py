@@ -36,6 +36,10 @@ class GeneralLogger:
     def log_used_device(device):
         tqdm.write(f"Using {device} as device")
 
+    def log_network_architecture(self, network):
+        if self.log_in_console:
+            tqdm.write(network)
+
     def log_training(self, loss, epoch_num: int, accuracy):
         if self.log_in_console:
             tqdm.write(

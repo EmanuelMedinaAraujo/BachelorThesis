@@ -172,6 +172,7 @@ def do_analytical_learning(
         num_joints=cfg.number_of_joints,
         num_layer=cfg.hyperparams.analytical.num_layer,
         layer_sizes=cfg.hyperparams.analytical.layer_sizes,
+        logger=logger,
     ).to(device)
     logger.watch_model(model)
     optimizer = torch.optim.Adam(
@@ -192,7 +193,6 @@ def do_analytical_learning(
     for epoch_num in tqdm(
         range(cfg.hyperparams.analytical.epochs),
         colour="green",
-        ncols=80,
         file=sys.stdout,
     ):
         train_loop(
@@ -219,15 +219,14 @@ def do_analytical_learning(
 
         # Visualize the same problem every hyperparams.visualization.interval epochs
         if cfg.do_vis and epoch_num % cfg.vis.analytical.interval == 0:
-            # visualize_problem(model=model, param=visualization_param, goal=visualization_goal, device=device,
-            #                   param_history=visualization_history, hyperparams=hyperparams)
             visualize_analytical_problem(
                 model=model,
                 param=visualization_param,
                 goal=visualization_goal,
-                device=device,
                 param_history=visualization_history,
                 cfg=cfg,
+                logger=logger,
+                current_step=epoch_num,
             )
 
 

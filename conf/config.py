@@ -41,8 +41,6 @@ class AnalyticalVisualization:
     max_history_length: int
     default_line_transparency: float
     default_line_width: float
-    frame_size_scalar: float
-    use_color_per_robot: bool
     use_gradual_transparency: bool
     plot_all_in_one: bool
 
@@ -69,6 +67,7 @@ class Visualization:
     show_end_effectors: bool
     save_to_file: bool
     show_distance_in_legend: bool
+    show_legend: bool
     max_legend_length: int
     analytical: AnalyticalVisualization
     standard_size: bool
