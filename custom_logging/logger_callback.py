@@ -1,4 +1,5 @@
 import numpy as np
+import optuna
 import torch
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.utils import safe_mean
@@ -21,6 +22,7 @@ class LoggerCallback(BaseCallback):
         test_dataloader,
         tolerable_accuracy_error,
         verbose: int = 2,
+        trial: optuna.Trial = None
     ):
         super(LoggerCallback, self).__init__(verbose)
         self.custom_logger = logger
@@ -42,6 +44,8 @@ class LoggerCallback(BaseCallback):
 
         self.last_vis_step = 0
         self.last_testing_step = 0
+
+        self.trial = trial
 
     def _on_step(self) -> bool:
         if self.cfg.do_vis:
@@ -107,6 +111,11 @@ class LoggerCallback(BaseCallback):
         self.custom_logger.log_rollout(
             mean_reward, success_rate, rollout_buf_mean_rew, self.num_timesteps
         )
+
+        if self.trial is not None:
+            self.trial.report(mean_reward, self.num_timesteps)
+            if self.trial.should_prune():
+                raise optuna.exceptions.TrialPruned()
 
         # Reset success buffer
         self.success_buf = []

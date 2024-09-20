@@ -21,5 +21,6 @@ dependencies:
   - seaborn=0.13.2
   - black=24.8.0
   - pandas=2.2.2
+  - optuna=4.0.0
   - pip:
     - wandb==0.18.0

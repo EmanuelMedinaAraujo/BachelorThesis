@@ -27,6 +27,7 @@ class GeneralLogger:
         """
         self.log_in_wandb = cfg.logging.wandb.log_in_wandb
         self.log_in_console = cfg.logging.log_in_console
+        self.log_architecture = cfg.logging.log_architecture
 
         if self.log_in_wandb:
             if cfg is None:
@@ -38,7 +39,7 @@ class GeneralLogger:
         tqdm.write(f"Using {device} as device")
 
     def log_network_architecture(self, network):
-        if self.log_in_console:
+        if self.log_in_console and self.log_architecture:
             tqdm.write(str(network))
 
     def log_training(self, loss, epoch_num: int, accuracy):

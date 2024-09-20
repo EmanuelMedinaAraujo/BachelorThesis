@@ -1,0 +1,3 @@
+num_steps: 10
+num_processes: 5
+trials_per_process: 2

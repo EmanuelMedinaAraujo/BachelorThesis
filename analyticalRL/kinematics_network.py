@@ -28,7 +28,7 @@ class KinematicsNetwork(nn.Module):
         self.num_joints = num_joints
         self.flatten = nn.Flatten()
         stack_list = [nn.Linear(num_joints * 3 + 2, layer_sizes[0]), nn.ReLU()]
-        for i in range((num_layer - 2)):
+        for i in range(num_layer-1):
             stack_list.append(nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
             stack_list.append(nn.ReLU())
         stack_list.append(nn.Linear(layer_sizes[-1], num_joints * 2))

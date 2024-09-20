@@ -12,31 +12,8 @@ Server:
     tmux attach
 
 Frage:
-nohup vs screen vs tmux? Ist eins viel besser?
 
 DONE:
-- ssh keys erstellen
-- conda einrichten
-- Visualisierung:
-    - Zusammenfassung verschiedener sample rausnehmen (error parameter rausnehmen)
-    - joints kleiner machen / komplett ausblenden
-    - endeffector in visualisierung erstellen
-
-- prime-leaf21 lauf mit grafik laufen lassen (https://wandb.ai/medina-tum/thesis-pt-03/runs/iomgb1qp/overview)
-    - distribution sollte kleiner werden (gamma ist dafür verantwortlich)
-    https://wandb.ai/medina-tum/thesis-pt-03/runs/05i950rg/overview
-
-- gamma auf 0 setzen
-        https://wandb.ai/medina-tum/thesis-pt-03/runs/05i950rg/overview (s. Non-recurrent)
-- recurrent vs non-recurrent vergleichen
-    - Laufen lassen
-        - Recurrent: https://wandb.ai/medina-tum/thesis-pt-03/runs/kp7m81h1/overview
-        - Non-Recurrent: https://wandb.ai/medina-tum/thesis-pt-03/runs/05i950rg/overview
-            - Non-Recurrent Base: (Gamma, Vis, TestInterval halbiert) https://wandb.ai/medina-tum/thesis-pt-03/runs/iomgb1qp/overview
-                -> Gamma Wert war verantwortlich für die verteilung. mit 0. nicht mehr gestreut in visualisierung
-- mit entropy coefficient rumspielen (0.01, (im paper))
-    - Laufen lassen
-        - https://wandb.ai/medina-tum/thesis-compare-ppo/runs/641h9cwa
 
 
 In Progress:

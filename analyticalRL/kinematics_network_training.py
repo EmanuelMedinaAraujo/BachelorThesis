@@ -67,3 +67,4 @@ def train_loop(
     logger.log_training(
         loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=accuracy
     )
+    return loss_sum / problems_per_epoch
