@@ -44,10 +44,10 @@ class GeneralLogger:
     def log_training(self, loss, epoch_num: int, accuracy):
         if self.log_in_console:
             tqdm.write(
-                f"Epoch {epoch_num + 1}: Accuracy: {accuracy:>0.2f}%, Mean loss: {loss:>7f}"
+                f"Epoch {epoch_num}: Accuracy: {accuracy:>0.2f}%, Mean loss: {loss:>7f}"
             )
         if self.log_in_wandb:
-            wandb.log({"train/acc": accuracy, "train/loss": loss})
+            wandb.log({"train/acc": accuracy, "train/loss": loss}, step=epoch_num)
             return
 
     def log_test(self, accuracy, loss, current_step=None):

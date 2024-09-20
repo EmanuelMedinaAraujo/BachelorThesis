@@ -33,7 +33,7 @@ def train_and_test_model(train_config: TrainConfig):
     Train and test the model with the given hydra configuration.
     """
     device = (
-        "cuda:1"
+        "cuda"+str(train_config.server_postfix)
         if torch.cuda.is_available()
         else "mps" if torch.backends.mps.is_available()
         else "cpu"
@@ -209,13 +209,14 @@ def do_analytical_learning(
         )
 
         # Test the model every hyperparams.testing_interval epochs
-        if (epoch_num + 1) % cfg.hyperparams.analytical.testing_interval == 0:
+        if epoch_num % cfg.hyperparams.analytical.testing_interval == 0:
             test_loop(
                 test_dataset=test_dataset,
                 model=model,
                 device=device,
                 logger=logger,
                 tolerable_accuracy_error=cfg.tolerable_accuracy_error,
+                epoche_num=epoch_num
             )
 
         # Visualize the same problem every hyperparams.visualization.interval epochs

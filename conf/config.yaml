@@ -8,7 +8,7 @@ random_seed: 42
 
 use_stb3: false
 do_vis: true
-do_logging: false
+server_postfix: "" # :1 for the first server, "" for local execution
 
 # Problem Generation Parameter
 number_of_joints: 2
@@ -18,4 +18,6 @@ min_link_length: 0.3
 max_link_length: 0.5
 
 number_of_test_problems: 100000 # Number of test problems to generate
+
+
 

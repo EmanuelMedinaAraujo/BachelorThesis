@@ -1,9 +1,10 @@
 import torch
 
+from analyticalRL.kinematics_network import KinematicsNetwork
 from util.forward_kinematics import update_theta_values, calculate_distances
 
 
-def test_loop(test_dataset, model, device, tolerable_accuracy_error, logger):
+def test_loop(test_dataset, model:KinematicsNetwork, device, tolerable_accuracy_error, logger, epoche_num):
     """
     Tests the model on the given dataset and logs the accuracy and loss with the given logger.
 
@@ -43,4 +44,4 @@ def test_loop(test_dataset, model, device, tolerable_accuracy_error, logger):
     dataset_size = len(test_dataset)
     test_loss /= dataset_size
     accuracy = num_correct * 100 / dataset_size
-    logger.log_test(accuracy=accuracy, loss=test_loss)
+    logger.log_test(accuracy=accuracy, loss=test_loss, current_step=epoche_num)
