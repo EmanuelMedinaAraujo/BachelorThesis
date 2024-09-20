@@ -1,7 +1,7 @@
 wandb:
-  log_in_wandb: false
-  log_visualization_plots: false
+  log_in_wandb: true
+  log_visualization_plots: true
   wand_callback_logging_freq: 1000
   project_name: thesis-analytical
 
-log_in_console: false
+log_in_console: true

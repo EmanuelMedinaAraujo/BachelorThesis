@@ -33,9 +33,10 @@ def train_and_test_model(train_config: TrainConfig):
     Train and test the model with the given hydra configuration.
     """
     device = (
-        "cuda"
+        "cuda:1"
         if torch.cuda.is_available()
-        else "mps" if torch.backends.mps.is_available() else "cpu"
+        else "mps" if torch.backends.mps.is_available()
+        else "cpu"
     )
 
     tensor_type = torch.float32
@@ -235,4 +236,5 @@ def make_environment(device, cfg, tensor_type):
 
 
 if __name__ == "__main__":
+    torch.set_num_threads(1)
     train_and_test_model()

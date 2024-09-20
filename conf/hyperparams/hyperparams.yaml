@@ -3,11 +3,11 @@ analytical:
   layer_sizes: [ 64, 512, 256, 64 ]
 
   learning_rate: 1e-5
-  batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
+  batch_size: 32
 
   problems_per_epoch: 10000
-  epochs: 10
-  testing_interval: 2 # Number of epochs after which to test the model
+  epochs: 100
+  testing_interval: 5 # Number of epochs after which to test the model
 
 stb3:
   use_recurrent_policy: false
@@ -15,13 +15,13 @@ stb3:
   non_recurrent_policy: "MlpPolicy"
 
   recurrent_policy: "MlpLstmPolicy"
-  n_envs: 2
+  n_envs: 1
   n_steps: 128
   total_timesteps: 30000
 
   learning_rate: 1e-5
   batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
-  epochs: 10
+  epochs: 5
 
   gamma: 0.
   ent_coef: 0.0 # default value: 0.0

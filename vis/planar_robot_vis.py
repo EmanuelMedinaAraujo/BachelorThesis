@@ -1,48 +1,28 @@
+from datetime import datetime
+from typing import List
+import seaborn as sns
+
 import math
 
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
 import os
 
 from util.forward_kinematics import calculate_distances
 
 
-def visualize_planar_robot(
-    parameter,
-    default_line_transparency,
-    default_line_width,
-    frame_size_scalar,
-    max_legend_length,
-    use_gradual_transparency=False,
-    device="cpu",
-    use_color_per_robot=False,
-    goal=None,
-    link_accuracy=None,
-    standard_size=False,
-    save_to_file=False,
-    show_joints=False,
-    show_joint_label=True,
-    show_end_effectors=False,
-    show_plot=True,
-    robot_label_note="",
-    show_distance=False,
-    logger=None,
-    current_step=None,
-):
+def visualize_planar_robot(parameter, default_line_transparency, default_line_width, max_legend_length, goal=None,
+                           link_accuracy: List = None, save_to_file=False, show_joints=False, show_joint_label=True,
+                           show_end_effectors=False, show_plot=True, robot_label_note="", show_legend=True,
+                           show_distance=False, logger=None, current_step=None, do_heat_map=False):
     """
     Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
     Args:
         parameter: The parameters of the robot arm(s).
         default_line_transparency: The default transparency of the robot arm links.
         default_line_width: The default line width of the robot arm links.
-        frame_size_scalar: The scalar to multiply the frame size with.
-        use_gradual_transparency: If True, the transparency of the robot arm links will be gradually increased.
-        device: The device to use for torch operations.
-        use_color_per_robot: If True, the robot arm links will be colored based on the robot number.
         goal: The goal of the robot arm(s).
         link_accuracy: The transparency of the robot arm links. If None, the default_line_transparency will be used.
-        standard_size: If True, the plot size will be set to the maximum theoretical length of the robot arm.
         save_to_file: If True, the plot will be saved to a file.
         show_end_effectors: If True, the end effector will be shown in the plot.
         show_joints: If True, the joints will be plotted.
@@ -53,63 +33,66 @@ def visualize_planar_robot(
         max_legend_length: The maximum length of the legend.
         logger: The logger to use for plot custom_logging.
         current_step: The current step of the training.
+        show_legend: If True, the legend will be shown.
+        do_heat_map: If True, the heatmap will be shown.
     """
 
     multiple_robots = len(parameter.size()) == 3
     if link_accuracy is None:
+        link_accuracy = [default_line_transparency]
         if multiple_robots:
-            # Create a tensor of length parameter.size(dim=0) with default_line_transparency as values
-            link_accuracy = torch.full(
-                [parameter.size(dim=0)], default_line_transparency
-            ).to(device)
-        else:
-            link_accuracy = torch.full([1], default_line_transparency).to(device)
+            # Create a list of length parameter.size(dim=0) with default_line_transparency as values
+            link_accuracy *= parameter.size(dim=0)
     else:
         assert (
-            parameter.shape[0] == link_accuracy.shape[0]
+            parameter.shape[0] == link_accuracy.__len__()
         ), "The amount of robots arms and the amount of probabilities is not equal"
 
     # General settings
-    fig, ax = plt.subplots()
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.grid(True)
-    ax.axhline(0, color="black", lw=1.5)
-    ax.axvline(0, color="black", lw=1.5)
-
-    if goal is not None:
-        x, y = goal[0].item(), goal[1].item()
-        ax.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]")
-
-    max_length = 0
+    ax, multiple_robots = set_plot_settings(parameter)
 
     # Check whether multiple robot arms were given or only one
     if multiple_robots:
+        end_effector_list = []
         # Multiple Robots arm were given as parameter
         for i in range(parameter.shape[0]):
             # Plot the planar robot
-            arm_length = plot_planar_robot(
+            end_coordinates =plot_planar_robot(
                 ax=ax,
                 parameter=parameter[i],
-                link_accuracy=link_accuracy[i].item(),
+                transparency=link_accuracy[i],
                 default_line_width=default_line_width,
-                use_color_per_robot=use_color_per_robot,
-                robot_num=(i + 1, parameter.shape[0]),
                 show_joint_label=show_joint_label,
                 show_joints=show_joints,
                 show_end_effectors=show_end_effectors,
                 robot_label_note=robot_label_note,
-                use_gradual_transparency=use_gradual_transparency,
                 show_distance=show_distance,
                 goal=goal,
+                do_heat_map=do_heat_map
             )
-            max_length = max(arm_length, max_length)
+            end_effector_list.append(end_coordinates)
+        if do_heat_map:
+            end_effector_list = np.array(end_effector_list)
+            x = end_effector_list[:, 0]
+            y = end_effector_list[:, 1]
+
+            # Create a heatmap with sns.heatmap
+        #sns.heatmap(
+         #   np.array([x, y]),
+          #  annot=True,
+           # fmt=".1f",
+            #cmap="viridis",
+            #ax=ax,
+            #cbar_kws={"label": "End Effector Position"},
+        #)
+
+
     else:
         # One Robot arm was given as parameter
-        max_length = plot_planar_robot(
+         plot_planar_robot(
             ax=ax,
             parameter=parameter,
-            link_accuracy=link_accuracy.item(),
+            transparency=default_line_transparency,
             default_line_width=default_line_width,
             show_joint_label=show_joint_label,
             show_joints=show_joints,
@@ -118,45 +101,55 @@ def visualize_planar_robot(
             goal=goal,
         )
 
-    # Set the plot size
-    set_plot_limits(ax, max_length, standard_size, frame_size_scalar)
+    # Plot the goal of the robot
+    if goal is not None:
+        x, y = goal[0].item(), goal[1].item()
+        ax.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]")
 
-    # Only show first 20 entries and '...' if there are more
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(
-        handles[:max_legend_length],
-        labels[:max_legend_length]
-        + (["..."] if len(labels) > max_legend_length else []),
-        loc="upper left",
-        bbox_to_anchor=(1, 1),
-    )
+    if show_legend:
+        # Only show first max_legend_length entries
+        handles, labels = ax.get_legend_handles_labels()
+        if len(labels) > max_legend_length:
+            labels = [labels.pop()]+ labels[-max_legend_length-1:]
+            handles = [handles.pop()] + handles[-max_legend_length-1:]
+        ax.legend(
+            handles,
+            labels,
+            loc="upper left",
+            bbox_to_anchor=(1, 1),
+        )
+
     plt.tight_layout()
+
     if logger is not None:
         # Save the plot to a file temporarily
         plt.savefig("temp_plot.png")
         logger.log_plot("temp_plot.png", current_step)
         # Delete the temporary file
         os.remove("temp_plot.png")
+
     if save_to_file:
-        plt.savefig("")
+        # Get day and time for the filename
+        day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
+        path = os.path.join("../plots", f"rbt_plt_{day_time}.png")
+        plt.savefig(path)
+
     if show_plot:
         plt.show()
 
 
 def plot_planar_robot(
-    ax,
-    parameter,
-    link_accuracy,
-    default_line_width,
-    show_distance,
-    use_gradual_transparency=False,
-    use_color_per_robot=False,
-    robot_num=(1, 1),
-    show_joint_label=True,
-    show_joints=True,
-    show_end_effectors=False,
-    robot_label_note="",
-    goal=None,
+        ax,
+        parameter,
+        default_line_width,
+        transparency=1.0,
+        show_distance = False,
+        show_joint_label=True,
+        show_joints=True,
+        show_end_effectors=False,
+        robot_label_note="",
+        goal=None,
+        do_heat_map=False
 ):
     """
     Plot a planar robot arm based on the given parameters.
@@ -164,36 +157,25 @@ def plot_planar_robot(
         ax: The axis to plot the robot arm on.
         parameter: The parameters of the robot arm. The parameters are expected to be in the format
             [alpha, a, d, theta] with alpha and d being 0.
-        link_accuracy: The transparency of the robot arm links.
         default_line_width: The default line width of the robot arm links.
-        use_gradual_transparency: If True, the transparency of the robot arm links will be gradually increased.
-        use_color_per_robot: If True, the robot arm links will be colored based on the robot number.
-        robot_num: The number of the robot arm and the total number of robot arms.
         show_joint_label: If True, the joint labels will be shown in the legend
         show_joints: If True, the joints will be plotted.
         show_end_effectors: If True, the end effector will be shown in the plot.
         robot_label_note: A string to add to the robot label.
         show_distance: If True, the distance to the goal will be shown in the legend.
         goal: The goal of the robot arm. Is needed to calculate the distance to the goal.
+        transparency: The transparency of the robot arm links.
+        do_heat_map: If True, the heatmap will be shown. And therefore not drawn anything.
     Returns: The maximum length of the robot arm.
     """
     start_coordinates = np.array([0, 0])
     end_coordinates = np.array([0, 0])
-    max_length = 0.0
     total_angle = 0.0
 
-    transparency = link_accuracy
-    if use_gradual_transparency:
-        transparency_steps = 0.9 / robot_num[1]
-        transparency = 0.1 + transparency_steps * robot_num[0]
-        if transparency > 1:
-            transparency = 1
-
-    color = None
+    # Plot the robot links
+    color = 'r'
     for i in range(parameter.shape[0]):
         link_length = parameter[i, 1].item()
-        max_length += link_length
-
         link_angle = parameter[i, 3].item()
         total_angle += link_angle
 
@@ -201,32 +183,33 @@ def plot_planar_robot(
             [link_length * math.cos(total_angle), link_length * math.sin(total_angle)]
         )
 
-        # Plot link
-        (link_line,) = ax.plot(
-            [start_coordinates[0], end_coordinates[0]],
-            [start_coordinates[1], end_coordinates[1]],
-            color=color if use_color_per_robot else "r",
-            lw=default_line_width,
-            alpha=transparency,
-        )
-        # Set the color for the next link to the color of the current link
-        if color is None:
-            color = link_line.get_color()
-            # Add a label only once for each robot arm, since this is only executed for the first link
+        # Plot single link
+        if not do_heat_map:
+            (link_line,) = ax.plot(
+                [start_coordinates[0], end_coordinates[0]],
+                [start_coordinates[1], end_coordinates[1]],
+                lw=default_line_width,
+                alpha=transparency,
+                color=color
+            )
+
+        # Add a label only once for each robot arm, since this is only executed for the first link
+        if i == 0 and not do_heat_map:
             distance_label = ""
             if show_distance and goal is not None:
                 distance = calculate_distances(parameter, goal)
                 distance_label = f"({distance:.2f})"
             link_line.set_label(
-                f"Robot Arm {robot_num[0]}" + distance_label + " " + robot_label_note
+                f"Robot Arm {robot_label_note}" + distance_label
             )
-        joint_label = (
-            f"$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}"
-            if show_joint_label
-            else None
-        )
+
         # Plot joint
-        if show_joints:
+        if show_joints and not do_heat_map:
+            joint_label = (
+                f"$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}"
+                if show_joint_label
+                else None
+            )
             ax.plot(
                 start_coordinates[0],
                 start_coordinates[1],
@@ -238,7 +221,7 @@ def plot_planar_robot(
             )
         start_coordinates = end_coordinates
 
-    if show_end_effectors:
+    if show_end_effectors or do_heat_map:
         # Plot end effector
         ax.plot(
             end_coordinates[0],
@@ -246,24 +229,30 @@ def plot_planar_robot(
             "-o",
             markersize=1,
             color=color,
-            alpha=transparency,
+            alpha=1.,
         )
-    return max_length
+    return end_coordinates
 
 
-def set_plot_limits(ax, max_length, standard_size, frame_size_scalar):
-    """
-    Set the plot limits for the given axis. The limits are set based on the length of the robot arm.
-    If standard_size is True, the limits are set to the maximum theoretical length of the robot arm.
-    If standard_size is False, the limits are set in a way that only the robot arm is visible.
-    """
-    if standard_size:
-        # Ensure that the entire robot is visible by setting the limits as the maximum length of the robot
-        # Show the same size for every arm position
-        max_length *= frame_size_scalar
-        ax.set_xlim(-max_length, max_length)
-        ax.set_ylim(-max_length, max_length)
+
+def set_plot_settings(parameter):
+    # General settings
+    sns.set(style="whitegrid")
+    fig, ax = plt.subplots()
+    ax.grid(True)
+    ax.axhline(0, color="black", lw=1.5)
+    ax.axvline(0, color="black", lw=1.5)
+    # Calculate the maximum length of the robot arm from the given parameters
+    max_length = 0
+    multiple_robots = len(parameter.size()) == 3
+    if multiple_robots:
+        for i in range(parameter.shape[1]):
+            max_length += parameter[0, i, 1].item()
     else:
-        # Only show relevant part with a robot arm
-        x_max_limit = abs(max(ax.get_xlim(), key=abs)) * frame_size_scalar
-        ax.set_xlim(-x_max_limit, x_max_limit)
+        for i in range(parameter.shape[0]):
+            max_length += parameter[i, 1].item()
+    # Set the limits of the plot
+    ax.set_xlim(-max_length, max_length)
+    ax.set_ylim(-max_length, max_length)
+    return ax, multiple_robots
+

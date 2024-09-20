@@ -72,19 +72,9 @@ class KinematicsEnvironment(gym.Env):
     def render_action(self, action):
         updated_parameter = update_theta_values(self.parameter, action)
         # Visualize the robot arm using the updated parameters and using visualize_planar_robot
-        visualize_planar_robot(
-            parameter=updated_parameter,
-            default_line_transparency=1.0,
-            default_line_width=1.5,
-            frame_size_scalar=1.1,
-            device=self.device,
-            goal=self.goal,
-            standard_size=True,
-            show_distance=True,
-            max_legend_length=self.max_legend_length,
-            show_joints=self.show_joints,
-            show_end_effectors=self.show_end_effector,
-        )
+        visualize_planar_robot(parameter=updated_parameter, default_line_transparency=1.0, default_line_width=1.5,
+                               max_legend_length=self.max_legend_length, goal=self.goal, show_joints=self.show_joints,
+                               show_end_effectors=self.show_end_effector, show_distance=True)
 
     def set_goal(self, new_goal):
         self.goal = new_goal

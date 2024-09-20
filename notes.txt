@@ -38,6 +38,7 @@ DONE:
     - Laufen lassen
         - https://wandb.ai/medina-tum/thesis-compare-ppo/runs/641h9cwa
 
+
 In Progress:
 - 5 Runs (1 Random seed - 42)
     - 1 Normal
@@ -53,12 +54,15 @@ In Progress:
 
     - Default Gamma (0.99; andere Runs haben 0.0)
         https://wandb.ai/medina-tum/thesis-compare-ppo/runs/2l7qvhi0
+- heatmap für endeffector erstellen
 
 TODO:
+- evaluation bei step 0
+- optuna
+    - tpeSampler
 - angles wie bei analytical berechnen
 - seaborn anschauen und benutzen
     - pandas für data
-- heatmap für endeffector erstellen
 - ein zwei parameter sätze auswählen und value loss diskretisieren
     - heatmap für value loss erstellen (ein parameter pro grafik)
 

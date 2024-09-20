@@ -26,7 +26,7 @@ class StB3Hyperparams:
     gamma: float
     ent_coef: float
     log_std_init: float
-    test_interval: int
+    testing_interval: int
 
 
 @dataclass
@@ -49,14 +49,10 @@ class AnalyticalVisualization:
 class StB3Visualization:
     visualize_distribution: bool
     num_distribution_samples: int
-    max_history_length: int
+    do_heat_map: bool
     interval: int
     default_line_transparency: float
-    frame_size_scalar: float
     default_line_width: float
-    use_color_per_robot: bool
-    use_gradual_transparency: bool
-    plot_all_in_one: bool
 
 
 @dataclass
@@ -70,7 +66,6 @@ class Visualization:
     show_legend: bool
     max_legend_length: int
     analytical: AnalyticalVisualization
-    standard_size: bool
     stb3: StB3Visualization
 
 

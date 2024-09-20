@@ -2,17 +2,13 @@ from datetime import datetime
 
 import torch
 
-import seaborn as sns
 from analyticalRL.kinematics_network import KinematicsNetwork
 from conf.config import TrainConfig
 
-import math
-
 import matplotlib.pyplot as plt
-import numpy as np
 import os
 
-from util.forward_kinematics import calculate_distances
+from vis.planar_robot_vis import set_plot_settings, plot_planar_robot
 
 
 def visualize_analytical_problem(
@@ -63,98 +59,6 @@ def visualize_analytical_problem(
 
     model.train()
 
-
-def plot_analytical_planar_robot(
-        ax,
-        parameter,
-        default_line_width,
-        transparency=1.0,
-        show_distance = False,
-        show_joint_label=True,
-        show_joints=True,
-        show_end_effectors=False,
-        robot_label_note="",
-        goal=None,
-):
-    """
-    Plot a planar robot arm based on the given parameters.
-    Args:
-        ax: The axis to plot the robot arm on.
-        parameter: The parameters of the robot arm. The parameters are expected to be in the format
-            [alpha, a, d, theta] with alpha and d being 0.
-        default_line_width: The default line width of the robot arm links.
-        show_joint_label: If True, the joint labels will be shown in the legend
-        show_joints: If True, the joints will be plotted.
-        show_end_effectors: If True, the end effector will be shown in the plot.
-        robot_label_note: A string to add to the robot label.
-        show_distance: If True, the distance to the goal will be shown in the legend.
-        goal: The goal of the robot arm. Is needed to calculate the distance to the goal.
-        transparency: The transparency of the robot arm links.
-    Returns: The maximum length of the robot arm.
-    """
-    start_coordinates = np.array([0, 0])
-    end_coordinates = np.array([0, 0])
-    total_angle = 0.0
-
-    # Plot the robot links
-    color = 'r'
-    for i in range(parameter.shape[0]):
-        link_length = parameter[i, 1].item()
-        link_angle = parameter[i, 3].item()
-        total_angle += link_angle
-
-        end_coordinates = start_coordinates + np.array(
-            [link_length * math.cos(total_angle), link_length * math.sin(total_angle)]
-        )
-
-        # Plot single link
-        (link_line,) = ax.plot(
-            [start_coordinates[0], end_coordinates[0]],
-            [start_coordinates[1], end_coordinates[1]],
-            lw=default_line_width,
-            alpha=transparency,
-            color=color
-        )
-
-        # Add a label only once for each robot arm, since this is only executed for the first link
-        if i == 0:
-            distance_label = ""
-            if show_distance and goal is not None:
-                distance = calculate_distances(parameter, goal)
-                distance_label = f"({distance:.2f})"
-            link_line.set_label(
-                f"Robot Arm {robot_label_note}" + distance_label
-            )
-
-        # Plot joint
-        if show_joints:
-            joint_label = (
-                f"$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}"
-                if show_joint_label
-                else None
-            )
-            ax.plot(
-                start_coordinates[0],
-                start_coordinates[1],
-                "-o",
-                label=joint_label,
-                markersize=1,
-                color=color,
-                alpha=transparency,
-            )
-        start_coordinates = end_coordinates
-
-    if show_end_effectors:
-        # Plot end effector
-        ax.plot(
-            end_coordinates[0],
-            end_coordinates[1],
-            "-o",
-            markersize=1,
-            color=color,
-            alpha=transparency,
-        )
-
 def visualize_analytical_planar_robot(
         parameter,
         default_line_transparency=1.,
@@ -202,13 +106,13 @@ def visualize_analytical_planar_robot(
             if use_gradual_transparency:
                 # Calculate the transparency based on the number of robot arms
                 transparency_steps = 1 / parameter.shape[0]
-                transparency = 0.1 + transparency_steps * i+1
+                transparency = 0.1 + transparency_steps * (i+1)
                 if transparency > 1:
                     transparency = 1
             else:
                 transparency = default_line_transparency
             # Plot the planar robot
-            plot_analytical_planar_robot(
+            plot_planar_robot(
                 ax=ax,
                 parameter=parameter[i],
                 default_line_width=default_line_width,
@@ -222,7 +126,7 @@ def visualize_analytical_planar_robot(
             )
     else:
         # One Robot arm was given as parameter
-        plot_analytical_planar_robot(
+        plot_planar_robot(
             ax=ax,
             parameter=parameter,
             default_line_width=default_line_width,
@@ -270,25 +174,3 @@ def visualize_analytical_planar_robot(
 
     if show_plot:
         plt.show()
-
-
-def set_plot_settings(parameter):
-    # General settings
-    sns.set(style="whitegrid")
-    fig, ax = plt.subplots()
-    ax.grid(True)
-    ax.axhline(0, color="black", lw=1.5)
-    ax.axvline(0, color="black", lw=1.5)
-    # Calculate the maximum length of the robot arm from the given parameters
-    max_length = 0
-    multiple_robots = len(parameter.size()) == 3
-    if multiple_robots:
-        for i in range(parameter.shape[1]):
-            max_length += parameter[0, i, 1].item()
-    else:
-        for i in range(parameter.shape[0]):
-            max_length += parameter[i, 1].item()
-    # Set the limits of the plot
-    ax.set_xlim(-max_length, max_length)
-    ax.set_ylim(-max_length, max_length)
-    return ax, multiple_robots
