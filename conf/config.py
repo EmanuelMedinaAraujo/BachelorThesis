@@ -93,7 +93,7 @@ class Logging:
 
 @dataclass
 class OptunaConfig:
-    num_steps: int
+    min_num_steps: int
     num_processes: int
     trials_per_process: int
 

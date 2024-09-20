@@ -8,7 +8,7 @@ max_legend_length: 10
 save_to_file: false
 
 analytical:
-  interval: 100 # Number of epochs after which the visualization is updated
+  interval: 50 # Number of epochs after which the visualization is updated
 
   max_history_length: 10
 
@@ -21,10 +21,10 @@ analytical:
 
 stb3:
   visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
-  do_heat_map: true
+  do_heat_map: false
   num_distribution_samples: 1000
 
-  interval: 1000 # Number of steps after which the visualization is updated
+  interval: 10000 # Number of steps after which the visualization is updated
   default_line_transparency: 1.
   default_line_width: 1.5
 
