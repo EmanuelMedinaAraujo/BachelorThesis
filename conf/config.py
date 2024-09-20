@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 
 @dataclass
@@ -30,7 +30,6 @@ class StB3Hyperparams:
     testing_interval: int
     gae_lambda: float
     clip_range: float
-    clip_range_vf: float
     norm_advantages: bool
     vf_coef: float
     max_grad_norm: float
@@ -119,3 +118,6 @@ class TrainConfig:
     min_link_length: float
     max_link_length: float
     number_of_test_problems: int
+
+    def dict(self):
+        return {k: str(v) for k, v in asdict(self).items()}

@@ -6,3 +6,4 @@ wandb/
 outputs/
 multirun/
 model_saves_files/
+*.db

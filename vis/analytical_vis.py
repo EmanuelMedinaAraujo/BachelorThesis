@@ -160,11 +160,7 @@ def visualize_analytical_planar_robot(
     plt.tight_layout()
 
     if logger is not None:
-        # Save the plot to a file temporarily
-        plt.savefig("temp_plot.png")
-        logger.log_plot("temp_plot.png", current_step)
-        # Delete the temporary file
-        os.remove("temp_plot.png")
+        logger.log_plot(plt, current_step)
 
     if save_to_file:
         # Get day and time for the filename
@@ -174,3 +170,4 @@ def visualize_analytical_planar_robot(
 
     if show_plot:
         plt.show()
+    plt.close()

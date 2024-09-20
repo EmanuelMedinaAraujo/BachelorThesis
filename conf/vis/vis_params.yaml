@@ -24,7 +24,7 @@ stb3:
   do_heat_map: false
   num_distribution_samples: 1000
 
-  interval: 10000 # Number of steps after which the visualization is updated
+  interval: 250000 # Number of steps after which the visualization is updated
   default_line_transparency: 1.
   default_line_width: 1.5
 
