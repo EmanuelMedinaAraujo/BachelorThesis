@@ -91,7 +91,7 @@ class TrainConfig:
     random_seed: int
     use_stb3: bool
     do_vis: bool
-    do_logging: bool
+    server_postfix: str
     # Problem Generation Parameter
     number_of_joints: int
     tolerable_accuracy_error: (
