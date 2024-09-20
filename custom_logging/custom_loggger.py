@@ -1,4 +1,5 @@
 import wandb
+from omegaconf import OmegaConf
 from tqdm.gui import tqdm
 
 from conf.config import TrainConfig
@@ -9,7 +10,7 @@ def init_wandb(cfg: TrainConfig):
         # set the wandb project where this run will be logged
         project=cfg.logging.wandb.project_name,
         # track hyperparameters and run metadata
-        config=cfg.__dict__,
+        config=OmegaConf.to_container(cfg),
     )
 
 
@@ -38,7 +39,7 @@ class GeneralLogger:
 
     def log_network_architecture(self, network):
         if self.log_in_console:
-            tqdm.write(network)
+            tqdm.write(str(network))
 
     def log_training(self, loss, epoch_num: int, accuracy):
         if self.log_in_console:
