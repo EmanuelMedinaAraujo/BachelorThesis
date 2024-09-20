@@ -1,14 +1,11 @@
 import sys
-import wandb
 
 import hydra
 import optuna
 from hydra.core.config_store import ConfigStore
 import torch
 from optuna import Study
-from plotly.io import show
 from stable_baselines3.common.callbacks import CallbackList
-from wandb.apis.importers import wandb
 from wandb.integration.sb3 import WandbCallback
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
@@ -31,7 +28,7 @@ from conf.config import TrainConfig
 cs = ConfigStore.instance()
 cs.store(name="train_conf", node=TrainConfig)
 
-def copy_cfg(cfg: TrainConfig):
+def copy_cfg(cfg: TrainConfig) -> TrainConfig:
     return TrainConfig(
             hyperparams=cfg.hyperparams,
             logging=cfg.logging,
@@ -54,7 +51,7 @@ def copy_cfg(cfg: TrainConfig):
 @hydra.main(version_base="1.3", config_path="conf", config_name="config")
 def main(train_config: TrainConfig):
     if not train_config.use_optuna:
-        train_and_test_model(train_config)
+        train_and_test_model(copy_cfg(train_config))
         return
 
     # Use Optuna
@@ -97,11 +94,11 @@ def main(train_config: TrainConfig):
     for key, value in trial.params.items():
         print("    {}: {}".format(key, value))
 
-    fig = optuna.visualization.plot_param_importances(study)
-    if train_config.vis.show_plot:
-        show(fig)
-    elif train_config.logging.wandb.log_in_wandb:
-        wandb.log({"param_importance": fig})
+    # fig = optuna.visualization.plot_param_importances(study)
+    # if train_config.vis.show_plot:
+    #     show(fig)
+    # elif train_config.logging.wandb.log_in_wandb:
+    #     wandb.log({"param_importance": fig})
 
 def _optimize(study:Study, train_config, num_trials_per_process):
     study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process)
@@ -110,28 +107,27 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
     """Copies the default config and adds the trial parameters to it."""
     cfg_copy = copy_cfg(defaults)
     lr = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
-    batch_size = trial.suggest_int('batch_size', 1, 1028, log=True)
+    batch_size = trial.suggest_categorical('batch_size', [8,16,32, 64, 128, 256, 512, 1024, 2048])
     if defaults.use_stb3:
         cfg_copy.hyperparams.stb3.learning_rate = lr
         cfg_copy.hyperparams.stb3.batch_size = batch_size
         cfg_copy.hyperparams.stb3.use_recurrent_policy = trial.suggest_categorical('use_recurrent_policy', [True, False])
         if cfg_copy.hyperparams.stb3.use_recurrent_policy:
-            cfg_copy.hyperparams.stb3.recurrent_policy = trial.suggest_categorical('recurrent_policy', ['MlpLstmPolicy', 'MlpLnLstmPolicy', 'CnnLstmPolicy', 'CnnLnLstmPolicy'])
+            cfg_copy.hyperparams.stb3.recurrent_policy = trial.suggest_categorical('recurrent_policy', ['MlpLstmPolicy'])
         else:
-            cfg_copy.hyperparams.stb3.non_recurrent_policy = trial.suggest_categorical('non_recurrent_policy', ['MlpPolicy', 'CnnPolicy'])
-        cfg_copy.hyperparams.stb3.n_envs = trial.suggest_int('n_envs', 1, 512, log=True)
-        cfg_copy.hyperparams.stb3.n_steps = trial.suggest_int('n_steps', 1, 1028, log=True)
+            cfg_copy.hyperparams.stb3.non_recurrent_policy = trial.suggest_categorical('non_recurrent_policy', ['MlpPolicy'])
+        cfg_copy.hyperparams.stb3.n_envs = trial.suggest_int('n_envs', 1, 128, log=True)
+        cfg_copy.hyperparams.stb3.n_steps = trial.suggest_int('n_steps', 2, 128, log=True)
         cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 1028, log=True)
         cfg_copy.hyperparams.stb3.gamma = trial.suggest_float('gamma', 0.0, 0.99)
-        cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.0, 0.99, log=True)
-        cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', -2, 4, log=True)
+        cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.01, 0.99, log=True)
+        cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', 1., 4, log=True)
         cfg_copy.hyperparams.stb3.testing_interval = trial.suggest_int('testing_interval', int(cfg_copy.hyperparams.stb3.total_timesteps*0.2), cfg_copy.hyperparams.stb3.total_timesteps, log=True)
         cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_float('gae_lambda', 0.0, 1.0)
-        cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.0, 1.0)
-        cfg_copy.hyperparams.stb3.clip_range_vf = trial.suggest_float('clip_range_vf', 0.0, 1.0)
+        cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.1, 1.0)
         cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
-        cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0.0, 1.0)
-        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_float('max_grad_norm', 0.0, 1.0)
+        cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0.1, 1.0)
+        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_float('max_grad_norm', 0.1, 1.0)
         cfg_copy.hyperparams.stb3.use_sde = trial.suggest_categorical('use_sde', [True, False])
     else:
         cfg_copy.hyperparams.analytical.learning_rate = lr
@@ -201,8 +197,8 @@ def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
             tensor_type=tensor_type,
             trial=trial
         )
-    logger.finish_logging()
     tqdm.write("Done!")
+    logger.finish_logging()
     return eval_score
 
 
@@ -217,10 +213,10 @@ def do_stable_baselines3_learning(
     tensor_type,
     trial: optuna.Trial=None
 ):
-    # check_env(make_environment(device, hyperparams, tensor_type), warn=True)
+    #check_env(make_environment(device, cfg, tensor_type), warn=True)
     env = make_vec_env(
         lambda: make_environment(device, cfg, tensor_type),
-        n_envs=cfg.hyperparams.stb3.n_envs,
+        n_envs=cfg.hyperparams.stb3.n_envs
     )
 
     # Define the model
@@ -235,14 +231,14 @@ def do_stable_baselines3_learning(
         ent_coef=cfg.hyperparams.stb3.ent_coef,
         gae_lambda=cfg.hyperparams.stb3.gae_lambda,
         clip_range=cfg.hyperparams.stb3.clip_range,
-        clip_range_vf=cfg.hyperparams.stb3.clip_range_vf,
         normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
         vf_coef=cfg.hyperparams.stb3.vf_coef,
         max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
         use_sde=cfg.hyperparams.stb3.use_sde,
         seed=cfg.random_seed,
         policy_kwargs=dict(
-            log_std_init=cfg.hyperparams.stb3.log_std_init
+            log_std_init=cfg.hyperparams.stb3.log_std_init,
+            normalize_images=False
         ),
     )
 
@@ -258,13 +254,13 @@ def do_stable_baselines3_learning(
             ent_coef=cfg.hyperparams.stb3.ent_coef,
             gae_lambda=cfg.hyperparams.stb3.gae_lambda,
             clip_range=cfg.hyperparams.stb3.clip_range,
-            clip_range_vf=cfg.hyperparams.stb3.clip_range_vf,
             normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
             vf_coef=cfg.hyperparams.stb3.vf_coef,
             max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
             use_sde=cfg.hyperparams.stb3.use_sde,
             seed=cfg.random_seed,
-            policy_kwargs=dict(log_std_init=cfg.hyperparams.stb3.log_std_init),
+            policy_kwargs=dict(log_std_init=cfg.hyperparams.stb3.log_std_init,
+                               normalize_images=False),
         )
 
     logger_callback = LoggerCallback(
@@ -335,7 +331,7 @@ def do_analytical_learning(
     for epoch_num in tqdm(
         range(cfg.hyperparams.analytical.epochs),
         colour="green",
-        file=sys.stdout,
+        file=sys.stdout
     ):
         last_mean_loss = train_loop(
             model=model,

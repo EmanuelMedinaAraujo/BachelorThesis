@@ -10,7 +10,7 @@ def init_wandb(cfg: TrainConfig):
         # set the wandb project where this run will be logged
         project=cfg.logging.wandb.project_name,
         # track hyperparameters and run metadata
-        config=OmegaConf.to_container(cfg),
+        config=cfg.__dict__
     )
 
 
@@ -49,7 +49,6 @@ class GeneralLogger:
             )
         if self.log_in_wandb:
             wandb.log({"train/acc": accuracy, "train/loss": loss}, step=epoch_num)
-            return
 
     def log_test(self, accuracy, loss, current_step=None):
         if self.log_in_console:
@@ -124,9 +123,9 @@ class GeneralLogger:
                 step=current_step,
             )
 
-    def log_plot(self, path, current_step=None):
+    def log_plot(self, plot, current_step=None):
         if self.log_in_wandb:
-            wandb.log({"plot": wandb.Image(path)}, step=current_step)
+            wandb.log({"chart":wandb.Image(plot)}, step=current_step)
 
     def finish_logging(self):
         if self.log_in_wandb:

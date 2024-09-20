@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
+import wandb
+
 from util.forward_kinematics import calculate_distances
 
 
@@ -122,11 +124,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
     plt.tight_layout()
 
     if logger is not None:
-        # Save the plot to a file temporarily
-        plt.savefig("temp_plot.png")
-        logger.log_plot("temp_plot.png", current_step)
-        # Delete the temporary file
-        os.remove("temp_plot.png")
+        logger.log_plot(plt, current_step)
 
     if save_to_file:
         # Get day and time for the filename
@@ -136,6 +134,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
 
     if show_plot:
         plt.show()
+    plt.close()
 
 
 def plot_planar_robot(
