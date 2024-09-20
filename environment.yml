@@ -4,7 +4,9 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-  - pytorch=2.4.1
+  - pytorch=2.4.1=py3.12_cuda12.4_cudnn9.1.0_0
+  - pytorch-cuda=12.4=hc786d27_6
+  - pytorch-mutex=1.0=cuda
   - numpy=1.26.4
   - matplotlib=3.9.1
   - omegaconf=2.3.0

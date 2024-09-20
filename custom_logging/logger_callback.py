@@ -5,7 +5,7 @@ from stable_baselines3.common.utils import safe_mean
 
 from conf.config import TrainConfig
 from util.forward_kinematics import calculate_distances
-from vis.problem_vis import visualize_problem
+from vis.problem_vis import visualize_stb3_problem
 
 
 class LoggerCallback(BaseCallback):
@@ -32,24 +32,28 @@ class LoggerCallback(BaseCallback):
         self.test_dataloader = test_dataloader
 
         self.skip_first_log = True
+        self.first_vis = True
+        self.first_test = True
 
         self.success_buf = []
         self.rollout_counter = 0
         self.rew_buf = 0
         self.tolerable_accuracy_error = tolerable_accuracy_error
+
         self.last_vis_step = 0
         self.last_testing_step = 0
 
     def _on_step(self) -> bool:
         if self.cfg.do_vis:
             interval = (
-                self.cfg.vis.analytical.interval
+                self.cfg.vis.stb3.interval
                 if self.cfg.use_stb3
-                else self.cfg.vis.stb3.interval
+                else self.cfg.vis.analytical.interval
             )
-            if self.num_timesteps - self.last_vis_step > interval:
+            if self.num_timesteps - self.last_vis_step > interval or self.first_vis:
+                self.first_vis = False
                 self.last_vis_step = self.num_timesteps
-                visualize_problem(
+                visualize_stb3_problem(
                     model=self.model,
                     device=self.device,
                     param=self.param_to_vis,
@@ -70,11 +74,12 @@ class LoggerCallback(BaseCallback):
 
         # Evaluate the model
         testing_interval = (
-            self.cfg.hyperparams.stb3.test_interval
+            self.cfg.hyperparams.stb3.testing_interval
             if self.cfg.use_stb3
             else self.cfg.hyperparams.analytical.testing_interval
         )
-        if self.num_timesteps - self.last_testing_step > testing_interval:
+        if self.num_timesteps - self.last_testing_step > testing_interval or self.first_test:
+            self.first_test = False
             self.last_testing_step = self.num_timesteps
             with torch.no_grad():
                 env = self.model.get_env()
@@ -84,7 +89,7 @@ class LoggerCallback(BaseCallback):
 
                 accuracy, mean_reward = self.test_model(env)
                 self.custom_logger.log_test(
-                    accuracy, mean_reward, self.num_timesteps, self.num_timesteps
+                    accuracy, mean_reward, self.num_timesteps
                 )
 
                 # Reset goal and parameter
@@ -130,13 +135,15 @@ class LoggerCallback(BaseCallback):
     def test_model(self, env):
         counter_success = 0
         distance_sum = 0
+        self.model.policy.set_training_mode(False)
+
         for param, goal in self.test_dataloader:
             # Set visualization goal and parameter to training_env
             env.env_method("set_goal", goal)
             env.env_method("set_parameter", param)
 
             observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
-            # cell and hidden state of the LSTM
+
             if self.cfg.hyperparams.stb3.use_recurrent_policy:
                 # cell and hidden state of the LSTM
                 lstm_states = None
@@ -146,7 +153,7 @@ class LoggerCallback(BaseCallback):
                     observation, state=lstm_states, episode_start=episode_starts
                 )
             else:
-                pred, _ = self.model.predict(observation)
+                pred,_ = self.model.predict(observation)
             pred = torch.tensor(pred).to(self.device)
 
             # Evaluate prediction
@@ -155,6 +162,9 @@ class LoggerCallback(BaseCallback):
             distance_sum += distance
             if distance <= self.tolerable_accuracy_error:
                 counter_success += 1
+
         accuracy = counter_success / len(self.test_dataloader)
         mean_reward = distance_sum / len(self.test_dataloader)
+
+        self.model.policy.set_training_mode(True)
         return accuracy, mean_reward
