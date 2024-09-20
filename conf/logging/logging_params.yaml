@@ -2,7 +2,7 @@ wandb:
   log_in_wandb: false
   log_visualization_plots: true
   wand_callback_logging_freq: 200
-  project_name: thesis-analytical
+  project_name: thesis-optuna
 
 log_in_console: false
-log_architecture: true
+log_architecture: false

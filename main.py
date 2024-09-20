@@ -1,14 +1,14 @@
 import sys
-from copy import deepcopy
+import wandb
 
 import hydra
 import optuna
 from hydra.core.config_store import ConfigStore
 import torch
-from omegaconf import OmegaConf
 from optuna import Study
 from plotly.io import show
 from stable_baselines3.common.callbacks import CallbackList
+from wandb.apis.importers import wandb
 from wandb.integration.sb3 import WandbCallback
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
@@ -59,7 +59,7 @@ def main(train_config: TrainConfig):
 
     # Use Optuna
     torch.set_num_threads(train_config.torch_num_threads)
-    STEPS = train_config.optuna.num_steps
+    STEPS = train_config.optuna.min_num_steps
     NUM_PROCESSES = train_config.optuna.num_processes
     NUM_TRIALS_PER_PROCESS = train_config.optuna.trials_per_process
     try:
@@ -67,7 +67,7 @@ def main(train_config: TrainConfig):
     except KeyError:
         pass
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
-                                pruner=optuna.pruners.MedianPruner(n_warmup_steps=int(STEPS / 20)),
+                                pruner=optuna.pruners.MedianPruner(n_warmup_steps=STEPS),
                                 direction='maximize',
                                 study_name='analytical',
                                 storage=f'sqlite:///analytical.db',
@@ -98,7 +98,10 @@ def main(train_config: TrainConfig):
         print("    {}: {}".format(key, value))
 
     fig = optuna.visualization.plot_param_importances(study)
-    show(fig)
+    if train_config.vis.show_plot:
+        show(fig)
+    elif train_config.logging.wandb.log_in_wandb:
+        wandb.log({"param_importance": fig})
 
 def _optimize(study:Study, train_config, num_trials_per_process):
     study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process)
