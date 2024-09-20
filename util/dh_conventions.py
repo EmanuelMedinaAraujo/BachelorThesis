@@ -15,13 +15,15 @@ def dh_to_homogeneous(dh_parameters: torch.Tensor) -> torch.Tensor:
     """
     a, ca, ct, d, sa, st, theta, zeros = extract_values(dh_parameters)
 
-    return torch.stack([
-        torch.stack([ct, -st * ca, st * sa, a * ct], dim=-1),
-        torch.stack([st, ct * ca, -ct * sa, a * st], dim=-1),
-        torch.stack([zeros, sa, ca, d], dim=-1),
-        torch.stack([zeros, zeros, zeros, torch.ones_like(theta)],
-                    dim=-1)
-    ], dim=-2)
+    return torch.stack(
+        [
+            torch.stack([ct, -st * ca, st * sa, a * ct], dim=-1),
+            torch.stack([st, ct * ca, -ct * sa, a * st], dim=-1),
+            torch.stack([zeros, sa, ca, d], dim=-1),
+            torch.stack([zeros, zeros, zeros, torch.ones_like(theta)], dim=-1),
+        ],
+        dim=-2,
+    )
 
 
 def mdh_to_homogeneous(mdh_parameters: torch.Tensor) -> torch.Tensor:
@@ -33,13 +35,15 @@ def mdh_to_homogeneous(mdh_parameters: torch.Tensor) -> torch.Tensor:
     :return: The homogeneous transformation matrix.
     """
     a, ca, ct, d, sa, st, theta, zeros = extract_values(mdh_parameters)
-    return torch.stack([
-        torch.stack([ct, -st, zeros, a], dim=-1),
-        torch.stack([st * ca, ct * ca, -sa, -d * sa], dim=-1),
-        torch.stack([st * sa, ct * sa, ca, d * ca], dim=-1),
-        torch.stack([zeros, zeros, zeros, torch.ones_like(theta)],
-                    dim=-1)
-    ], dim=-2)
+    return torch.stack(
+        [
+            torch.stack([ct, -st, zeros, a], dim=-1),
+            torch.stack([st * ca, ct * ca, -sa, -d * sa], dim=-1),
+            torch.stack([st * sa, ct * sa, ca, d * ca], dim=-1),
+            torch.stack([zeros, zeros, zeros, torch.ones_like(theta)], dim=-1),
+        ],
+        dim=-2,
+    )
 
 
 def extract_values(mdh_parameters):
@@ -74,7 +78,7 @@ def homogeneous_to_dh(t: torch.Tensor) -> torch.Tensor:
 
     parameters = torch.stack([alpha, a, d, theta], dim=-1)
     if not torch.allclose(dh_to_homogeneous(parameters), t, atol=1e-3):
-        raise ValueError('The given transformation is not DH.')
+        raise ValueError("The given transformation is not DH.")
 
     return parameters
 
@@ -98,6 +102,6 @@ def homogeneous_to_mdh(t: torch.Tensor) -> torch.Tensor:
 
     parameters = torch.stack([alpha, a, d, theta], dim=-1)
     if not torch.allclose(mdh_to_homogeneous(parameters), t, atol=1e-3):
-        raise ValueError('The given transformation is not MDH.')
+        raise ValueError("The given transformation is not MDH.")
 
     return parameters

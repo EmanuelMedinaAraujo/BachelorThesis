@@ -8,6 +8,7 @@ import torch
 
 class ParameterConvention(Enum):
     """A parameter convention for a kinematic chain."""
+
     MDH = 1  # Modified Denavit-Hartenberg convention after Craig (not supported yet)
     DH = 2  # Denavit-Hartenberg convention
 
@@ -18,15 +19,16 @@ class ParameterGeneratorForPlanarRobot(Iterator, ABC):
     Entire batches of parameters (DH and MDH) can be generated.
     """
 
-    def __init__(self,
-                 batch_size: int = 1,
-                 device: Optional[str] = None,
-                 tensor_type: torch.dtype = torch.float32,
-                 num_joints: int = 2,
-                 parameter_convention: Union[ParameterConvention, str] = 'DH',
-                 min_len: float = 0.1,
-                 max_len: float = 20.,
-                 ):
+    def __init__(
+        self,
+        batch_size: int = 1,
+        device: Optional[str] = None,
+        tensor_type: torch.dtype = torch.float32,
+        num_joints: int = 2,
+        parameter_convention: Union[ParameterConvention, str] = "DH",
+        min_len: float = 0.1,
+        max_len: float = 20.0,
+    ):
         """
         Initializes the problem generator.
 
@@ -41,7 +43,11 @@ class ParameterGeneratorForPlanarRobot(Iterator, ABC):
         super().__init__()
         self.batch_size: int = batch_size
         if device is None:
-            self.device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+            self.device = (
+                "cuda"
+                if torch.cuda.is_available()
+                else "mps" if torch.backends.mps.is_available() else "cpu"
+            )
         else:
             self.device: str = device
         self.tensor_type: torch.dtype = tensor_type
@@ -77,16 +83,30 @@ class ParameterGeneratorForPlanarRobot(Iterator, ABC):
         ttype, device = self.tensor_type, self.device
 
         # Set alpha to zero
-        alpha = torch.zeros((self.batch_size, self.num_joints, 1), device=device).to(dtype=ttype)
+        alpha = torch.zeros((self.batch_size, self.num_joints, 1), device=device).to(
+            dtype=ttype
+        )
 
         # Randomly set some a
-        a = self.min_len + torch.rand((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype) * delta
+        a = (
+            self.min_len
+            + torch.rand((self.batch_size, self.num_joints, 1)).to(
+                device=device, dtype=ttype
+            )
+            * delta
+        )
 
         # Set d to zero as we are currently only interested in planar robots
-        d = torch.zeros((self.batch_size, self.num_joints, 1)).to(device=device, dtype=ttype)
+        d = torch.zeros((self.batch_size, self.num_joints, 1)).to(
+            device=device, dtype=ttype
+        )
 
         concatenated_parameters = torch.cat([alpha, a, d], dim=-1)
-        return concatenated_parameters[0] if self.batch_size == 1 else concatenated_parameters
+        return (
+            concatenated_parameters[0]
+            if self.batch_size == 1
+            else concatenated_parameters
+        )
 
     def __call__(self, *args, **kwargs) -> torch.Tensor:
         """Implements the problem generation."""

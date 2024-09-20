@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from Util.forward_kinematics import calculate_distances
+from util.forward_kinematics import calculate_distances
 
 
 class KinematicsNetwork(nn.Module):

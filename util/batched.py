@@ -29,6 +29,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+
 from __future__ import annotations
 
 from math import prod
@@ -45,7 +46,9 @@ class BatchTransform:
     def __init__(self, matrix: torch.Tensor) -> None:
         """A BatchTransform needs to be initialized with a matrix that determines its batch size."""
         if matrix.shape[-2] != 4 or matrix.shape[-1] != 4:
-            raise ValueError('"matrix" has to be a tensor of shape (..., 4, 4) or (4, 4).')
+            raise ValueError(
+                '"matrix" has to be a tensor of shape (..., 4, 4) or (4, 4).'
+            )
         self.dtype = matrix.dtype
         self.device = matrix.device
         self._matrix = matrix
@@ -87,7 +90,9 @@ class BatchTransform:
             return False
         return self.get_matrix().equal(other.get_matrix())
 
-    def __getitem__(self, index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor]) -> BatchTransform:
+    def __getitem__(
+        self, index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor]
+    ) -> BatchTransform:
         """
         Args:
             index: Specifying the index of the transform to retrieve.
@@ -106,7 +111,11 @@ class BatchTransform:
     def __len__(self):
         return prod(self.b)
 
-    def __setitem__(self, index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor], value):
+    def __setitem__(
+        self,
+        index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor],
+        value,
+    ):
         """Sets items of self._matrix"""
         if isinstance(value, BatchTransform):
             value = value.get_matrix()
@@ -162,7 +171,9 @@ class BatchTransform:
         transforms = [self] + list(others)
         if not all(t.b == self.b for t in transforms):
             raise ValueError("All transforms must have the same batch size.")
-        matrix = torch.cat([t._matrix for t in transforms], dim=dim).to(self.device, self.dtype)
+        matrix = torch.cat([t._matrix for t in transforms], dim=dim).to(
+            self.device, self.dtype
+        )
         return self.__class__(matrix)
 
     def rotate(self, *args):
@@ -219,7 +230,9 @@ class Rotate(BatchTransform):
         return self.__class__(self._matrix[..., :3, :3].transpose(-2, -1).contiguous())
 
     @classmethod
-    def axis_angle(cls, angle: torch.Tensor, axis: str, degrees: bool = False) -> Rotate:
+    def axis_angle(
+        cls, angle: torch.Tensor, axis: str, degrees: bool = False
+    ) -> Rotate:
         """
         Create a new Transform representing 3D rotation using axis-angle representation.
 
@@ -277,11 +290,19 @@ def homogeneous_inverse(matrix: torch.Tensor) -> torch.Tensor:
         matrix = matrix.unsqueeze(0)
 
     if matrix.dim() != 3:
-        raise ValueError(f"Expected input to be of shape (minibatch, 4, 4) or (4, 4), but got {matrix.shape}")
+        raise ValueError(
+            f"Expected input to be of shape (minibatch, 4, 4) or (4, 4), but got {matrix.shape}"
+        )
 
-    inv = torch.eye(4, device=matrix.device, dtype=matrix.dtype).unsqueeze(0).expand_as(matrix)
+    inv = (
+        torch.eye(4, device=matrix.device, dtype=matrix.dtype)
+        .unsqueeze(0)
+        .expand_as(matrix)
+    )
     inv[..., :3, :3] = torch.transpose(matrix[..., :3, :3], -1, -2)
-    inv[..., :3, 3] = -torch.bmm(inv[..., :3, :3], matrix[..., :3, 3].unsqueeze(-1)).squeeze(-1)
+    inv[..., :3, 3] = -torch.bmm(
+        inv[..., :3, :3], matrix[..., :3, 3].unsqueeze(-1)
+    ).squeeze(-1)
     if not batched:
         inv = inv.squeeze(0)
     return inv  # TODO: test against torch.inverse

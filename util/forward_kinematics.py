@@ -6,11 +6,13 @@ from typing import Union
 import numpy as np
 import torch
 
-from Util.batched import BatchTransform
-from Util.dh_conventions import dh_to_homogeneous
+from util.batched import BatchTransform
+from util.dh_conventions import dh_to_homogeneous
 
 
-def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full: bool = False) -> BatchTransform:
+def forward_kinematics(
+    joint_offsets: Union[torch.Tensor, BatchTransform], full: bool = False
+) -> BatchTransform:
     """
     Computes the forward kinematics for a given sequence of joint offsets.
 
@@ -30,7 +32,9 @@ def forward_kinematics(joint_offsets: Union[torch.Tensor, BatchTransform], full:
         joint_offsets = BatchTransform(joint_offsets)
 
     if joint_offsets.b is None:
-        raise ValueError("Calling forward kinematics for a single joint is not supported.")
+        raise ValueError(
+            "Calling forward kinematics for a single joint is not supported."
+        )
 
     nj = joint_offsets.b[-1]
 
@@ -54,13 +58,17 @@ def calculate_eef_positions(parameters):
     return eef_positions
 
 
-def update_theta_values(parameters:torch.Tensor, new_theta_values: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
+def update_theta_values(
+    parameters: torch.Tensor, new_theta_values: Union[torch.Tensor, np.ndarray]
+) -> torch.Tensor:
     """
     Update the theta values of the parameters with the new theta values.
     Supports batched input.
     Supports parameters with theta values and without theta values.
     """
-    parameter_dimension = parameters.shape[2] if len(parameters.shape) == 3 else parameters.shape[1]
+    parameter_dimension = (
+        parameters.shape[2] if len(parameters.shape) == 3 else parameters.shape[1]
+    )
     updated_parameters = parameters.clone()
 
     if isinstance(new_theta_values, np.ndarray):
@@ -75,12 +83,15 @@ def update_theta_values(parameters:torch.Tensor, new_theta_values: Union[torch.T
         updated_parameters = torch.cat((parameters, new_theta_values), dim=-1)
     else:
         raise Exception(
-            f"Received parameter have unsupported dimension. Expected was 3 or 4 but was {parameter_dimension}")
+            f"Received parameter have unsupported dimension. Expected was 3 or 4 but was {parameter_dimension}"
+        )
 
     return updated_parameters
 
 
-def calculate_distances(param: torch.Tensor, goal: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
+def calculate_distances(
+    param: torch.Tensor, goal: Union[torch.Tensor, np.ndarray]
+) -> torch.Tensor:
     """
     Calculate the Euclidean distance between the end effector position and the goal position.
     Supports batched input.

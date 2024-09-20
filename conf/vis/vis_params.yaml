@@ -1,0 +1,40 @@
+show_plot: true
+show_joint_label: false
+show_joints: false
+show_end_effectors: false
+# TODO Show legend config
+show_distance_in_legend: true
+max_legend_length: 10
+save_to_file: false
+standard_size: true
+
+analytical:
+  interval: 10 # Number of epochs after which the visualization is updated
+
+  max_history_length: 10
+
+  default_line_transparency: .1
+  default_line_width: 1.5
+
+  frame_size_scalar: 1.1
+
+  use_color_per_robot: false
+  use_gradual_transparency: true
+  plot_all_in_one: false
+
+stb3:
+  visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
+  num_distribution_samples: 1000
+
+  interval: 1 # Number of epochs after which the visualization is updated
+  default_line_transparency: .1
+  frame_size_scalar: 1.1
+  default_line_width: 1.5
+  use_color_per_robot: false
+  use_gradual_transparency: false
+
+  plot_all_in_one: false
+
+
+
+

@@ -5,4 +5,4 @@
 wandb/
 outputs/
 multirun/
-ModelSaveFiles/
+model_saves_files/

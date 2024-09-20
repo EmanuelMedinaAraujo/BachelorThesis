@@ -1,0 +1,31 @@
+analytical:
+  num_layer: 5
+  layer_sizes: [ 64, 512, 256, 64 ]
+  problems_per_epoch: 10000
+
+  learning_rate: 1e-5
+  batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
+  epochs: 10
+
+  testing_interval: 5
+
+stb3:
+  use_recurrent_policy: false
+
+  non_recurrent_policy: "MlpPolicy"
+
+  recurrent_policy: "MlpLstmPolicy"
+  n_envs: 2
+  n_steps: 128
+  total_timesteps: 30000
+
+  learning_rate: 1e-5
+  batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
+  epochs: 10
+
+  gamma: 0.
+  ent_coef: 0.0 # default value: 0.0
+  log_std_init: 0.0 # default value: 0.0
+
+  testing_interval: 10000
+
