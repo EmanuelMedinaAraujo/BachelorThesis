@@ -1,12 +1,21 @@
 import torch
 
-from AnalyticalRL.kinematics_network import loss_fn
-from DataGeneration.goal_generator import generate_achievable_goal
-from Util.forward_kinematics import update_theta_values, calculate_distances
+from analyticalRL.kinematics_network import loss_fn
+from data_generation.goal_generator import generate_achievable_goal
+from util.forward_kinematics import update_theta_values, calculate_distances
 
 
-def train_loop(model, optimizer, problem_generator, problems_per_epoch, batch_size, device, logger, epoch_num,
-               error_tolerance):
+def train_loop(
+    model,
+    optimizer,
+    problem_generator,
+    problems_per_epoch,
+    batch_size,
+    device,
+    logger,
+    epoch_num,
+    error_tolerance,
+):
     """
     The training loop for the kinematics network. This function trains the model on random parameters and goals and
     logs the training loss and accuracy at the end of each epoch.
@@ -54,5 +63,7 @@ def train_loop(model, optimizer, problem_generator, problems_per_epoch, batch_si
         loss.backward()
         optimizer.step()
 
-    accuracy = (num_correct * 100 / problems_per_epoch)
-    logger.log_training(loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=accuracy)
+    accuracy = num_correct * 100 / problems_per_epoch
+    logger.log_training(
+        loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=accuracy
+    )

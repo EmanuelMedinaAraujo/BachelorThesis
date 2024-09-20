@@ -1,66 +1,21 @@
-hyperparams:
-  project_name: thesis-compare-ppo
+defaults:
+  - hyperparams: hyperparams
+  - logging : logging_params
+  - vis : vis_params
+  - _self_
 
-  random_seed: 42
+random_seed: 42
 
-  use_stable_baselines3: true
-  # Stable Baselines 3 parameters
-  non_recurrent_policy: "MlpPolicy"
+use_stb3: false
+do_vis: true
+do_logging: true
 
-  use_recurrent_policy: false
-  recurrent_policy: "MlpLstmPolicy"
-  n_envs: 128
-  n_steps: 128
-  total_timesteps: 2000000
+# Problem Generation Parameter
+number_of_joints: 2
+tolerable_accuracy_error: 0.01 # The tolerance in accuracy that is still regarded as correct
+parameter_convention: "DH"
+min_link_length: 0.3
+max_link_length: 0.5
 
-  # Model learning parameter
-  learning_rate: 1e-5
-  gamma: 0.
-  ent_coef: 0.0 # default value: 0.0
-  log_std_init : 0.0 # default value: 0.0
-  batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
-  epochs: 10
+number_of_test_problems: 1000 # Number of test problems to generate
 
-  # Model architecture for analytical neural network
-  num_layer: 5
-  layer_sizes: [ 64, 512, 256, 64 ]
-  problems_per_epoch: 10000
-
-  # Problem Generation Parameter
-  number_of_joints: 2
-  tolerable_accuracy_error: 0.01 # The tolerance in accuracy that is still regarded as correct
-  parameter_convention: DH
-  min_link_length: 0.3
-  max_link_length: 0.5
-
-  # Test Parameter
-  testing_interval: 500000 # Number of epochs to be run after which a test run is performed (in stablebaselines3 use next possible step when using n_envs > 1 )
-  number_of_test_problems: 1000
-
-  #Logging
-  log_in_wandb: true
-  log_in_console: false
-  log_verbosity: 0 # 0: No logging, 1: Only important logs, 2: All logs. This parameter applies only to the logging of the PPO Model when using stable baselines 3
-  log_visualization_plots: false
-  wand_callback_logging_freq: 1000
-
-  visualization:
-    do_visualization: true
-    visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
-    num_distribution_samples: 1000
-    max_history_length: 10
-    interval: 200000 # Number of epochs after which the visualization is updated
-    default_line_transparency: .1
-    frame_size_scalar: 1.1
-    default_line_width: 1.5
-    use_color_per_robot: false
-    use_gradual_transparency: false
-    standard_size: true
-    save_to_file: false
-    show_plot: false
-    show_joint_label: false
-    show_joints: false
-    show_end_effectors: false
-    plot_all_in_one: false
-    show_distance_in_legend: true
-    max_legend_length: 10

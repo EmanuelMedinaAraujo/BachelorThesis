@@ -1,6 +1,6 @@
 import torch
 
-from Util.forward_kinematics import update_theta_values, calculate_distances
+from util.forward_kinematics import update_theta_values, calculate_distances
 
 
 def test_loop(test_dataset, model, device, tolerable_accuracy_error, logger):
@@ -19,7 +19,7 @@ def test_loop(test_dataset, model, device, tolerable_accuracy_error, logger):
         device: The device used for torch operations
         tolerable_accuracy_error: The maximum distance between the predicted end effector position and the goal
                                          that is considered as a correct prediction
-        logger: The logger object used for logging
+        logger: The logger object used for custom_logging
     """
     model.eval()
     test_loss, num_correct = 0, 0
@@ -36,9 +36,11 @@ def test_loop(test_dataset, model, device, tolerable_accuracy_error, logger):
             distances = calculate_distances(param=updated_param, goal=goal)
             test_loss += distances.sum().item()
             # Increase num_correct for each distance that is less than the tolerable_accuracy_error
-            num_correct += torch.le(distances, tolerable_accuracy_error).int().sum().item()
+            num_correct += (
+                torch.le(distances, tolerable_accuracy_error).int().sum().item()
+            )
 
     dataset_size = len(test_dataset)
     test_loss /= dataset_size
-    accuracy = (num_correct * 100 / dataset_size)
+    accuracy = num_correct * 100 / dataset_size
     logger.log_test(accuracy=accuracy, loss=test_loss)
