@@ -1,13 +1,14 @@
 analytical:
-  num_layer: 5
-  layer_sizes: [ 64, 512, 256, 64 ]
+  num_hidden_layer: 4
+  hidden_layer_sizes: [ 64, 512, 256, 64 ]
 
   learning_rate: 1e-5
   batch_size: 32
 
-  problems_per_epoch: 10000
-  epochs: 1000
+  problems_per_epoch: 1000
+  epochs: 10
   testing_interval: 1000 # Number of epochs after which to test the model
+  optimizer: "Adam"
 
 stb3:
   use_recurrent_policy: false
@@ -26,6 +27,16 @@ stb3:
   gamma: 0.
   ent_coef: 0.0 # default value: 0.0
   log_std_init: 0.0 # default value: 0.0
+
+  gae_lambda: 0.95
+  clip_range: 0.2
+  clip_range_vf: None
+  norm_advantages: true
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  use_sde: false
+
+
 
   testing_interval: 10000 # Number of steps after which to test the model
 

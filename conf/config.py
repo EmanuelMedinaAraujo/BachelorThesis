@@ -3,13 +3,14 @@ from dataclasses import dataclass
 
 @dataclass
 class AnalyticalHyperparams:
-    num_layer: int
-    layer_sizes: list
+    num_hidden_layer: int
+    hidden_layer_sizes: list
     problems_per_epoch: int
     learning_rate: float
     batch_size: int
     epochs: int
     testing_interval: int
+    optimizer: str
 
 
 @dataclass
@@ -27,6 +28,13 @@ class StB3Hyperparams:
     ent_coef: float
     log_std_init: float
     testing_interval: int
+    gae_lambda: float
+    clip_range: float
+    clip_range_vf: float
+    norm_advantages: bool
+    vf_coef: float
+    max_grad_norm: float
+    use_sde: bool
 
 
 @dataclass
@@ -81,6 +89,13 @@ class WandBLogging:
 class Logging:
     wandb: WandBLogging
     log_in_console: bool
+    log_architecture: bool
+
+@dataclass
+class OptunaConfig:
+    num_steps: int
+    num_processes: int
+    trials_per_process: int
 
 
 @dataclass
@@ -88,10 +103,13 @@ class TrainConfig:
     hyperparams: Hyperparams
     logging: Logging
     vis: Visualization
+    optuna: OptunaConfig
     random_seed: int
     use_stb3: bool
     do_vis: bool
+    use_optuna: bool
     server_postfix: str
+    torch_num_threads: int
     # Problem Generation Parameter
     number_of_joints: int
     tolerable_accuracy_error: (
