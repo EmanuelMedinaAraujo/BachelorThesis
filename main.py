@@ -123,12 +123,12 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
         cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.01, 0.99, log=True)
         cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', 1., 4, log=True)
         cfg_copy.hyperparams.stb3.testing_interval = trial.suggest_int('testing_interval', int(cfg_copy.hyperparams.stb3.total_timesteps*0.2), cfg_copy.hyperparams.stb3.total_timesteps, log=True)
-        cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_float('gae_lambda', 0.0, 1.0)
-        cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.1, 1.0)
-        cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
-        cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0.1, 1.0)
-        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_float('max_grad_norm', 0.1, 1.0)
-        cfg_copy.hyperparams.stb3.use_sde = trial.suggest_categorical('use_sde', [True, False])
+        # cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_float('gae_lambda', 0.0, 1.0)
+        # cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.1, 1.0)
+        # cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
+        # cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0.1, 1.0)
+        # cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_float('max_grad_norm', 0.1, 1.0)
+        # cfg_copy.hyperparams.stb3.use_sde = trial.suggest_categorical('use_sde', [True, False])
     else:
         cfg_copy.hyperparams.analytical.learning_rate = lr
         cfg_copy.hyperparams.analytical.batch_size = batch_size
@@ -229,12 +229,12 @@ def do_stable_baselines3_learning(
         n_steps=cfg.hyperparams.stb3.n_steps,
         gamma=cfg.hyperparams.stb3.gamma,
         ent_coef=cfg.hyperparams.stb3.ent_coef,
-        gae_lambda=cfg.hyperparams.stb3.gae_lambda,
-        clip_range=cfg.hyperparams.stb3.clip_range,
-        normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
-        vf_coef=cfg.hyperparams.stb3.vf_coef,
-        max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
-        use_sde=cfg.hyperparams.stb3.use_sde,
+        # gae_lambda=cfg.hyperparams.stb3.gae_lambda,
+        # clip_range=cfg.hyperparams.stb3.clip_range,
+        # normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
+        # vf_coef=cfg.hyperparams.stb3.vf_coef,
+        # max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
+        # use_sde=cfg.hyperparams.stb3.use_sde,
         seed=cfg.random_seed,
         policy_kwargs=dict(
             log_std_init=cfg.hyperparams.stb3.log_std_init,
@@ -252,12 +252,12 @@ def do_stable_baselines3_learning(
             n_steps=cfg.hyperparams.stb3.n_steps,
             gamma=cfg.hyperparams.stb3.gamma,
             ent_coef=cfg.hyperparams.stb3.ent_coef,
-            gae_lambda=cfg.hyperparams.stb3.gae_lambda,
-            clip_range=cfg.hyperparams.stb3.clip_range,
-            normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
-            vf_coef=cfg.hyperparams.stb3.vf_coef,
-            max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
-            use_sde=cfg.hyperparams.stb3.use_sde,
+            # gae_lambda=cfg.hyperparams.stb3.gae_lambda,
+            # clip_range=cfg.hyperparams.stb3.clip_range,
+            # normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
+            # vf_coef=cfg.hyperparams.stb3.vf_coef,
+            # max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
+            # use_sde=cfg.hyperparams.stb3.use_sde,
             seed=cfg.random_seed,
             policy_kwargs=dict(log_std_init=cfg.hyperparams.stb3.log_std_init,
                                normalize_images=False),
