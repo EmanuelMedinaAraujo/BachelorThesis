@@ -78,27 +78,8 @@ def main(train_config: TrainConfig):
         with torch.multiprocessing.Pool(processes=num_processes) as p:
             p.starmap(_optimize, arguments)
 
-    pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
-    complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+    print_optuna_results(study)
 
-    print("Study statistics: ")
-    print("  Number of finished trials: ", len(study.trials))
-    print("  Number of pruned trials: ", len(pruned_trials))
-    print("  Number of complete trials: ", len(complete_trials))
-
-    print("Best trial:")
-    trial = study.best_trial
-    print("  Value: ", trial.value)
-
-    print("  Params: ")
-    for key, value in trial.params.items():
-        print("    {}: {}".format(key, value))
-
-    # fig = optuna.visualization.plot_param_importances(study)
-    # if train_config.vis.show_plot:
-    #     show(fig)
-    # elif train_config.logging.wandb.log_in_wandb:
-    #     wandb.log({"param_importance": fig})
 
 def _optimize(study:Study, train_config, num_trials_per_process):
     study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process)
@@ -373,6 +354,25 @@ def do_analytical_learning(
             if trial.should_prune():
                 raise optuna.exceptions.TrialPruned()
     return last_mean_loss
+
+def print_optuna_results(study):
+    pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
+    complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+    print("Study statistics: ")
+    print("  Number of finished trials: ", len(study.trials))
+    print("  Number of pruned trials: ", len(pruned_trials))
+    print("  Number of complete trials: ", len(complete_trials))
+    print("Best trial:")
+    trial = study.best_trial
+    print("  Value: ", trial.value)
+    print("  Params: ")
+    for key, value in trial.params.items():
+        print("    {}: {}".format(key, value))
+    # fig = optuna.visualization.plot_param_importances(study)
+    # if train_config.vis.show_plot:
+    #     show(fig)
+    # elif train_config.logging.wandb.log_in_wandb:
+    #     wandb.log({"param_importance": fig})
 
 
 def make_environment(device, cfg, tensor_type):
