@@ -13,8 +13,13 @@ Server:
         tmux a
 
 Frage:
+- Von analytical2.db trial 8 nachgestellt
+    - org: https://wandb.ai/medina-tum/thesis-optuna2/runs/6f3gwvk9/overview
+    - lcal rerun: https://wandb.ai/medina-tum/thesis-debugging/runs/wcd58hzh
+
 
 DONE:
+- evaluation bei step 0
 - optuna
     - tpeSampler
 
@@ -22,7 +27,6 @@ In Progress:
 - heatmap für endeffector erstellen
 
 TODO:
-- evaluation bei step 0
 
 - angles wie bei analytical berechnen
 - seaborn benutzen
