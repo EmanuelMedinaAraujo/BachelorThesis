@@ -56,26 +56,26 @@ def main(train_config: TrainConfig):
 
     # Use Optuna
     torch.set_num_threads(train_config.torch_num_threads)
-    STEPS = train_config.optuna.min_num_steps
-    NUM_PROCESSES = train_config.optuna.num_processes
-    NUM_TRIALS_PER_PROCESS = train_config.optuna.trials_per_process
+    minimal_steps = train_config.optuna.min_num_steps
+    num_processes = train_config.optuna.num_processes
+    num_trials_per_process = train_config.optuna.trials_per_process
     try:
         optuna.delete_study(study_name='analytical', storage=f'sqlite:///analytical.db')
     except KeyError:
         pass
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
-                                pruner=optuna.pruners.MedianPruner(n_warmup_steps=STEPS),
+                                pruner=optuna.pruners.MedianPruner(n_warmup_steps=minimal_steps),
                                 direction='maximize',
                                 study_name='analytical',
                                 storage=f'sqlite:///analytical.db',
                                 )
 
-    arguments = [(study, copy_cfg(train_config), NUM_TRIALS_PER_PROCESS) for _ in range(NUM_PROCESSES)]
-    if NUM_PROCESSES == 1:
-        _optimize(study, train_config, NUM_TRIALS_PER_PROCESS)
+    arguments = [(study, copy_cfg(train_config), num_trials_per_process) for _ in range(num_processes)]
+    if num_processes == 1:
+        _optimize(study, train_config, num_trials_per_process)
     else:
         torch.multiprocessing.set_start_method('spawn')
-        with torch.multiprocessing.Pool(processes=NUM_PROCESSES) as p:
+        with torch.multiprocessing.Pool(processes=num_processes) as p:
             p.starmap(_optimize, arguments)
 
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
@@ -116,6 +116,7 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
             cfg_copy.hyperparams.stb3.recurrent_policy = trial.suggest_categorical('recurrent_policy', ['MlpLstmPolicy'])
         else:
             cfg_copy.hyperparams.stb3.non_recurrent_policy = trial.suggest_categorical('non_recurrent_policy', ['MlpPolicy'])
+
         cfg_copy.hyperparams.stb3.n_envs = trial.suggest_int('n_envs', 1, 128, log=True)
         cfg_copy.hyperparams.stb3.n_steps = trial.suggest_int('n_steps', 2, 128, log=True)
         cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 1028, log=True)
@@ -376,9 +377,6 @@ def do_analytical_learning(
 
 def make_environment(device, cfg, tensor_type):
     return KinematicsEnvironment(device, cfg=cfg, tensor_type=tensor_type)
-
-def objective(trial):
-    return 0.0
 
 if __name__ == "__main__":
     main()

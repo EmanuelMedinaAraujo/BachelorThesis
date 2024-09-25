@@ -1,14 +1,11 @@
+import math
+import os
 from datetime import datetime
 from typing import List
-import seaborn as sns
-
-import math
 
 import matplotlib.pyplot as plt
 import numpy as np
-import os
-
-import wandb
+import seaborn as sns
 
 from util.forward_kinematics import calculate_distances
 
