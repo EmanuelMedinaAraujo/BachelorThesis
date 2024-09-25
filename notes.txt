@@ -1,50 +1,34 @@
 Server:
     @tars.cps.in.tum.de
-    nvidia-smi
-    Resourcen nicht überlegen
+        watch -n 0.5 nvidia-smi
 
     Create tmux session:
-     tmux new -s name
-    acitvate conda environment:
+        tmux new -s name
+    Copy file to windows
+        scp -r medinaar@tars.cps.in.tum.de:analytical.db D:
+    Activate conda environment:
         conda activate thesis_env
-    To detach tmux:
+    To detach/attach tmux:
         Ctrl+b, d
-    tmux attach
+        tmux a
 
 Frage:
 
 DONE:
-
+- optuna
+    - tpeSampler
 
 In Progress:
-- 5 Runs (1 Random seed - 42)
-    - 1 Normal
-        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/alxzzve9
-    - 1 mit erhöhter log_std_init (2.0 [default 0.0])
-        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/y749d0gk
-    - 1 mit verkleinerter log_std_init (-3.0)
-        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/jdbdbsaf
-    - 1 mit entropy coefficient 0.01 (sonst 0)
-        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/641h9cwa
-    - 1 mit erhöhter log_std_init und entropy coefficient 0.01
-        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/o9t2yscc
-
-    - Default Gamma (0.99; andere Runs haben 0.0)
-        https://wandb.ai/medina-tum/thesis-compare-ppo/runs/2l7qvhi0
 - heatmap für endeffector erstellen
 
 TODO:
 - evaluation bei step 0
-- optuna
-    - tpeSampler
+
 - angles wie bei analytical berechnen
-- seaborn anschauen und benutzen
+- seaborn benutzen
     - pandas für data
 - ein zwei parameter sätze auswählen und value loss diskretisieren
     - heatmap für value loss erstellen (ein parameter pro grafik)
-
-
-
 
 - Gymnasium für analytical erstellen
 	wrapper

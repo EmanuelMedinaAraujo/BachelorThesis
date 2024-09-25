@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 import numpy as np
 import optuna
 import torch
@@ -34,8 +36,6 @@ class LoggerCallback(BaseCallback):
         self.test_dataloader = test_dataloader
 
         self.skip_first_log = True
-        self.first_vis = True
-        self.first_test = True
 
         self.success_buf = []
         self.rollout_counter = 0
@@ -47,6 +47,24 @@ class LoggerCallback(BaseCallback):
 
         self.trial = trial
 
+    def on_training_start(self, locals_: Dict[str, Any], globals_: Dict[str, Any]) -> None:
+        if self.cfg.do_vis:
+            visualize_stb3_problem(
+                model=self.model,
+                device=self.device,
+                param=self.param_to_vis,
+                goal=self.goal_to_vis,
+                param_history=self.visualization_history,
+                cfg=self.cfg,
+                logger=self.custom_logger,
+                current_step=self.num_timesteps,
+            )
+
+        accuracy, mean_reward = self.test_model()
+        self.custom_logger.log_test(
+            accuracy, mean_reward, self.num_timesteps
+        )
+
     def _on_step(self) -> bool:
         if self.cfg.do_vis:
             interval = (
@@ -54,8 +72,7 @@ class LoggerCallback(BaseCallback):
                 if self.cfg.use_stb3
                 else self.cfg.vis.analytical.interval
             )
-            if self.num_timesteps - self.last_vis_step > interval or self.first_vis:
-                self.first_vis = False
+            if self.num_timesteps - self.last_vis_step > interval:
                 self.last_vis_step = self.num_timesteps
                 visualize_stb3_problem(
                     model=self.model,
@@ -82,23 +99,12 @@ class LoggerCallback(BaseCallback):
             if self.cfg.use_stb3
             else self.cfg.hyperparams.analytical.testing_interval
         )
-        if self.num_timesteps - self.last_testing_step > testing_interval or self.first_test:
-            self.first_test = False
+        if self.num_timesteps - self.last_testing_step > testing_interval:
             self.last_testing_step = self.num_timesteps
-            with torch.no_grad():
-                env = self.model.get_env()
-                # Get goal and parameter from model environment
-                old_goal = env.env_method("get_wrapper_attr", "goal")
-                old_param = env.env_method("get_wrapper_attr", "parameter")
-
-                accuracy, mean_reward = self.test_model(env)
-                self.custom_logger.log_test(
-                    accuracy, mean_reward, self.num_timesteps
-                )
-
-                # Reset goal and parameter
-                env.env_method("set_goal", old_goal[0])
-                env.env_method("set_parameter", old_param[0])
+            accuracy, mean_reward = self.test_model()
+            self.custom_logger.log_test(
+                accuracy, mean_reward, self.num_timesteps
+            )
         return True
 
     def _on_rollout_end(self) -> None:
@@ -106,7 +112,10 @@ class LoggerCallback(BaseCallback):
             [ep_info["r"] for ep_info in self.model.ep_info_buffer]
         )
         success_rate = safe_mean(self.success_buf)
-        mean_reward = self.rew_buf / self.rollout_counter
+
+        mean_reward = 0
+        if self.rollout_counter != 0:
+            mean_reward = self.rew_buf / self.rollout_counter
 
         self.custom_logger.log_rollout(
             mean_reward, success_rate, rollout_buf_mean_rew, self.num_timesteps
@@ -141,39 +150,50 @@ class LoggerCallback(BaseCallback):
         else:
             self.skip_first_log = False
 
-    def test_model(self, env):
-        counter_success = 0
-        distance_sum = 0
-        self.model.policy.set_training_mode(False)
+    def test_model(self):
+        with torch.no_grad():
+            env = self.model.get_env()
+            # Get goal and parameter from model environment
+            old_goal = env.env_method("get_wrapper_attr", "goal")
+            old_param = env.env_method("get_wrapper_attr", "parameter")
 
-        for param, goal in self.test_dataloader:
-            # Set visualization goal and parameter to training_env
-            env.env_method("set_goal", goal)
-            env.env_method("set_parameter", param)
+            counter_success = 0
+            distance_sum = 0
+            self.model.policy.set_training_mode(False)
 
-            observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
+            for param, goal in self.test_dataloader:
+                # Set visualization goal and parameter to training_env
+                env.env_method("set_goal", goal)
+                env.env_method("set_parameter", param)
 
-            if self.cfg.hyperparams.stb3.use_recurrent_policy:
-                # cell and hidden state of the LSTM
-                lstm_states = None
-                # Episode start signals are used to reset the lstm states
-                episode_starts = np.ones((1,), dtype=bool)
-                pred, _ = self.model.predict(
-                    observation, state=lstm_states, episode_start=episode_starts
-                )
-            else:
-                pred,_ = self.model.predict(observation)
-            pred = torch.tensor(pred).to(self.device)
+                observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
 
-            # Evaluate prediction
-            updated_param = torch.cat((param, pred.unsqueeze(1)), dim=-1)
-            distance = calculate_distances(updated_param, goal).detach().item()
-            distance_sum += distance
-            if distance <= self.tolerable_accuracy_error:
-                counter_success += 1
+                if self.cfg.hyperparams.stb3.use_recurrent_policy:
+                    # cell and hidden state of the LSTM
+                    lstm_states = None
+                    # Episode start signals are used to reset the lstm states
+                    episode_starts = np.ones((1,), dtype=bool)
+                    pred, _ = self.model.predict(
+                        observation, state=lstm_states, episode_start=episode_starts
+                    )
+                else:
+                    pred,_ = self.model.predict(observation)
+                pred = torch.tensor(pred).to(self.device)
 
-        accuracy = counter_success / len(self.test_dataloader)
-        mean_reward = distance_sum / len(self.test_dataloader)
+                # Evaluate prediction
+                updated_param = torch.cat((param, pred.unsqueeze(1)), dim=-1)
+                distance = calculate_distances(updated_param, goal).detach().item()
+                distance_sum += distance
+                if distance <= self.tolerable_accuracy_error:
+                    counter_success += 1
+
+            accuracy = counter_success / len(self.test_dataloader)
+            mean_reward = distance_sum / len(self.test_dataloader)
+
+            # Reset goal and parameter
+            env.env_method("set_goal", old_goal[0])
+            env.env_method("set_parameter", old_param[0])
 
         self.model.policy.set_training_mode(True)
         return accuracy, mean_reward
+

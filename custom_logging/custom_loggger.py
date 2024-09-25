@@ -1,5 +1,4 @@
 import wandb
-from omegaconf import OmegaConf
 from tqdm.gui import tqdm
 
 from conf.config import TrainConfig

@@ -18,7 +18,7 @@ stb3:
   recurrent_policy: "MlpLstmPolicy"
   n_envs: 1
   n_steps: 32
-  total_timesteps: 32
+  total_timesteps: 2000000
 
   learning_rate: 1e-5
   batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
