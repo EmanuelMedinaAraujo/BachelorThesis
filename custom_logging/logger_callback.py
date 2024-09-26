@@ -179,9 +179,19 @@ class LoggerCallback(BaseCallback):
                 else:
                     pred,_ = self.model.predict(observation)
                 pred = torch.tensor(pred).to(self.device)
+                all_angles = None
+                for joint_number in range(self.cfg.number_of_joints):
+                    index = 2 * joint_number
+                    sin_x = pred[index]
+                    cos_y = pred[index + 1]
+                    angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
+                    if all_angles is None:
+                        all_angles = angle
+                    else:
+                        all_angles = torch.cat([all_angles, angle]).to(self.device)
 
                 # Evaluate prediction
-                updated_param = torch.cat((param, pred.unsqueeze(1)), dim=-1)
+                updated_param = torch.cat((param, all_angles.unsqueeze(1)), dim=-1)
                 distance = calculate_distances(updated_param, goal).detach().item()
                 distance_sum += distance
                 if distance <= self.tolerable_accuracy_error:

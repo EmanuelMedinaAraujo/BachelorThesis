@@ -40,7 +40,17 @@ def visualize_stb3_problem(
         else:
             pred, _ = model.predict(observation)
         pred = torch.tensor(pred).to(device)
-        predictions = [pred]
+        all_angles = None
+        for joint_number in range(cfg.number_of_joints):
+            index = 2 * joint_number
+            sin_x = pred[index]
+            cos_y = pred[index + 1]
+            angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
+            if all_angles is None:
+                all_angles = angle
+            else:
+                all_angles = torch.cat([all_angles, angle]).to(param.device)
+        predictions = [all_angles]
 
         if cfg.vis.stb3.visualize_distribution:
             for _ in range(cfg.vis.stb3.num_distribution_samples - 1):
@@ -51,7 +61,17 @@ def visualize_stb3_problem(
                 else:
                     pred, _ = model.predict(observation)
                 pred = torch.tensor(pred).to(device)
-                predictions.append(pred)
+                all_angles = None
+                for joint_number in range(cfg.number_of_joints):
+                    index = 2 * joint_number
+                    sin_x = pred[index]
+                    cos_y = pred[index + 1]
+                    angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
+                    if all_angles is None:
+                        all_angles = angle
+                    else:
+                        all_angles = torch.cat([all_angles, angle]).to(param.device)
+                predictions.append(all_angles)
 
         # Reset goal and parameter
         env.env_method("set_goal", old_goal[0])
