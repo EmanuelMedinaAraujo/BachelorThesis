@@ -17,8 +17,8 @@ class LoggerCallback(BaseCallback):
         self,
         logger,
         visualization_history,
-        goal_to_vis,
-        param_to_vis,
+        goals_to_vis,
+        params_to_vis,
         cfg: TrainConfig,
         device,
         test_dataloader,
@@ -29,8 +29,8 @@ class LoggerCallback(BaseCallback):
         super(LoggerCallback, self).__init__(verbose)
         self.custom_logger = logger
         self.visualization_history = visualization_history
-        self.goal_to_vis = goal_to_vis
-        self.param_to_vis = param_to_vis
+        self.goals_to_vis = goals_to_vis
+        self.params_to_vis = params_to_vis
         self.cfg = cfg
         self.device = device
         self.test_dataloader = test_dataloader
@@ -49,16 +49,17 @@ class LoggerCallback(BaseCallback):
 
     def on_training_start(self, locals_: Dict[str, Any], globals_: Dict[str, Any]) -> None:
         if self.cfg.do_vis:
-            visualize_stb3_problem(
-                model=self.model,
-                device=self.device,
-                param=self.param_to_vis,
-                goal=self.goal_to_vis,
-                param_history=self.visualization_history,
-                cfg=self.cfg,
-                logger=self.custom_logger,
-                current_step=self.num_timesteps,
-            )
+            for i in range(len(self.params_to_vis)):
+                visualize_stb3_problem(
+                    model=self.model,
+                    device=self.device,
+                    param=self.params_to_vis[i],
+                    goal=self.goals_to_vis[i],
+                    param_history=self.visualization_history,
+                    cfg=self.cfg,
+                    logger=self.custom_logger,
+                    current_step=0,
+                )
 
         accuracy, mean_reward = self.test_model()
         self.custom_logger.log_test(
@@ -74,16 +75,17 @@ class LoggerCallback(BaseCallback):
             )
             if self.num_timesteps - self.last_vis_step > interval:
                 self.last_vis_step = self.num_timesteps
-                visualize_stb3_problem(
-                    model=self.model,
-                    device=self.device,
-                    param=self.param_to_vis,
-                    goal=self.goal_to_vis,
-                    param_history=self.visualization_history,
-                    cfg=self.cfg,
-                    logger=self.custom_logger,
-                    current_step=self.num_timesteps,
-                )
+                for i in range(self.cfg.vis.num_problems_to_visualize):
+                    visualize_stb3_problem(
+                        model=self.model,
+                        device=self.device,
+                        param=self.params_to_vis[i],
+                        goal=self.goals_to_vis[i],
+                        param_history=self.visualization_history,
+                        cfg=self.cfg,
+                        logger=self.custom_logger,
+                        current_step=self.num_timesteps,
+                    )
 
         reward = self.locals.get("rewards")[0]
         self.rew_buf += reward
