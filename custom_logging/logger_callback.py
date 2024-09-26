@@ -49,7 +49,7 @@ class LoggerCallback(BaseCallback):
 
     def on_training_start(self, locals_: Dict[str, Any], globals_: Dict[str, Any]) -> None:
         if self.cfg.do_vis:
-            for i in range(len(self.params_to_vis)):
+            for i in range(self.cfg.vis.num_problems_to_visualize):
                 visualize_stb3_problem(
                     model=self.model,
                     device=self.device,
@@ -59,6 +59,7 @@ class LoggerCallback(BaseCallback):
                     cfg=self.cfg,
                     logger=self.custom_logger,
                     current_step=0,
+                    chart_index=i + 1,
                 )
 
         accuracy, mean_reward = self.test_model()
@@ -85,6 +86,7 @@ class LoggerCallback(BaseCallback):
                         cfg=self.cfg,
                         logger=self.custom_logger,
                         current_step=self.num_timesteps,
+                        chart_index=i + 1,
                     )
 
         reward = self.locals.get("rewards")[0]

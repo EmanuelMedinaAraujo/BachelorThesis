@@ -26,6 +26,7 @@ DONE:
 - seaborn benutzen
     - pandas für data
 - heatmap für endeffector erstellen
+- Beliebig viele Parameter Probleme visualisieren
 
 In Progress:
 

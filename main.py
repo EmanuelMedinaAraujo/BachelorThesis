@@ -370,6 +370,7 @@ def do_analytical_learning(
                     cfg=cfg,
                     logger=logger,
                     current_step=epoch_num,
+                    chart_index=i + 1,
                 )
         if trial is not None:
             trial.report(last_mean_loss, epoch_num)

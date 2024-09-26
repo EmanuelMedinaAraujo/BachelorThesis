@@ -19,6 +19,7 @@ def visualize_analytical_problem(
         cfg: TrainConfig,
         logger=None,
         current_step=None,
+        chart_index=1,
 ):
     """
     Visualize a single robot arm with the given parameters and goal.
@@ -41,6 +42,7 @@ def visualize_analytical_problem(
 
     visualize_analytical_planar_robot(
         parameter=tensor_to_pass,
+        chart_index = chart_index,
         goal=goal,
         save_to_file=vis_params.save_to_file,
         default_line_transparency=vis_params.analytical.default_line_transparency,
@@ -61,6 +63,7 @@ def visualize_analytical_problem(
 
 def visualize_analytical_planar_robot(
         parameter,
+        chart_index,
         default_line_transparency=1.,
         default_line_width=1.,
         max_legend_length = 10,
@@ -96,6 +99,7 @@ def visualize_analytical_planar_robot(
         logger: The logger to use for plot custom_logging.
         current_step: The current step of the training.
         show_legend: If True, the legend will be shown.
+        chart_index: The index of the chart. Used for logging in wandb.
     """
     ax, multiple_robots = set_plot_settings(parameter)
 
@@ -160,7 +164,7 @@ def visualize_analytical_planar_robot(
     plt.tight_layout()
 
     if logger is not None:
-        logger.log_plot(plt, current_step)
+        logger.log_image(plt, current_step, "chart"+str(chart_index))
 
     if save_to_file:
         # Get day and time for the filename

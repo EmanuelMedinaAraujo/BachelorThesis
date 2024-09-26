@@ -1,5 +1,4 @@
 import wandb
-from torch.special import log_ndtr
 from tqdm.gui import tqdm
 
 from conf.config import TrainConfig
@@ -122,9 +121,6 @@ class GeneralLogger:
                 },
                 step=current_step,
             )
-
-    def log_plot(self, plot, current_step=None):
-        self.log_image(plot,current_step)
 
     def log_image(self, plot, current_step=None, path="chart"):
         if self.log_in_wandb:

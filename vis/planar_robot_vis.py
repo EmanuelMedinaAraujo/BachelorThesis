@@ -15,7 +15,7 @@ from util.forward_kinematics import calculate_distances
 def visualize_planar_robot(parameter, default_line_transparency, default_line_width, max_legend_length, goal=None,
                            link_accuracy: List = None, save_to_file=False, show_joints=False, show_joint_label=True,
                            show_end_effectors=False, show_plot=True, robot_label_note="", show_legend=True,
-                           show_distance=False, logger=None, current_step=None, do_heat_map=False):
+                           show_distance=False, logger=None, current_step=None, do_heat_map=False, chart_index = 1):
     """
     Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
     Args:
@@ -36,6 +36,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         current_step: The current step of the training.
         show_legend: If True, the legend will be shown.
         do_heat_map: If True, the heatmap will be shown.
+        chart_index: The index of the chart. Used for logging in wandb
     """
 
     multiple_robots = len(parameter.size()) == 3
@@ -106,7 +107,8 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
     plt.tight_layout()
 
     if logger is not None:
-        logger.log_plot(plt, current_step)
+        path = "chart"+str(chart_index)
+        logger.log_image(plt, current_step, path)
 
     if save_to_file:
         # Get day and time for the filename
@@ -119,7 +121,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
     plt.close()
 
     if multiple_robots and do_heat_map:
-        create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter)
+        create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter, chart_index)
 
 
 def plot_planar_robot(
@@ -229,7 +231,7 @@ def set_plot_settings(parameter):
     return ax, multiple_robots
 
 
-def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to_file, parameter):
+def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to_file, parameter, chart_index):
     if end_effector_list is None or len(end_effector_list) == 0:
         return
     end_effector_list = np.array(end_effector_list)
@@ -238,7 +240,7 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
 
     d = {'x': x, 'y': y}
     df = pd.DataFrame(data=d)
-    res = sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True)
+    sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True)
 
     max_length, _ = compute_max_robot_length(parameter)
 
@@ -251,7 +253,8 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
         plt.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]", color='r')
 
     if logger is not None:
-        logger.log_image(plt, step, path="heatmap")
+        path = "heatmap"+str(chart_index)
+        logger.log_image(plt, step, path=path)
 
     if save_to_file:
         # Get day and time for the filename
