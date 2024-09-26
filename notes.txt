@@ -15,7 +15,8 @@ Server:
 Frage:
 - Von analytical2.db trial 8 nachgestellt
     - org: https://wandb.ai/medina-tum/thesis-optuna2/runs/6f3gwvk9/overview
-    - lcal rerun: https://wandb.ai/medina-tum/thesis-debugging/runs/wcd58hzh
+    - local rerun: https://wandb.ai/medina-tum/thesis-debugging/runs/wrch5f3d
+- Another run with equal error: https://wandb.ai/medina-tum/thesis-debugging/runs/wcd58hzh
 
 
 DONE:

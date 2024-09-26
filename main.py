@@ -13,6 +13,8 @@ from stable_baselines3.common.utils import set_random_seed
 from sb3_contrib import RecurrentPPO
 
 from tqdm import tqdm
+import torch as th
+
 
 from analyticalRL.kinematics_network import KinematicsNetwork
 from analyticalRL.kinematics_network_testing import test_loop
@@ -50,12 +52,17 @@ def copy_cfg(cfg: TrainConfig) -> TrainConfig:
 
 @hydra.main(version_base="1.3", config_path="conf", config_name="config")
 def main(train_config: TrainConfig):
+    set_random_seed(train_config.random_seed)
+
+    torch.set_num_threads(train_config.torch_num_threads)
+    th.autograd.set_detect_anomaly(True)
+
     if not train_config.use_optuna:
         train_and_test_model(copy_cfg(train_config))
         return
 
+
     # Use Optuna
-    torch.set_num_threads(train_config.torch_num_threads)
     minimal_steps = train_config.optuna.min_num_steps
     num_processes = train_config.optuna.num_processes
     num_trials_per_process = train_config.optuna.trials_per_process
@@ -101,7 +108,7 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
         cfg_copy.hyperparams.stb3.n_envs = trial.suggest_int('n_envs', 1, 128, log=True)
         cfg_copy.hyperparams.stb3.n_steps = trial.suggest_int('n_steps', 2, 128, log=True)
         cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 1028, log=True)
-        cfg_copy.hyperparams.stb3.gamma = trial.suggest_float('gamma', 0.0, 0.99)
+        #cfg_copy.hyperparams.stb3.gamma = trial.suggest_float('gamma', 0.0, 0.99)
         cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.01, 0.99, log=True)
         cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', 1., 4, log=True)
         cfg_copy.hyperparams.stb3.testing_interval = trial.suggest_int('testing_interval', int(cfg_copy.hyperparams.stb3.total_timesteps*0.2), cfg_copy.hyperparams.stb3.total_timesteps, log=True)
@@ -128,7 +135,6 @@ def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
     """
     Train and test the model with the given hydra configuration.
     """
-    torch.set_num_threads(train_config.torch_num_threads)
     device = (
         "cuda"+str(train_config.server_postfix)
         if torch.cuda.is_available()
@@ -137,8 +143,6 @@ def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
     )
 
     tensor_type = torch.float32
-
-    set_random_seed(train_config.random_seed)
 
     logger = GeneralLogger(cfg=train_config)
     logger.log_used_device(device=device)
