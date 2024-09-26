@@ -5,6 +5,7 @@ from typing import Union
 
 import numpy as np
 import torch
+from torch import Tensor
 
 from util.batched import BatchTransform
 from util.dh_conventions import dh_to_homogeneous
@@ -104,3 +105,16 @@ def calculate_distances(
     sum_dim = 1 if len(squared_distances.shape) == 2 else 0
     distances = squared_distances.sum(dim=sum_dim).sqrt()
     return distances
+
+def calculate_angles_from_network_output(action: Tensor, num_joints, device):
+    all_angles = None
+    for joint_number in range(num_joints):
+        index = 2 * joint_number
+        sin_x = action[index]
+        cos_y = action[index + 1]
+        angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
+        if all_angles is None:
+            all_angles = angle
+        else:
+            all_angles = torch.cat([all_angles, angle]).to(device)
+    return all_angles
