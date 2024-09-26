@@ -15,6 +15,7 @@ def visualize_stb3_problem(
         cfg: TrainConfig,
         logger=None,
         current_step=None,
+        chart_index=1
 ):
     """
     Visualize a single robot arm with the given parameters and goal.
@@ -106,4 +107,5 @@ def visualize_stb3_problem(
             logger=logger if cfg.logging.wandb.log_visualization_plots else None,
             current_step=current_step,
             do_heat_map=vis_params.do_heat_map,
+            chart_index=chart_index
         )
