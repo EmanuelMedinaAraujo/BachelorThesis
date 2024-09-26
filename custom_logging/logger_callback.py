@@ -7,7 +7,7 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.utils import safe_mean
 
 from conf.config import TrainConfig
-from util.forward_kinematics import calculate_distances
+from util.forward_kinematics import calculate_distances, calculate_angles_from_network_output
 from vis.problem_vis import visualize_stb3_problem
 
 
@@ -179,16 +179,7 @@ class LoggerCallback(BaseCallback):
                 else:
                     pred,_ = self.model.predict(observation)
                 pred = torch.tensor(pred).to(self.device)
-                all_angles = None
-                for joint_number in range(self.cfg.number_of_joints):
-                    index = 2 * joint_number
-                    sin_x = pred[index]
-                    cos_y = pred[index + 1]
-                    angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
-                    if all_angles is None:
-                        all_angles = angle
-                    else:
-                        all_angles = torch.cat([all_angles, angle]).to(self.device)
+                all_angles = calculate_angles_from_network_output(pred, self.cfg.number_of_joints, self.device)
 
                 # Evaluate prediction
                 updated_param = torch.cat((param, all_angles.unsqueeze(1)), dim=-1)

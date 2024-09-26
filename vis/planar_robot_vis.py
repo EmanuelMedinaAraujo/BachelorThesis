@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+import pandas as pd
+
 from util.forward_kinematics import calculate_distances
 
 
@@ -44,19 +46,19 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
             link_accuracy *= parameter.size(dim=0)
     else:
         assert (
-            parameter.shape[0] == link_accuracy.__len__()
+                parameter.shape[0] == link_accuracy.__len__()
         ), "The amount of robots arms and the amount of probabilities is not equal"
 
     # General settings
     ax, multiple_robots = set_plot_settings(parameter)
 
     # Check whether multiple robot arms were given or only one
+    end_effector_list = []
     if multiple_robots:
-        end_effector_list = []
         # Multiple Robots arm were given as parameter
         for i in range(parameter.shape[0]):
             # Plot the planar robot
-            end_coordinates =plot_planar_robot(
+            end_coordinates = plot_planar_robot(
                 ax=ax,
                 parameter=parameter[i],
                 transparency=link_accuracy[i],
@@ -67,28 +69,11 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
                 robot_label_note=robot_label_note,
                 show_distance=show_distance,
                 goal=goal,
-                do_heat_map=do_heat_map
             )
             end_effector_list.append(end_coordinates)
-        if do_heat_map:
-            end_effector_list = np.array(end_effector_list)
-            x = end_effector_list[:, 0]
-            y = end_effector_list[:, 1]
-
-            # Create a heatmap with sns.heatmap
-        #sns.heatmap(
-         #   np.array([x, y]),
-          #  annot=True,
-           # fmt=".1f",
-            #cmap="viridis",
-            #ax=ax,
-            #cbar_kws={"label": "End Effector Position"},
-        #)
-
-
     else:
         # One Robot arm was given as parameter
-         plot_planar_robot(
+        plot_planar_robot(
             ax=ax,
             parameter=parameter,
             transparency=default_line_transparency,
@@ -109,8 +94,8 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         # Only show first max_legend_length entries
         handles, labels = ax.get_legend_handles_labels()
         if len(labels) > max_legend_length:
-            labels = [labels.pop()]+ labels[-max_legend_length-1:]
-            handles = [handles.pop()] + handles[-max_legend_length-1:]
+            labels = [labels.pop()] + labels[-max_legend_length - 1:]
+            handles = [handles.pop()] + handles[-max_legend_length - 1:]
         ax.legend(
             handles,
             labels,
@@ -133,19 +118,21 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
         plt.show()
     plt.close()
 
+    if multiple_robots and do_heat_map:
+        create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter)
+
 
 def plot_planar_robot(
         ax,
         parameter,
         default_line_width,
         transparency=1.0,
-        show_distance = False,
+        show_distance=False,
         show_joint_label=True,
         show_joints=True,
         show_end_effectors=False,
         robot_label_note="",
         goal=None,
-        do_heat_map=False
 ):
     """
     Plot a planar robot arm based on the given parameters.
@@ -161,7 +148,6 @@ def plot_planar_robot(
         show_distance: If True, the distance to the goal will be shown in the legend.
         goal: The goal of the robot arm. Is needed to calculate the distance to the goal.
         transparency: The transparency of the robot arm links.
-        do_heat_map: If True, the heatmap will be shown. And therefore not drawn anything.
     Returns: The maximum length of the robot arm.
     """
     start_coordinates = np.array([0, 0])
@@ -180,17 +166,16 @@ def plot_planar_robot(
         )
 
         # Plot single link
-        if not do_heat_map:
-            (link_line,) = ax.plot(
-                [start_coordinates[0], end_coordinates[0]],
-                [start_coordinates[1], end_coordinates[1]],
-                lw=default_line_width,
-                alpha=transparency,
-                color=color
-            )
+        (link_line,) = ax.plot(
+            [start_coordinates[0], end_coordinates[0]],
+            [start_coordinates[1], end_coordinates[1]],
+            lw=default_line_width,
+            alpha=transparency,
+            color=color
+        )
 
         # Add a label only once for each robot arm, since this is only executed for the first link
-        if i == 0 and not do_heat_map:
+        if i == 0:
             distance_label = ""
             if show_distance and goal is not None:
                 distance = calculate_distances(parameter, goal)
@@ -200,7 +185,7 @@ def plot_planar_robot(
             )
 
         # Plot joint
-        if show_joints and not do_heat_map:
+        if show_joints:
             joint_label = (
                 f"$\\theta$={np.rad2deg(link_angle):.1f}\N{DEGREE SIGN}, L={link_length:.2f}"
                 if show_joint_label
@@ -217,7 +202,7 @@ def plot_planar_robot(
             )
         start_coordinates = end_coordinates
 
-    if show_end_effectors or do_heat_map:
+    if show_end_effectors:
         # Plot end effector
         ax.plot(
             end_coordinates[0],
@@ -230,14 +215,56 @@ def plot_planar_robot(
     return end_coordinates
 
 
-
 def set_plot_settings(parameter):
     # General settings
-    sns.set(style="whitegrid")
+    sns.set_theme(style="darkgrid")
     fig, ax = plt.subplots()
     ax.grid(True)
     ax.axhline(0, color="black", lw=1.5)
     ax.axvline(0, color="black", lw=1.5)
+    max_length, multiple_robots = compute_max_robot_length(parameter)
+    # Set the limits of the plot
+    ax.set_xlim(-max_length, max_length)
+    ax.set_ylim(-max_length, max_length)
+    return ax, multiple_robots
+
+
+def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to_file, parameter):
+    if end_effector_list is None or len(end_effector_list) == 0:
+        return
+    end_effector_list = np.array(end_effector_list)
+    x = end_effector_list[:, 0]
+    y = end_effector_list[:, 1]
+
+    d = {'x': x, 'y': y}
+    df = pd.DataFrame(data=d)
+    res = sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True)
+
+    max_length, _ = compute_max_robot_length(parameter)
+
+    plt.xlim(-max_length, max_length)
+    plt.ylim(-max_length, max_length)
+
+    # Plot the goal of the robot
+    if goal is not None:
+        x, y = goal[0].item(), goal[1].item()
+        plt.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]", color='r')
+
+    if logger is not None:
+        logger.log_image(plt, step, path="heatmap")
+
+    if save_to_file:
+        # Get day and time for the filename
+        day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
+        path = os.path.join("../heatmaps", f"rbt_heatmap_{day_time}.png")
+        plt.savefig(path)
+
+    if show_plot:
+        plt.show()
+    plt.close()
+
+
+def compute_max_robot_length(parameter):
     # Calculate the maximum length of the robot arm from the given parameters
     max_length = 0
     multiple_robots = len(parameter.size()) == 3
@@ -247,8 +274,4 @@ def set_plot_settings(parameter):
     else:
         for i in range(parameter.shape[0]):
             max_length += parameter[i, 1].item()
-    # Set the limits of the plot
-    ax.set_xlim(-max_length, max_length)
-    ax.set_ylim(-max_length, max_length)
-    return ax, multiple_robots
-
+    return max_length, multiple_robots

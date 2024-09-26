@@ -8,7 +8,7 @@ from gymnasium import spaces
 from conf.config import TrainConfig
 from data_generation.goal_generator import generate_achievable_goal
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
-from util.forward_kinematics import update_theta_values, calculate_distances
+from util.forward_kinematics import update_theta_values, calculate_distances, calculate_angles_from_network_output
 from vis.planar_robot_vis import visualize_planar_robot
 
 
@@ -61,17 +61,10 @@ class KinematicsEnvironment(gym.Env):
         )
 
     def step(self, action):
+        if isinstance(action, np.ndarray):
+            action = torch.tensor(action).to(self.device)
         # Calculate angles from the network output
-        all_angles = None
-        for joint_number in range(self.num_joints):
-            index = 2 * joint_number
-            sin_x =  torch.tensor(action[index]).to(self.device)
-            cos_y =  torch.tensor(action[index + 1]).to(self.device)
-            angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
-            if all_angles is None:
-                all_angles = angle
-            else:
-                all_angles = torch.cat([all_angles, angle]).to(self.device)
+        all_angles = calculate_angles_from_network_output(action, self.num_joints, self.device)
 
         updated_parameter = update_theta_values(self.parameter, all_angles)
         distance = calculate_distances(updated_parameter, self.goal).detach().item()

@@ -2,6 +2,7 @@ import numpy as np
 import torch
 
 from conf.config import TrainConfig
+from util.forward_kinematics import calculate_angles_from_network_output
 from vis.planar_robot_vis import visualize_planar_robot
 
 
@@ -40,16 +41,7 @@ def visualize_stb3_problem(
         else:
             pred, _ = model.predict(observation)
         pred = torch.tensor(pred).to(device)
-        all_angles = None
-        for joint_number in range(cfg.number_of_joints):
-            index = 2 * joint_number
-            sin_x = pred[index]
-            cos_y = pred[index + 1]
-            angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
-            if all_angles is None:
-                all_angles = angle
-            else:
-                all_angles = torch.cat([all_angles, angle]).to(param.device)
+        all_angles = calculate_angles_from_network_output(pred, cfg.number_of_joints, param.device)
         predictions = [all_angles]
 
         if cfg.vis.stb3.visualize_distribution:
@@ -61,16 +53,7 @@ def visualize_stb3_problem(
                 else:
                     pred, _ = model.predict(observation)
                 pred = torch.tensor(pred).to(device)
-                all_angles = None
-                for joint_number in range(cfg.number_of_joints):
-                    index = 2 * joint_number
-                    sin_x = pred[index]
-                    cos_y = pred[index + 1]
-                    angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
-                    if all_angles is None:
-                        all_angles = angle
-                    else:
-                        all_angles = torch.cat([all_angles, angle]).to(param.device)
+                all_angles = calculate_angles_from_network_output(pred, cfg.number_of_joints, param.device)
                 predictions.append(all_angles)
 
         # Reset goal and parameter
