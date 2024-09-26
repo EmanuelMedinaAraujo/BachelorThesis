@@ -15,7 +15,6 @@ from sb3_contrib import RecurrentPPO
 from tqdm import tqdm
 import torch as th
 
-
 from analyticalRL.kinematics_network import KinematicsNetwork
 from analyticalRL.kinematics_network_testing import test_loop
 from analyticalRL.kinematics_network_training import train_loop
@@ -30,25 +29,27 @@ from conf.config import TrainConfig
 cs = ConfigStore.instance()
 cs.store(name="train_conf", node=TrainConfig)
 
+
 def copy_cfg(cfg: TrainConfig) -> TrainConfig:
     return TrainConfig(
-            hyperparams=cfg.hyperparams,
-            logging=cfg.logging,
-            vis=cfg.vis,
-            optuna=cfg.optuna,
-            random_seed=cfg.random_seed,
-            use_stb3=cfg.use_stb3,
-            do_vis=cfg.do_vis,
-            use_optuna=cfg.use_optuna,
-            server_postfix=cfg.server_postfix,
-            torch_num_threads=cfg.torch_num_threads,
-            number_of_joints=cfg.number_of_joints,
-            tolerable_accuracy_error=cfg.tolerable_accuracy_error,
-            parameter_convention=cfg.parameter_convention,
-            min_link_length=cfg.min_link_length,
-            max_link_length=cfg.max_link_length,
-            number_of_test_problems=cfg.number_of_test_problems,
-        )
+        hyperparams=cfg.hyperparams,
+        logging=cfg.logging,
+        vis=cfg.vis,
+        optuna=cfg.optuna,
+        random_seed=cfg.random_seed,
+        use_stb3=cfg.use_stb3,
+        do_vis=cfg.do_vis,
+        use_optuna=cfg.use_optuna,
+        server_postfix=cfg.server_postfix,
+        torch_num_threads=cfg.torch_num_threads,
+        number_of_joints=cfg.number_of_joints,
+        tolerable_accuracy_error=cfg.tolerable_accuracy_error,
+        parameter_convention=cfg.parameter_convention,
+        min_link_length=cfg.min_link_length,
+        max_link_length=cfg.max_link_length,
+        number_of_test_problems=cfg.number_of_test_problems,
+    )
+
 
 @hydra.main(version_base="1.3", config_path="conf", config_name="config")
 def main(train_config: TrainConfig):
@@ -60,7 +61,6 @@ def main(train_config: TrainConfig):
     if not train_config.use_optuna:
         train_and_test_model(copy_cfg(train_config))
         return
-
 
     # Use Optuna
     minimal_steps = train_config.optuna.min_num_steps
@@ -88,30 +88,37 @@ def main(train_config: TrainConfig):
     print_optuna_results(study)
 
 
-def _optimize(study:Study, train_config, num_trials_per_process):
+def _optimize(study: Study, train_config, num_trials_per_process):
     study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process)
+
 
 def _objective(defaults: TrainConfig, trial: optuna.Trial):
     """Copies the default config and adds the trial parameters to it."""
     cfg_copy = copy_cfg(defaults)
     lr = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
-    batch_size = trial.suggest_categorical('batch_size', [8,16,32, 64, 128, 256, 512, 1024, 2048])
+    batch_size = trial.suggest_categorical('batch_size', [8, 16, 32, 64, 128, 256, 512, 1024, 2048])
     if defaults.use_stb3:
         cfg_copy.hyperparams.stb3.learning_rate = lr
         cfg_copy.hyperparams.stb3.batch_size = batch_size
-        cfg_copy.hyperparams.stb3.use_recurrent_policy = trial.suggest_categorical('use_recurrent_policy', [True, False])
+        cfg_copy.hyperparams.stb3.use_recurrent_policy = trial.suggest_categorical('use_recurrent_policy',
+                                                                                   [True, False])
         if cfg_copy.hyperparams.stb3.use_recurrent_policy:
-            cfg_copy.hyperparams.stb3.recurrent_policy = trial.suggest_categorical('recurrent_policy', ['MlpLstmPolicy'])
+            cfg_copy.hyperparams.stb3.recurrent_policy = trial.suggest_categorical('recurrent_policy',
+                                                                                   ['MlpLstmPolicy'])
         else:
-            cfg_copy.hyperparams.stb3.non_recurrent_policy = trial.suggest_categorical('non_recurrent_policy', ['MlpPolicy'])
+            cfg_copy.hyperparams.stb3.non_recurrent_policy = trial.suggest_categorical('non_recurrent_policy',
+                                                                                       ['MlpPolicy'])
 
         cfg_copy.hyperparams.stb3.n_envs = trial.suggest_int('n_envs', 1, 128, log=True)
         cfg_copy.hyperparams.stb3.n_steps = trial.suggest_int('n_steps', 2, 128, log=True)
         cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 1028, log=True)
-        #cfg_copy.hyperparams.stb3.gamma = trial.suggest_float('gamma', 0.0, 0.99)
+        # cfg_copy.hyperparams.stb3.gamma = trial.suggest_float('gamma', 0.0, 0.99)
         cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.01, 0.99, log=True)
         cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', 1., 4, log=True)
-        cfg_copy.hyperparams.stb3.testing_interval = trial.suggest_int('testing_interval', int(cfg_copy.hyperparams.stb3.total_timesteps*0.2), cfg_copy.hyperparams.stb3.total_timesteps, log=True)
+        cfg_copy.hyperparams.stb3.testing_interval = trial.suggest_int('testing_interval',
+                                                                       int(cfg_copy.hyperparams.stb3.total_timesteps * 0.2),
+                                                                       cfg_copy.hyperparams.stb3.total_timesteps,
+                                                                       log=True)
         # cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_float('gae_lambda', 0.0, 1.0)
         # cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.1, 1.0)
         # cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
@@ -122,21 +129,25 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
         cfg_copy.hyperparams.analytical.learning_rate = lr
         cfg_copy.hyperparams.analytical.batch_size = batch_size
         cfg_copy.hyperparams.analytical.num_hidden_layer = trial.suggest_int('num_hidden_layer', 1, 50)
-        cfg_copy.hyperparams.analytical.hidden_layer_sizes = [trial.suggest_int(f'hidden_layer_sizes_{i}', 1, 2048) for i in range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
-        cfg_copy.hyperparams.analytical.problems_per_epoch = trial.suggest_int('problems_per_epoch', 1, 100000, log=True)
+        cfg_copy.hyperparams.analytical.hidden_layer_sizes = [trial.suggest_int(f'hidden_layer_sizes_{i}', 1, 2048) for
+                                                              i in
+                                                              range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
+        cfg_copy.hyperparams.analytical.problems_per_epoch = trial.suggest_int('problems_per_epoch', 1, 100000,
+                                                                               log=True)
         cfg_copy.hyperparams.analytical.epochs = trial.suggest_int('epochs', 1, 1028)
-        cfg_copy.hyperparams.analytical.testing_interval = trial.suggest_int('testing_interval',  1, cfg_copy.hyperparams.analytical.epochs)
+        cfg_copy.hyperparams.analytical.testing_interval = trial.suggest_int('testing_interval', 1,
+                                                                             cfg_copy.hyperparams.analytical.epochs)
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
 
     return train_and_test_model(cfg_copy, trial)
 
 
-def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
+def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
     """
     Train and test the model with the given hydra configuration.
     """
     device = (
-        "cuda"+str(train_config.server_postfix)
+        "cuda" + str(train_config.server_postfix)
         if torch.cuda.is_available()
         else "mps" if torch.backends.mps.is_available()
         else "cpu"
@@ -156,7 +167,13 @@ def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
         max_link_len=train_config.max_link_length,
     )
 
-    visualization_param, visualization_goal = test_dataset.__getitem__(0)
+    visualization_params = []
+    visualization_goals = []
+    for x in range(train_config.vis.num_problems_to_visualize):
+        param, goal = test_dataset.__getitem__(x)
+        visualization_params.append(param)
+        visualization_goals.append(goal)
+
     visualization_history = []
 
     if train_config.use_stb3:
@@ -166,8 +183,8 @@ def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
             logger=logger,
             test_dataset=test_dataset,
             visualization_history=visualization_history,
-            visualization_goal=visualization_goal,
-            visualization_param=visualization_param,
+            visualization_goals=visualization_goals,
+            visualization_params=visualization_params,
             tensor_type=tensor_type,
             trial=trial
         )
@@ -178,8 +195,8 @@ def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
             logger=logger,
             test_dataset=test_dataset,
             visualization_history=visualization_history,
-            visualization_goal=visualization_goal,
-            visualization_param=visualization_param,
+            visualization_goals=visualization_goals,
+            visualization_params=visualization_params,
             tensor_type=tensor_type,
             trial=trial
         )
@@ -189,17 +206,17 @@ def train_and_test_model(train_config: TrainConfig, trial:optuna.Trial=None):
 
 
 def do_stable_baselines3_learning(
-    device,
-    cfg: TrainConfig,
-    logger,
-    test_dataset,
-    visualization_history,
-    visualization_goal,
-    visualization_param,
-    tensor_type,
-    trial: optuna.Trial=None
+        device,
+        cfg: TrainConfig,
+        logger,
+        test_dataset,
+        visualization_history,
+        visualization_goals,
+        visualization_params,
+        tensor_type,
+        trial: optuna.Trial = None
 ):
-    #check_env(make_environment(device, cfg, tensor_type), warn=True)
+    # check_env(make_environment(device, cfg, tensor_type), warn=True)
     env = make_vec_env(
         lambda: make_environment(device, cfg, tensor_type),
         n_envs=cfg.hyperparams.stb3.n_envs
@@ -252,13 +269,13 @@ def do_stable_baselines3_learning(
     logger_callback = LoggerCallback(
         logger=logger,
         visualization_history=visualization_history,
-        goal_to_vis=visualization_goal,
-        param_to_vis=visualization_param,
+        goals_to_vis=visualization_goals,
+        params_to_vis=visualization_params,
         test_dataloader=test_dataset,
         cfg=cfg,
         device=device,
         tolerable_accuracy_error=cfg.tolerable_accuracy_error,
-        trial= trial
+        trial=trial
     )
     if cfg.logging.wandb.log_in_wandb:
         logger_callback = CallbackList(
@@ -280,15 +297,15 @@ def do_stable_baselines3_learning(
 
 
 def do_analytical_learning(
-    device,
-    cfg: TrainConfig,
-    logger,
-    test_dataset,
-    visualization_history,
-    visualization_goal,
-    visualization_param,
-    tensor_type,
-    trial: optuna.Trial=None
+        device,
+        cfg: TrainConfig,
+        logger,
+        test_dataset,
+        visualization_history,
+        visualization_goals,
+        visualization_params,
+        tensor_type,
+        trial: optuna.Trial = None
 ):
     model = KinematicsNetwork(
         num_joints=cfg.number_of_joints,
@@ -315,9 +332,9 @@ def do_analytical_learning(
     )
     last_mean_loss = None
     for epoch_num in tqdm(
-        range(cfg.hyperparams.analytical.epochs),
-        colour="green",
-        file=sys.stdout
+            range(cfg.hyperparams.analytical.epochs),
+            colour="green",
+            file=sys.stdout
     ):
         last_mean_loss = train_loop(
             model=model,
@@ -344,20 +361,22 @@ def do_analytical_learning(
 
         # Visualize the same problem every hyperparams.visualization.interval epochs
         if cfg.do_vis and epoch_num % cfg.vis.analytical.interval == 0:
-            visualize_analytical_problem(
-                model=model,
-                param=visualization_param,
-                goal=visualization_goal,
-                param_history=visualization_history,
-                cfg=cfg,
-                logger=logger,
-                current_step=epoch_num,
-            )
+            for i in range(cfg.vis.num_problems_to_visualize):
+                visualize_analytical_problem(
+                    model=model,
+                    param=visualization_params[i],
+                    goal=visualization_goals[i],
+                    param_history=visualization_history,
+                    cfg=cfg,
+                    logger=logger,
+                    current_step=epoch_num,
+                )
         if trial is not None:
             trial.report(last_mean_loss, epoch_num)
             if trial.should_prune():
                 raise optuna.exceptions.TrialPruned()
     return last_mean_loss
+
 
 def print_optuna_results(study):
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
@@ -381,6 +400,7 @@ def print_optuna_results(study):
 
 def make_environment(device, cfg, tensor_type):
     return KinematicsEnvironment(device, cfg=cfg, tensor_type=tensor_type)
+
 
 if __name__ == "__main__":
     main()
