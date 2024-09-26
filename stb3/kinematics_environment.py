@@ -1,3 +1,5 @@
+import math
+
 import gymnasium as gym
 import numpy as np
 import torch
@@ -20,25 +22,25 @@ class KinematicsEnvironment(gym.Env):
         self.show_joints = cfg.vis.show_joints
         self.show_end_effector = cfg.vis.show_end_effectors
 
-        num_joints = cfg.number_of_joints
+        self.num_joints = cfg.number_of_joints
         self.problem_generator = ParameterGeneratorForPlanarRobot(
             batch_size=1,
             device=device,
             tensor_type=tensor_type,
-            num_joints=num_joints,
+            num_joints=self.num_joints,
             parameter_convention=cfg.parameter_convention,
             min_len=cfg.min_link_length,
             max_len=cfg.max_link_length,
         )
 
         self.action_space = spaces.Box(
-            low=-np.pi, high=np.pi, shape=(num_joints,), dtype=np.float32
+            low=-1, high=1, shape=(self.num_joints*2,), dtype=np.float32
         )
 
         # The observation space is the concatenation of the parameter and the goal
-        observation_dimension = num_joints * 3 + 2
-        # The minimum value of the observation space is the smallest possible goal coordinate
-        max_observation_value = cfg.max_link_length * num_joints
+        observation_dimension = self.num_joints * 3 + 2
+        # The max observation value is the max link length times the number of joints plus the goal
+        max_observation_value = cfg.max_link_length * self.num_joints * 2
         self.observation_space = spaces.Box(
             low=-max_observation_value,
             high=max_observation_value,
@@ -59,7 +61,19 @@ class KinematicsEnvironment(gym.Env):
         )
 
     def step(self, action):
-        updated_parameter = update_theta_values(self.parameter, action)
+        # Calculate angles from the network output
+        all_angles = None
+        for joint_number in range(self.num_joints):
+            index = 2 * joint_number
+            sin_x =  torch.tensor(action[index]).to(self.device)
+            cos_y =  torch.tensor(action[index + 1]).to(self.device)
+            angle = torch.atan2(sin_x, cos_y).unsqueeze(dim=-1)
+            if all_angles is None:
+                all_angles = angle
+            else:
+                all_angles = torch.cat([all_angles, angle]).to(self.device)
+
+        updated_parameter = update_theta_values(self.parameter, all_angles)
         distance = calculate_distances(updated_parameter, self.goal).detach().item()
         reward = -distance
         done = True  # One-step episode

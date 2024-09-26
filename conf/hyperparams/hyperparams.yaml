@@ -16,27 +16,27 @@ stb3:
   non_recurrent_policy: "MlpPolicy"
 
   recurrent_policy: "MlpLstmPolicy"
-  n_envs: 1
-  n_steps: 32
-  total_timesteps: 32
+  n_envs: 2
+  n_steps: 8
+  total_timesteps: 500000
 
   learning_rate: 1e-5
-  batch_size: 32 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
-  epochs: 5
+  batch_size: 16 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
+  epochs: 10
 
-  gamma: 0.
-  ent_coef: 0.01 # default value: 0.0
+  gamma: 0.0
+  ent_coef: 0.0 # default value: 0.0
   log_std_init: 0.0 # default value: 0.0
 
   # Not used currently
   ##################
-  gae_lambda: 0.95
-  clip_range: 0.2
-  norm_advantages: true
-  vf_coef: 0.5
-  max_grad_norm: 0.5
-  use_sde: false
+  gae_lambda: 0.95      # default value: 0.95
+  clip_range: 0.2       # default value: 0.2
+  norm_advantages: true # default value: true
+  vf_coef: 0.5          # default value: 0.5
+  max_grad_norm: 0.5    # default value: 0.5
+  use_sde: false        # default value: false
   ####################
 
-  testing_interval: 500000 # Number of steps after which to test the model
+  testing_interval: 100000 # Number of steps after which to test the model
 
