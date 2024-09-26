@@ -28,12 +28,15 @@ stb3:
   ent_coef: 0.01 # default value: 0.0
   log_std_init: 0.0 # default value: 0.0
 
+  # Not used currently
+  ##################
   gae_lambda: 0.95
   clip_range: 0.2
   norm_advantages: true
   vf_coef: 0.5
   max_grad_norm: 0.5
   use_sde: false
+  ####################
 
   testing_interval: 500000 # Number of steps after which to test the model
 
