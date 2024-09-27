@@ -32,7 +32,7 @@ class KinematicsEnvironment(gym.Env):
         )
 
         self.action_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(self.num_joints*2,), dtype=np.float32
+            low=-np.pi, high=np.pi, shape=(self.num_joints*2,), dtype=np.float32
         )
 
         # The observation space is the concatenation of the parameter and the goal
