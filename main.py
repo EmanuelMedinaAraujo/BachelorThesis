@@ -232,12 +232,12 @@ def do_stable_baselines3_learning(
         n_steps=cfg.hyperparams.stb3.n_steps,
         gamma=cfg.hyperparams.stb3.gamma,
         ent_coef=cfg.hyperparams.stb3.ent_coef,
-        # gae_lambda=cfg.hyperparams.stb3.gae_lambda,
-        # clip_range=cfg.hyperparams.stb3.clip_range,
-        # normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
-        # vf_coef=cfg.hyperparams.stb3.vf_coef,
-        # max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
-        # use_sde=cfg.hyperparams.stb3.use_sde,
+        gae_lambda=cfg.hyperparams.stb3.gae_lambda,
+        clip_range=cfg.hyperparams.stb3.clip_range,
+        normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
+        vf_coef=cfg.hyperparams.stb3.vf_coef,
+        max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
+        use_sde=cfg.hyperparams.stb3.use_sde,
         seed=cfg.random_seed,
         policy_kwargs=dict(
             log_std_init=cfg.hyperparams.stb3.log_std_init,
@@ -255,12 +255,12 @@ def do_stable_baselines3_learning(
             n_steps=cfg.hyperparams.stb3.n_steps,
             gamma=cfg.hyperparams.stb3.gamma,
             ent_coef=cfg.hyperparams.stb3.ent_coef,
-            # gae_lambda=cfg.hyperparams.stb3.gae_lambda,
-            # clip_range=cfg.hyperparams.stb3.clip_range,
-            # normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
-            # vf_coef=cfg.hyperparams.stb3.vf_coef,
-            # max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
-            # use_sde=cfg.hyperparams.stb3.use_sde,
+            gae_lambda=cfg.hyperparams.stb3.gae_lambda,
+            clip_range=cfg.hyperparams.stb3.clip_range,
+            normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
+            vf_coef=cfg.hyperparams.stb3.vf_coef,
+            max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
+            use_sde=cfg.hyperparams.stb3.use_sde,
             seed=cfg.random_seed,
             policy_kwargs=dict(log_std_init=cfg.hyperparams.stb3.log_std_init,
                                normalize_images=False),
@@ -392,11 +392,6 @@ def print_optuna_results(study):
     print("  Params: ")
     for key, value in trial.params.items():
         print("    {}: {}".format(key, value))
-    # fig = optuna.visualization.plot_param_importances(study)
-    # if train_config.vis.show_plot:
-    #     show(fig)
-    # elif train_config.logging.wandb.log_in_wandb:
-    #     wandb.log({"param_importance": fig})
 
 
 def make_environment(device, cfg, tensor_type):

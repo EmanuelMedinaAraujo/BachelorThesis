@@ -6,7 +6,7 @@ show_legend: true
 show_distance_in_legend: true
 max_legend_length: 10
 save_to_file: false
-num_problems_to_visualize: 2 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
+num_problems_to_visualize: 1 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
 
 analytical:
   interval: 50 # Number of epochs after which the visualization is updated
@@ -22,7 +22,7 @@ analytical:
 
 stb3:
   visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
-  do_heat_map: false # Only applied when multiple joints will be visualized and is additionally to the visualization
+  do_heat_map: true # Only applied when multiple joints will be visualized and is additionally to the visualization
   num_distribution_samples: 1000
 
   interval: 5000 # Number of steps after which the visualization is updated

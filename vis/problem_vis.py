@@ -63,25 +63,9 @@ def visualize_stb3_problem(
 
         vis_params = cfg.vis.stb3
 
-        # Concatenate the predicted theta values to the parameter
-        predictions, link_accuracy = torch.unique(
-            torch.stack(predictions), dim=0, return_counts=True
-        )
 
-        link_accuracy = link_accuracy / vis_params.num_distribution_samples
-        if len(link_accuracy) == 1:
-            # If all link accuracies are the same, set all to the default value
-            link_accuracy = torch.full(
-                [len(link_accuracy)], vis_params.default_line_transparency
-            ).to(device)
-
-        # Ensure that the link accuracies are in the range [0.1, 1]
-        torch.clamp(
-            link_accuracy, min=0.1, max=1, out=link_accuracy)
-
-        # Sort link_accuracy in descending order and predictions accordingly
-        link_accuracy, indices = torch.sort(link_accuracy, descending=True)
-        predictions = predictions[indices]
+        predictions = torch.stack(predictions)
+        link_accuracy = torch.tensor([cfg.vis.stb3.default_line_transparency] * predictions.shape[0] )
 
         predictions_tensor = predictions.unsqueeze(-1)
         repeated_params = param.expand(predictions_tensor.shape[0], 2, 3)

@@ -76,7 +76,12 @@ class KinematicsEnvironment(gym.Env):
         return observation, reward, done, success, {}
 
     def render_action(self, action):
-        updated_parameter = update_theta_values(self.parameter, action)
+        if isinstance(action, np.ndarray):
+            action = torch.tensor(action).to(self.device)
+            # Calculate angles from the network output
+        all_angles = calculate_angles_from_network_output(action, self.num_joints, self.device)
+
+        updated_parameter = update_theta_values(self.parameter, all_angles)
         # Visualize the robot arm using the updated parameters and using visualize_planar_robot
         visualize_planar_robot(parameter=updated_parameter, default_line_transparency=1.0, default_line_width=1.5,
                                max_legend_length=self.max_legend_length, goal=self.goal, show_joints=self.show_joints,

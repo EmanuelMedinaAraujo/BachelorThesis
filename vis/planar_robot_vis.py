@@ -235,12 +235,9 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     if end_effector_list is None or len(end_effector_list) == 0:
         return
     end_effector_list = np.array(end_effector_list)
-    x = end_effector_list[:, 0]
-    y = end_effector_list[:, 1]
-
-    d = {'x': x, 'y': y}
+    d = {'x': end_effector_list[:, 0], 'y': end_effector_list[:, 1]}
     df = pd.DataFrame(data=d)
-    sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True)
+    sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True, thresh=0)
 
     max_length, _ = compute_max_robot_length(parameter)
 
