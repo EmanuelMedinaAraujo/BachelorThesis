@@ -7,17 +7,16 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.utils import safe_mean
 
 from conf.config import TrainConfig
-from util.forward_kinematics import calculate_parameter_goal_distances, calculate_angles_from_network_output, \
-    calculate_euclidean_distances
+from util.forward_kinematics import calculate_parameter_goal_distances, calculate_angles_from_network_output
 from vis.planar_robot_vis import visualize_model_value_loss
 from vis.problem_vis import visualize_stb3_problem
 
 
-def calculate_advantage_loss(x, y, goal_value_loss, expected_value_loss, device):
-    eef = [x,y]
-    eef_tensor = torch.tensor(eef).to(device)
-    real_value_loss = calculate_euclidean_distances(eef_tensor, goal_value_loss).item()
-    return abs(expected_value_loss - real_value_loss)
+def calculate_advantage_loss(x, y, device, parameter,model):
+    observation = torch.concat([parameter.flatten(), torch.tensor([x,y]).to(device)]).unsqueeze(0)
+    expected_value_loss = model.policy.predict_values(observation).item()
+
+    return expected_value_loss
 
 class LoggerCallback(BaseCallback):
 
@@ -79,20 +78,10 @@ class LoggerCallback(BaseCallback):
 
     def visualize_value_loss(self):
         param_value_loss = self.params_to_vis[0]
-        goal_value_loss = self.goals_to_vis[0]
-        observation = torch.concat([param_value_loss.flatten(), goal_value_loss.flatten()]).unsqueeze(0)
-        expected_value_loss = self.model.policy.predict_values(observation).item()
 
-        lambda_value_loss = lambda x,y:calculate_advantage_loss(x,y,goal_value_loss, expected_value_loss, self.device)
-        visualize_model_value_loss(lambda_value_loss, param_value_loss, goal_value_loss, self.custom_logger,
+        lambda_value_loss = lambda x,y:calculate_advantage_loss(x,y, self.device, param_value_loss, self.model)
+        visualize_model_value_loss(lambda_value_loss, param_value_loss, self.custom_logger,
                                    self.num_timesteps, self.cfg.vis.show_plot, self.cfg.vis.save_to_file, 0)
-        # if self.cfg.vis.num_problems_to_visualize > 1:
-        #     param_value_loss = self.params_to_vis[1]
-        #     goal_value_loss = self.goals_to_vis[1]
-        #     gg = lambda x, y: x + y
-        #     visualize_model_value_loss(gg, param_value_loss, goal_value_loss, self.custom_logger,
-        #                                self.num_timesteps, self.cfg.vis.show_plot, self.cfg.vis.save_to_file, 1)
-
 
     def _on_step(self) -> bool:
         if self.cfg.do_vis:
@@ -116,7 +105,8 @@ class LoggerCallback(BaseCallback):
                         chart_index=i + 1,
                     )
                 if self.cfg.vis.stb3.visualize_value_loss:
-                    self.visualize_value_loss()
+                    with torch.no_grad():
+                        self.visualize_value_loss()
 
         reward = self.locals.get("rewards")[0]
         self.rew_buf += reward

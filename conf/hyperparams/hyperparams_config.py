@@ -21,7 +21,6 @@ class StB3Hyperparams:
     norm_advantages: bool
     vf_coef: float
     max_grad_norm: float
-    use_sde: bool
 
 
 @dataclass

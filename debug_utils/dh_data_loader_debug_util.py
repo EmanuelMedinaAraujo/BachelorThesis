@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 
-from DataGeneration.parameter_dataset import CustomParameterDataset
+from data_generation.parameter_dataset import CustomParameterDataset
 
 """
 This script is used to rapidly debug the CustomParameterDataset class and the DataLoader class.

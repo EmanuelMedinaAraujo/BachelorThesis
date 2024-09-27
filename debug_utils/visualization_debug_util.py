@@ -63,4 +63,4 @@ default_line_width = 1.5
 #visualize_analytical_planar_robot(DH_EXAMPLES,goal=robot_goal, use_gradual_transparency=True)
 # visualize_planar_robot(DH_EXAMPLES, accuracy, robot_goal)
 
-visualize_model_value_loss(lambda x,y:x+y, DH_EXAMPLE, robot_goal)
+visualize_model_value_loss(lambda x,y:x+y, DH_EXAMPLE, robot_goal,0, True,False,0)

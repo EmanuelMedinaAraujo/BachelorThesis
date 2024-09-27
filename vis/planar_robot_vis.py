@@ -8,8 +8,6 @@ import numpy as np
 import seaborn as sns
 
 import pandas as pd
-from matplotlib.colors import LinearSegmentedColormap
-from sympy.printing.pretty.pretty_symbology import line_width
 
 from util.forward_kinematics import calculate_parameter_goal_distances
 
@@ -279,7 +277,7 @@ def compute_max_robot_length(parameter):
             max_length += parameter[i, 1].item()
     return max_length, multiple_robots
 
-def visualize_model_value_loss(value_function, parameter, goal, logger, current_step, show_plot, save_to_file, index):
+def visualize_model_value_loss(value_function, parameter, logger, current_step, show_plot, save_to_file, index):
     sns.set_theme(style="darkgrid")
 
     figure, ax = plt.subplots()
@@ -316,10 +314,6 @@ def visualize_model_value_loss(value_function, parameter, goal, logger, current_
 
     # Draw circle around (0, 0) with radius of max_length with dotted blue line
     ax.plot(x_circle, y_circle, 'b--', label="Boundary", lw=2,color='g')
-
-    # Draw the goal (in red)
-    x_goal, y_goal = goal[0].item(), goal[1].item()
-    ax.plot(x_goal, y_goal, "-x", label=f"Robot Goal [{x_goal:>0.1f},{y_goal:>0.1f}]", color='g', ms=7, lw=5)
 
     # Set the limits and aspect ratio
     plt.xlim(-max_length, max_length)
