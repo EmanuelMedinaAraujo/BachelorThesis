@@ -1,6 +1,6 @@
 import torch
 
-from vis.analytical_vis import visualize_analytical_planar_robot
+from vis.planar_robot_vis import visualize_model_value_loss
 
 """
 This script is used to rapidly debug the visualization of the planar robot with various options. 
@@ -60,5 +60,7 @@ frame_size_scalar = 1.1
 default_line_width = 1.5
 
 # visualize_planar_robot(DH_EXAMPLES)
-visualize_analytical_planar_robot(DH_EXAMPLES,goal=robot_goal, use_gradual_transparency=True)
+#visualize_analytical_planar_robot(DH_EXAMPLES,goal=robot_goal, use_gradual_transparency=True)
 # visualize_planar_robot(DH_EXAMPLES, accuracy, robot_goal)
+
+visualize_model_value_loss(lambda x,y:x+y, DH_EXAMPLE, robot_goal)

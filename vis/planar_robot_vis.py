@@ -8,6 +8,8 @@ import numpy as np
 import seaborn as sns
 
 import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap
+from sympy.printing.pretty.pretty_symbology import line_width
 
 from util.forward_kinematics import calculate_distances
 
@@ -237,6 +239,7 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     end_effector_list = np.array(end_effector_list)
     d = {'x': end_effector_list[:, 0], 'y': end_effector_list[:, 1]}
     df = pd.DataFrame(data=d)
+    sns.set_theme(style="darkgrid")
     sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True, thresh=0)
 
     max_length, _ = compute_max_robot_length(parameter)
@@ -275,3 +278,52 @@ def compute_max_robot_length(parameter):
         for i in range(parameter.shape[0]):
             max_length += parameter[i, 1].item()
     return max_length, multiple_robots
+
+def visualize_model_value_loss(value_function, parameter, goal):
+    sns.set_theme(style="darkgrid")
+
+    figure, ax = plt.subplots()
+
+    max_robot_length, _ = compute_max_robot_length(parameter)
+
+    max_length = max_robot_length * 1.1
+
+    # Evaluate the value function for each point in the grid and plot it using a heatmap
+    x = np.linspace(-max_length, max_length, 30)
+    y = np.linspace(-max_length, max_length, 30)
+    x_grid, y_grid = np.meshgrid(x, y)
+
+    x_val = x_grid.flatten()
+    y_val = y_grid.flatten()
+
+    # Evaluate the value function for each point in the grid
+    value_loss = []
+    for x_single, y_single in zip(x_val, y_val):
+        value_loss.append(value_function(x_single, y_single))
+
+    # Create 2D grid for value_loss
+    value_loss = np.array(value_loss).reshape(len(x), len(y))
+
+    # Plot the heatmap
+    c = ax.imshow(value_loss, extent=(x.min(), x.max(), y.min(), y.max()), origin='lower', aspect='auto', cmap="coolwarm")
+    # Add a color bar
+    plt.colorbar(c, ax=ax)
+
+    # Now draw the goal and the circle on top of the heatmap
+    theta = np.linspace(0, 2 * np.pi, 150)
+    x_circle = np.cos(theta) * max_length
+    y_circle = np.sin(theta) * max_length
+
+    # Draw circle around (0, 0) with radius of max_length with dotted blue line
+    ax.plot(x_circle, y_circle, 'b--', label="Boundary", lw=2,color='g')
+
+    # Draw the goal (in red)
+    x_goal, y_goal = goal[0].item(), goal[1].item()
+    ax.plot(x_goal, y_goal, "-x", label=f"Robot Goal [{x_goal:>0.1f},{y_goal:>0.1f}]", color='g', ms=7, lw=5)
+
+    # Set the limits and aspect ratio
+    plt.xlim(-max_length, max_length)
+    plt.ylim(-max_length, max_length)
+    ax.set_aspect(1)
+
+    plt.show()
