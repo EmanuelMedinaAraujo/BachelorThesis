@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 from custom_logging.custom_loggger import GeneralLogger
-from util.forward_kinematics import calculate_distances
+from util.forward_kinematics import calculate_parameter_goal_distances
 
 
 class KinematicsNetwork(nn.Module):
@@ -85,5 +85,5 @@ def loss_fn(param, goal):
     Calculates the loss for the given parameters and goal.
     The loss is calculated as the mean of the distances between the end effector positions of the parameters and the goal.
     """
-    distances = calculate_distances(param, goal)
+    distances = calculate_parameter_goal_distances(param, goal)
     return distances.mean()

@@ -2,7 +2,7 @@ import torch
 
 from analyticalRL.kinematics_network import loss_fn
 from data_generation.goal_generator import generate_achievable_goal
-from util.forward_kinematics import update_theta_values, calculate_distances
+from util.forward_kinematics import update_theta_values, calculate_parameter_goal_distances
 
 
 def train_loop(
@@ -53,7 +53,7 @@ def train_loop(
 
         loss = loss_fn(param=updated_param, goal=goal)
 
-        distances = calculate_distances(param=updated_param, goal=goal)
+        distances = calculate_parameter_goal_distances(param=updated_param, goal=goal)
         loss_sum += distances.sum().item()
         # Increase num_correct for each value in distances that is less than error_tolerance
         num_correct += torch.le(distances, error_tolerance).int().sum().item()

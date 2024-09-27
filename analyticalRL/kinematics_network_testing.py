@@ -1,7 +1,7 @@
 import torch
 
 from analyticalRL.kinematics_network import KinematicsNetwork
-from util.forward_kinematics import update_theta_values, calculate_distances
+from util.forward_kinematics import update_theta_values, calculate_parameter_goal_distances
 
 
 def test_loop(test_dataset, model:KinematicsNetwork, device, tolerable_accuracy_error, logger, epoche_num):
@@ -34,7 +34,7 @@ def test_loop(test_dataset, model:KinematicsNetwork, device, tolerable_accuracy_
             # Update theta values with predictions from model
             updated_param = update_theta_values(parameters=param, new_theta_values=pred)
 
-            distances = calculate_distances(param=updated_param, goal=goal)
+            distances = calculate_parameter_goal_distances(param=updated_param, goal=goal)
             test_loss += distances.sum().item()
             # Increase num_correct for each distance that is less than the tolerable_accuracy_error
             num_correct += (
