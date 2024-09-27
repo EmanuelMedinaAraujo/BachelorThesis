@@ -1,5 +1,3 @@
-import math
-
 import gymnasium as gym
 import numpy as np
 import torch
@@ -8,7 +6,7 @@ from gymnasium import spaces
 from conf.config import TrainConfig
 from data_generation.goal_generator import generate_achievable_goal
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
-from util.forward_kinematics import update_theta_values, calculate_distances, calculate_angles_from_network_output
+from util.forward_kinematics import update_theta_values, calculate_parameter_goal_distances, calculate_angles_from_network_output
 from vis.planar_robot_vis import visualize_planar_robot, visualize_model_value_loss
 
 
@@ -67,7 +65,7 @@ class KinematicsEnvironment(gym.Env):
         all_angles = calculate_angles_from_network_output(action, self.num_joints, self.device)
 
         updated_parameter = update_theta_values(self.parameter, all_angles)
-        distance = calculate_distances(updated_parameter, self.goal).detach().item()
+        distance = calculate_parameter_goal_distances(updated_parameter, self.goal).detach().item()
         reward = -distance
         done = True  # One-step episode
         success = distance <= self.tolerable_accuracy_error
@@ -87,10 +85,6 @@ class KinematicsEnvironment(gym.Env):
         visualize_planar_robot(parameter=updated_parameter, default_line_transparency=1.0, default_line_width=1.5,
                                max_legend_length=self.max_legend_length, goal=self.goal, show_joints=self.show_joints,
                                show_end_effectors=self.show_end_effector, show_distance=True)
-
-
-    def render_model_value_loss(self):
-        visualize_model_value_loss(lambda x,y:1, self.parameter, self.goal)
 
     def set_goal(self, new_goal):
         self.goal = new_goal

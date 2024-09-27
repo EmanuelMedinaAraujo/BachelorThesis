@@ -13,6 +13,7 @@ class AnalyticalVisualization:
 @dataclass
 class StB3Visualization:
     visualize_distribution: bool
+    visualize_value_loss: bool
     num_distribution_samples: int
     do_heat_map: bool
     interval: int

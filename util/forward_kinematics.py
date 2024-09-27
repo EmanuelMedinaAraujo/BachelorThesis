@@ -90,7 +90,7 @@ def update_theta_values(
     return updated_parameters
 
 
-def calculate_distances(
+def calculate_parameter_goal_distances(
     param: torch.Tensor, goal: Union[torch.Tensor, np.ndarray]
 ) -> torch.Tensor:
     """
@@ -100,11 +100,18 @@ def calculate_distances(
     eef_positions = calculate_eef_positions(param)
     if isinstance(goal, np.ndarray):
         goal = torch.tensor(goal).to(param.device)
-    # Calculate the Euclidean distance between the eef position and the goal position
+    return calculate_euclidean_distances(eef_positions, goal)
+
+
+def calculate_euclidean_distances(eef_positions, goal):
+    """
+    Calculate the Euclidean distance between the eef position and the goal position
+    """
     squared_distances = torch.square(eef_positions - goal)
     sum_dim = 1 if len(squared_distances.shape) == 2 else 0
     distances = squared_distances.sum(dim=sum_dim).sqrt()
     return distances
+
 
 def calculate_angles_from_network_output(action: Tensor, num_joints, device):
     all_angles = None

@@ -11,7 +11,7 @@ import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 from sympy.printing.pretty.pretty_symbology import line_width
 
-from util.forward_kinematics import calculate_distances
+from util.forward_kinematics import calculate_parameter_goal_distances
 
 
 def visualize_planar_robot(parameter, default_line_transparency, default_line_width, max_legend_length, goal=None,
@@ -182,7 +182,7 @@ def plot_planar_robot(
         if i == 0:
             distance_label = ""
             if show_distance and goal is not None:
-                distance = calculate_distances(parameter, goal)
+                distance = calculate_parameter_goal_distances(parameter, goal)
                 distance_label = f"({distance:.2f})"
             link_line.set_label(
                 f"Robot Arm {robot_label_note}" + distance_label
@@ -279,7 +279,7 @@ def compute_max_robot_length(parameter):
             max_length += parameter[i, 1].item()
     return max_length, multiple_robots
 
-def visualize_model_value_loss(value_function, parameter, goal):
+def visualize_model_value_loss(value_function, parameter, goal, logger, current_step, show_plot, save_to_file, index):
     sns.set_theme(style="darkgrid")
 
     figure, ax = plt.subplots()
@@ -326,4 +326,16 @@ def visualize_model_value_loss(value_function, parameter, goal):
     plt.ylim(-max_length, max_length)
     ax.set_aspect(1)
 
-    plt.show()
+    if logger is not None:
+        path = "value_loss"+str(index)
+        logger.log_image(plt, current_step, path=path)
+
+    if save_to_file:
+        # Get day and time for the filename
+        day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
+        path = os.path.join("../heatmaps", f"rbt_heatmap_{day_time}.png")
+        plt.savefig(path)
+
+    if show_plot:
+        plt.show()
+    plt.close()
