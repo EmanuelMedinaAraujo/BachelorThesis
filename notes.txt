@@ -28,12 +28,19 @@ DONE:
     - pandas für data
 - heatmap für endeffector erstellen
 - Beliebig viele Parameter Probleme visualisieren
-
-In Progress:
 - ein zwei parameter sätze auswählen und value loss diskretisieren
     - heatmap für value loss erstellen (ein parameter pro grafik)
 
+In Progress:
+- state value function für recurrent model
+
 TODO:
+- action space ausprobieren
+- NaN Fehler debuggen
+    - PPO network output beobachten. Verhältnis davon anschauen
+- State value function für recurrent anpassen
+- Analytical reparametrization
+- Analytical distribution implementieren
 - Gymnasium für analytical erstellen
 	wrapper
 		base environment

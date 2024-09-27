@@ -1,7 +1,7 @@
 import torch
 
-from Util.dh_conventions import dh_to_homogeneous
-from Util.forward_kinematics import forward_kinematics
+from util.dh_conventions import dh_to_homogeneous
+from util.forward_kinematics import forward_kinematics
 
 """
 This script is used to rapidly debug the forward kinematics function.

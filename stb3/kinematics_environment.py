@@ -7,7 +7,7 @@ from conf.config import TrainConfig
 from data_generation.goal_generator import generate_achievable_goal
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
 from util.forward_kinematics import update_theta_values, calculate_parameter_goal_distances, calculate_angles_from_network_output
-from vis.planar_robot_vis import visualize_planar_robot, visualize_model_value_loss
+from vis.planar_robot_vis import visualize_planar_robot
 
 
 class KinematicsEnvironment(gym.Env):
@@ -32,7 +32,7 @@ class KinematicsEnvironment(gym.Env):
         )
 
         self.action_space = spaces.Box(
-            low=-1, high=1, shape=(self.num_joints*2,), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(self.num_joints*2,), dtype=np.float32
         )
 
         # The observation space is the concatenation of the parameter and the goal

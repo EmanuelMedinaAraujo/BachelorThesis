@@ -95,36 +95,30 @@ def _optimize(study: Study, train_config, num_trials_per_process):
 def _objective(defaults: TrainConfig, trial: optuna.Trial):
     """Copies the default config and adds the trial parameters to it."""
     cfg_copy = copy_cfg(defaults)
-    lr = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
-    batch_size = trial.suggest_categorical('batch_size', [8, 16, 32, 64, 128, 256, 512, 1024, 2048])
+    lr = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
+    batch_size_exp = trial.suggest_int('batch_size',4,9) # from 16 to 512
+    batch_size = 2**batch_size_exp
     if defaults.use_stb3:
         cfg_copy.hyperparams.stb3.learning_rate = lr
         cfg_copy.hyperparams.stb3.batch_size = batch_size
         cfg_copy.hyperparams.stb3.use_recurrent_policy = trial.suggest_categorical('use_recurrent_policy',
                                                                                    [True, False])
-        if cfg_copy.hyperparams.stb3.use_recurrent_policy:
-            cfg_copy.hyperparams.stb3.recurrent_policy = trial.suggest_categorical('recurrent_policy',
-                                                                                   ['MlpLstmPolicy'])
-        else:
-            cfg_copy.hyperparams.stb3.non_recurrent_policy = trial.suggest_categorical('non_recurrent_policy',
-                                                                                       ['MlpPolicy'])
 
-        cfg_copy.hyperparams.stb3.n_envs = trial.suggest_int('n_envs', 1, 128, log=True)
-        cfg_copy.hyperparams.stb3.n_steps = trial.suggest_int('n_steps', 2, 128, log=True)
-        cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 1028, log=True)
-        # cfg_copy.hyperparams.stb3.gamma = trial.suggest_float('gamma', 0.0, 0.99)
-        cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.01, 0.99, log=True)
-        cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', 1., 4, log=True)
-        cfg_copy.hyperparams.stb3.testing_interval = trial.suggest_int('testing_interval',
-                                                                       int(cfg_copy.hyperparams.stb3.total_timesteps * 0.2),
-                                                                       cfg_copy.hyperparams.stb3.total_timesteps,
-                                                                       log=True)
-        # cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_float('gae_lambda', 0.0, 1.0)
-        # cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.1, 1.0)
-        # cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
-        # cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0.1, 1.0)
-        # cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_float('max_grad_norm', 0.1, 1.0)
-        # cfg_copy.hyperparams.stb3.use_sde = trial.suggest_categorical('use_sde', [True, False])
+        n_envs_exp = trial.suggest_int('n_envs', 0, 4)  # from 1 to 256 in 4 base
+        cfg_copy.hyperparams.stb3.n_envs = 4**n_envs_exp
+
+        n_steps_exp = trial.suggest_int('n_steps', 1, 11)  # from 16 to 512
+        cfg_copy.hyperparams.stb3.n_steps = 2**n_steps_exp
+
+        cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 512, log=True)
+        cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.0, 0.99)
+        cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', -2, 0)
+
+        cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_float('gae_lambda', 0.0, 1.0)
+        cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.1, 1.0)
+        cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
+        cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0.1, 1.5)
+        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_float('max_grad_norm', 0.1, 1.0)
     else:
         cfg_copy.hyperparams.analytical.learning_rate = lr
         cfg_copy.hyperparams.analytical.batch_size = batch_size
@@ -237,7 +231,6 @@ def do_stable_baselines3_learning(
         normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
         vf_coef=cfg.hyperparams.stb3.vf_coef,
         max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
-        use_sde=cfg.hyperparams.stb3.use_sde,
         seed=cfg.random_seed,
         policy_kwargs=dict(
             log_std_init=cfg.hyperparams.stb3.log_std_init,
@@ -260,7 +253,6 @@ def do_stable_baselines3_learning(
             normalize_advantage=cfg.hyperparams.stb3.norm_advantages,
             vf_coef=cfg.hyperparams.stb3.vf_coef,
             max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
-            use_sde=cfg.hyperparams.stb3.use_sde,
             seed=cfg.random_seed,
             policy_kwargs=dict(log_std_init=cfg.hyperparams.stb3.log_std_init,
                                normalize_images=False),
