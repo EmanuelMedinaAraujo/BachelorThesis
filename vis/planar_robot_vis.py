@@ -313,7 +313,7 @@ def visualize_model_value_loss(value_function, parameter, logger, current_step, 
     y_circle = np.sin(theta) * max_length
 
     # Draw circle around (0, 0) with radius of max_length with dotted blue line
-    ax.plot(x_circle, y_circle, 'b--', label="Boundary", lw=2,color='g')
+    ax.plot(x_circle, y_circle, label="Boundary", lw=2,color='g')
 
     # Set the limits and aspect ratio
     plt.xlim(-max_length, max_length)
