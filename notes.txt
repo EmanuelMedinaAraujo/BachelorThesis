@@ -13,41 +13,27 @@ Server:
         tmux a
 
 Frage:
-- Trick für angles nicht mehr nachvollziehbar
-    - Output range für angles berechnung
-- Warum macht optuna nur 12 trials anstatt 20?
 
 DONE:
-- Fixed bug in max observation space value
-- angles wie bei analytical berechnen
-- test und vis bei step 0
-    - train/loss nicht möglich weil ja noch kein datensatz herrscht
-- optuna
-    - tpeSampler
-- seaborn benutzen
-    - pandas für data
-- heatmap für endeffector erstellen
-- Beliebig viele Parameter Probleme visualisieren
-- ein zwei parameter sätze auswählen und value loss diskretisieren
-    - heatmap für value loss erstellen (ein parameter pro grafik)
+- action space ausprobieren
+- state value function für recurrent model fixen
+
 
 In Progress:
-- state value function für recurrent model
 
 TODO:
-- action space ausprobieren
 - NaN Fehler debuggen
     - PPO network output beobachten. Verhältnis davon anschauen
-- State value function für recurrent anpassen
 - Analytical reparametrization
 - Analytical distribution implementieren
+
+
 - Gymnasium für analytical erstellen
 	wrapper
 		base environment
 			alle return sind torch.tensoren
 		stable baselines environment erbt
 			gibt numpy arrays zurück
-
 - reread PPO optimizer Paper
 - reread Adam optimizer Paper
 
