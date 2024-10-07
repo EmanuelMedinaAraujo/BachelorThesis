@@ -2,9 +2,10 @@ from datetime import datetime
 
 import numpy as np
 import torch
-from scipy.stats import stats
+from torch.utils.hipify.hipify_python import InputError
 
 from analyticalRL.kinematics_network import KinematicsNetwork
+from analyticalRL.kinematics_network_base import KinematicsNetworkBase
 from conf.config import TrainConfig
 
 import matplotlib.pyplot as plt
@@ -97,7 +98,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
     plt.close()
 
 
-def visualize_analytical_distribution(model: KinematicsNetwork, param,ground_truth, goal, cfg: TrainConfig, device,
+def visualize_analytical_distribution(model: KinematicsNetworkBase, param, ground_truth, goal, cfg: TrainConfig, device,
                                       logger=None,
                                       current_step=None, chart_index=1):
     model.eval()
@@ -107,28 +108,27 @@ def visualize_analytical_distribution(model: KinematicsNetwork, param,ground_tru
     link_probabilities = [[] for _ in range(cfg.number_of_joints)]
     for joint_number in range(cfg.number_of_joints):
         index = 2 * joint_number
-        mu = pred[index]
-        sigma = pred[index + 1]
-        # Map sigma to positive values from [-1,1] to [0,2]
-        sigma =((0.4+torch.sigmoid(sigma))).item()
+        mu_output = pred[index]
+        sigma_output = pred[index + 1]
 
-        mu = (2 * torch.sigmoid(mu) - 1).item() * np.pi
+        # Map sigma to positive values from [0,1] to [1,2]
+        sigma = sigma_output + 1
 
-        link_angles[joint_number].extend(np.linspace(mu - 2 * sigma, mu + 2 * sigma,
+        # Map mu from [0,1] to [-pi,pi]
+        mu = ((mu_output * 2) - 1) * np.pi
+
+        link_angles[joint_number].extend(np.linspace(mu.item() - sigma.item(), mu.item() + sigma.item(),
                                                      num=cfg.vis.analytical.distribution_samples))
 
+        normal_dist = torch.distributions.Normal(mu, sigma)
         for point in link_angles[joint_number]:
-            normal_dist = torch.distributions.Normal(mu, sigma)
-
-            prob = (normal_dist.cdf(torch.tensor(point + cfg.hyperparams.analytical.distribution_tolerance))
-                    - normal_dist.cdf(torch.tensor(point - cfg.hyperparams.analytical.distribution_tolerance)))
-            prob = torch.abs(prob).item()
-            if prob > 1:
-                prob = 1
-            if prob < 0.1:
-                prob = 0.1
-            link_probabilities[joint_number].append(prob)
-
+            expected_truth_prob = torch.exp(normal_dist.log_prob(torch.tensor(point).to(device))).item()
+            if expected_truth_prob > 1:
+                expected_truth_prob = 1
+                #raise InputError("Expected truth probability is greater than 1")
+            if expected_truth_prob < 0.1:
+                expected_truth_prob = 0.1
+            link_probabilities[joint_number].append(expected_truth_prob)
 
     vis_params = cfg.vis
 
