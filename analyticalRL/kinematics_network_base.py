@@ -20,13 +20,17 @@ class KinematicsNetworkBase(nn.Module):
         super().__init__()
         self.num_joints = num_joints
         self.flatten = nn.Flatten()
+        stack_list = self.create_layer_stack_list(layer_sizes, num_joints, num_layer)
+        self.linear_relu_stack = nn.Sequential(*stack_list)
+        logger.log_network_architecture(self.linear_relu_stack)
+
+    def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
         stack_list = [nn.Linear(num_joints * 3 + 2, layer_sizes[0]), nn.ReLU()]
         for i in range(num_layer - 1):
             stack_list.append(nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
             stack_list.append(nn.ReLU())
         stack_list.append(nn.Linear(layer_sizes[-1], num_joints * 2))
-        self.linear_relu_stack = nn.Sequential(*stack_list)
-        logger.log_network_architecture(self.linear_relu_stack)
+        return stack_list
 
     def forward(self, model_input):
         param, goal = model_input

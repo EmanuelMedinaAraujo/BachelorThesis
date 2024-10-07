@@ -43,3 +43,4 @@ def test_loop(test_dataset, model:KinematicsNetwork, tolerable_accuracy_error, l
     if is_normal_output:
         accuracy = num_correct * 100 / dataset_size
     logger.log_test(accuracy=accuracy, loss=test_loss, current_step=epoche_num)
+    model.train()

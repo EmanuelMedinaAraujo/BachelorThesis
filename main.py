@@ -309,7 +309,6 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
-                distribution_tolerance=cfg.hyperparams.analytical.distribution_tolerance,
             ).to(device)
         case _:
             raise ValueError(
@@ -333,31 +332,32 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
         max_len=cfg.max_link_length,
     )
     last_mean_loss = None
-    with torch.no_grad():
-        for i in range(cfg.vis.num_problems_to_visualize):
-            if cfg.hyperparams.analytical.output_type == "Normal":
-                visualize_analytical_problem(
-                    model=model,
-                    param=visualization_params[i],
-                    goal=visualization_goals[i],
-                    param_history=visualization_history,
-                    cfg=cfg,
-                    logger=logger,
-                    current_step=0,
-                    chart_index=i + 1,
-                )
-            else:
-                visualize_analytical_distribution(
-                    model=model,
-                    param=visualization_params[i],
-                    goal=visualization_goals[i],
-                    ground_truth=visualization_ground_truth[i],
-                    cfg=cfg,
-                    logger=logger,
-                    current_step=0,
-                    chart_index=i + 1,
-                    device=device,
-                )
+    if cfg.do_vis:
+        with torch.no_grad():
+            for i in range(cfg.vis.num_problems_to_visualize):
+                if cfg.hyperparams.analytical.output_type == "Normal":
+                    visualize_analytical_problem(
+                        model=model,
+                        param=visualization_params[i],
+                        goal=visualization_goals[i],
+                        param_history=visualization_history,
+                        cfg=cfg,
+                        logger=logger,
+                        current_step=0,
+                        chart_index=i + 1,
+                    )
+                else:
+                    visualize_analytical_distribution(
+                        model=model,
+                        param=visualization_params[i],
+                        goal=visualization_goals[i],
+                        ground_truth=visualization_ground_truth[i],
+                        cfg=cfg,
+                        logger=logger,
+                        current_step=0,
+                        chart_index=i + 1,
+                        device=device,
+                    )
     for epoch_num in tqdm(
             range(cfg.hyperparams.analytical.epochs),
             colour="green",
@@ -389,7 +389,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             )
 
         # Visualize the same problem every hyperparams.visualization.interval epochs
-        if cfg.do_vis and epoch_num % cfg.vis.analytical.interval == 0:
+        if cfg.do_vis and epoch_num % cfg.vis.analytical.interval == 0 and epoch_num != 0:
             with torch.no_grad():
                 for i in range(cfg.vis.num_problems_to_visualize):
                     if cfg.hyperparams.analytical.output_type == "Normal":

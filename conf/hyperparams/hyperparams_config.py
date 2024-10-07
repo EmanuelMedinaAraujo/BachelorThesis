@@ -34,7 +34,6 @@ class AnalyticalHyperparams:
     testing_interval: int
     optimizer: str
     output_type: str
-    distribution_tolerance: float
 
 
 @dataclass
