@@ -8,6 +8,7 @@ class AnalyticalVisualization:
     default_line_width: float
     use_gradual_transparency: bool
     plot_all_in_one: bool
+    distribution_samples: int
 
 
 @dataclass

@@ -16,6 +16,7 @@ from tqdm import tqdm
 import torch as th
 
 from analyticalRL.kinematics_network import KinematicsNetwork
+from analyticalRL.kinematics_network_norm_dist import KinematicsNetworkNormDist
 from analyticalRL.kinematics_network_testing import test_loop
 from analyticalRL.kinematics_network_training import train_loop
 from data_generation.parameter_dataset import CustomParameterDataset
@@ -23,7 +24,7 @@ from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
 from custom_logging.custom_loggger import GeneralLogger
 from custom_logging.logger_callback import LoggerCallback
 from stb3.kinematics_environment import KinematicsEnvironment
-from vis.analytical_vis import visualize_analytical_problem
+from vis.analytical_vis import visualize_analytical_problem, visualize_analytical_distribution
 from conf.config import TrainConfig
 
 cs = ConfigStore.instance()
@@ -96,8 +97,8 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
     """Copies the default config and adds the trial parameters to it."""
     cfg_copy = copy_cfg(defaults)
     lr = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
-    batch_size_exp = trial.suggest_int('batch_size',4,9) # from 16 to 512
-    batch_size = 2**batch_size_exp
+    batch_size_exp = trial.suggest_int('batch_size', 4, 9)  # from 16 to 512
+    batch_size = 2 ** batch_size_exp
     if defaults.use_stb3:
         cfg_copy.hyperparams.stb3.learning_rate = lr
         cfg_copy.hyperparams.stb3.batch_size = batch_size
@@ -105,10 +106,10 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
                                                                                    [True, False])
 
         n_envs_exp = trial.suggest_int('n_envs', 0, 4)  # from 1 to 256 in 4 base
-        cfg_copy.hyperparams.stb3.n_envs = 4**n_envs_exp
+        cfg_copy.hyperparams.stb3.n_envs = 4 ** n_envs_exp
 
         n_steps_exp = trial.suggest_int('n_steps', 1, 11)  # from 16 to 512
-        cfg_copy.hyperparams.stb3.n_steps = 2**n_steps_exp
+        cfg_copy.hyperparams.stb3.n_steps = 2 ** n_steps_exp
 
         cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 512, log=True)
         cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.0, 0.99)
@@ -163,10 +164,12 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
 
     visualization_params = []
     visualization_goals = []
+    visualization_ground_truth = []
     for x in range(train_config.vis.num_problems_to_visualize):
-        param, goal = test_dataset.__getitem__(x)
+        param, goal, ground_truth = test_dataset.__getitem__(x)
         visualization_params.append(param)
         visualization_goals.append(goal)
+        visualization_ground_truth.append(ground_truth)
 
     visualization_history = []
 
@@ -191,6 +194,7 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
             visualization_history=visualization_history,
             visualization_goals=visualization_goals,
             visualization_params=visualization_params,
+            visualization_ground_truth=visualization_ground_truth,
             tensor_type=tensor_type,
             trial=trial
         )
@@ -288,23 +292,29 @@ def do_stable_baselines3_learning(
     return trained_model.logger.name_to_value["train/loss"]
 
 
-def do_analytical_learning(
-        device,
-        cfg: TrainConfig,
-        logger,
-        test_dataset,
-        visualization_history,
-        visualization_goals,
-        visualization_params,
-        tensor_type,
-        trial: optuna.Trial = None
-):
-    model = KinematicsNetwork(
-        num_joints=cfg.number_of_joints,
-        num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-        layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-        logger=logger,
-    ).to(device)
+def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visualization_history, visualization_goals,
+                           visualization_params, visualization_ground_truth, tensor_type, trial: optuna.Trial = None,
+                           ):
+    match cfg.hyperparams.analytical.output_type:
+        case "Normal":
+            model = KinematicsNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "NormDist":
+            model = KinematicsNetworkNormDist(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+                distribution_tolerance=cfg.hyperparams.analytical.distribution_tolerance,
+            ).to(device)
+        case _:
+            raise ValueError(
+                f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the config.")
+
     logger.watch_model(model)
 
     # Use optimizer specified in the config
@@ -323,11 +333,37 @@ def do_analytical_learning(
         max_len=cfg.max_link_length,
     )
     last_mean_loss = None
+    with torch.no_grad():
+        for i in range(cfg.vis.num_problems_to_visualize):
+            if cfg.hyperparams.analytical.output_type == "Normal":
+                visualize_analytical_problem(
+                    model=model,
+                    param=visualization_params[i],
+                    goal=visualization_goals[i],
+                    param_history=visualization_history,
+                    cfg=cfg,
+                    logger=logger,
+                    current_step=0,
+                    chart_index=i + 1,
+                )
+            else:
+                visualize_analytical_distribution(
+                    model=model,
+                    param=visualization_params[i],
+                    goal=visualization_goals[i],
+                    ground_truth=visualization_ground_truth[i],
+                    cfg=cfg,
+                    logger=logger,
+                    current_step=0,
+                    chart_index=i + 1,
+                    device=device,
+                )
     for epoch_num in tqdm(
             range(cfg.hyperparams.analytical.epochs),
             colour="green",
             file=sys.stdout
     ):
+        # Keep track of the last mean loss for optuna
         last_mean_loss = train_loop(
             model=model,
             optimizer=optimizer,
@@ -338,6 +374,7 @@ def do_analytical_learning(
             logger=logger,
             epoch_num=epoch_num,
             error_tolerance=cfg.tolerable_accuracy_error,
+            is_normal_output=cfg.hyperparams.analytical.output_type == "Normal"
         )
 
         # Test the model every hyperparams.testing_interval epochs
@@ -345,25 +382,39 @@ def do_analytical_learning(
             test_loop(
                 test_dataset=test_dataset,
                 model=model,
-                device=device,
                 logger=logger,
                 tolerable_accuracy_error=cfg.tolerable_accuracy_error,
-                epoche_num=epoch_num
+                epoche_num=epoch_num,
+                is_normal_output=cfg.hyperparams.analytical.output_type == "Normal"
             )
 
         # Visualize the same problem every hyperparams.visualization.interval epochs
         if cfg.do_vis and epoch_num % cfg.vis.analytical.interval == 0:
-            for i in range(cfg.vis.num_problems_to_visualize):
-                visualize_analytical_problem(
-                    model=model,
-                    param=visualization_params[i],
-                    goal=visualization_goals[i],
-                    param_history=visualization_history,
-                    cfg=cfg,
-                    logger=logger,
-                    current_step=epoch_num,
-                    chart_index=i + 1,
-                )
+            with torch.no_grad():
+                for i in range(cfg.vis.num_problems_to_visualize):
+                    if cfg.hyperparams.analytical.output_type == "Normal":
+                        visualize_analytical_problem(
+                            model=model,
+                            param=visualization_params[i],
+                            goal=visualization_goals[i],
+                            param_history=visualization_history,
+                            cfg=cfg,
+                            logger=logger,
+                            current_step=epoch_num,
+                            chart_index=i + 1,
+                        )
+                    else:
+                        visualize_analytical_distribution(
+                            model=model,
+                            param=visualization_params[i],
+                            goal=visualization_goals[i],
+                            ground_truth=visualization_ground_truth[i],
+                            cfg=cfg,
+                            logger=logger,
+                            current_step=epoch_num,
+                            chart_index=i + 1,
+                            device=device,
+                        )
         if trial is not None:
             trial.report(last_mean_loss, epoch_num)
             if trial.should_prune():

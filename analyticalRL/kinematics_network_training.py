@@ -1,21 +1,12 @@
 import torch
 
-from analyticalRL.kinematics_network import loss_fn
+from analyticalRL.kinematics_network_base import KinematicsNetworkBase
 from data_generation.goal_generator import generate_achievable_goal
-from util.forward_kinematics import update_theta_values, calculate_parameter_goal_distances
 
 
-def train_loop(
-    model,
-    optimizer,
-    problem_generator,
-    problems_per_epoch,
-    batch_size,
-    device,
-    logger,
-    epoch_num,
-    error_tolerance,
-):
+def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, problems_per_epoch, batch_size, device,
+               logger, epoch_num, error_tolerance,
+               is_normal_output):
     """
     The training loop for the kinematics network. This function trains the model on random parameters and goals and
     logs the training loss and accuracy at the end of each epoch.
@@ -36,6 +27,7 @@ def train_loop(
         logger: The logger object used to log training data
         epoch_num: The current epoch number
         error_tolerance: The maximum distance between the predicted eef position and the goal that is considered correct
+        is_normal_output: True if the model outputs normal angles, False if it outputs distribution parameters
     """
     model.train()
     num_correct, loss_sum = 0, 0
@@ -43,28 +35,31 @@ def train_loop(
     for _ in range(problems_per_epoch // batch_size):
         # Generate random parameters and goals
         param = problem_generator.get_random_parameters()
-        goal = generate_achievable_goal(param, device)
+        goal, ground_truth = generate_achievable_goal(param, device)
 
-        param, goal = param.to(device), goal.to(device)
+        param, goal, ground_truth = param.to(device), goal.to(device), ground_truth.to(device)
         pred = model((param, goal))
 
-        # Update theta values with predictions
-        updated_param = update_theta_values(parameters=param, new_theta_values=pred)
+        loss = model.loss_fn(param=param, pred=pred, goal=goal, ground_truth=ground_truth)
 
-        loss = loss_fn(param=updated_param, goal=goal)
-
-        distances = calculate_parameter_goal_distances(param=updated_param, goal=goal)
-        loss_sum += distances.sum().item()
-        # Increase num_correct for each value in distances that is less than error_tolerance
-        num_correct += torch.le(distances, error_tolerance).int().sum().item()
+        loss_sum += loss.sum().item()
+        if is_normal_output:
+            distances = model.calc_distances(param=param, pred=pred, goal=goal)
+            # Increase num_correct for each value in distances that is less than error_tolerance
+            num_correct += torch.le(distances, error_tolerance).int().sum().item()
 
         # Backpropagation
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    accuracy = num_correct * 100 / problems_per_epoch
-    logger.log_training(
-        loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=accuracy
-    )
+    if is_normal_output:
+        accuracy = num_correct * 100 / problems_per_epoch
+        logger.log_training(
+            loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=accuracy
+        )
+    else:
+        logger.log_training(
+            loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=None
+        )
     return loss_sum / problems_per_epoch

@@ -1,11 +1,10 @@
 import torch
-from torch import nn
 
-from custom_logging.custom_loggger import GeneralLogger
-from util.forward_kinematics import calculate_parameter_goal_distances
+from analyticalRL.kinematics_network_base import KinematicsNetworkBase
+from util.forward_kinematics import calculate_parameter_goal_distances, update_theta_values
 
 
-class KinematicsNetwork(nn.Module):
+class KinematicsNetwork(KinematicsNetworkBase):
     """
     This class is used to create a neural network that predicts the angles of the joints of a planar robotic arm.
     The network takes two inputs, the parameters (DH or MDH) of the arm and the goal position.
@@ -15,45 +14,11 @@ class KinematicsNetwork(nn.Module):
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
 
-    def __init__(self, num_joints, num_layer, layer_sizes, logger:GeneralLogger):
-        """
-        Initializes the KinematicsNetwork.
-
-        Args:
-            num_joints: The number of joints in the planar robotic arm
-            num_layer: The number of layers in the network
-            layer_sizes: A list containing the number of neurons in each layer
-        """
-        super().__init__()
-        self.num_joints = num_joints
-        self.flatten = nn.Flatten()
-        stack_list = [nn.Linear(num_joints * 3 + 2, layer_sizes[0]), nn.ReLU()]
-        for i in range(num_layer-1):
-            stack_list.append(nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
-            stack_list.append(nn.ReLU())
-        stack_list.append(nn.Linear(layer_sizes[-1], num_joints * 2))
-        self.linear_relu_stack = nn.Sequential(*stack_list)
-        logger.log_network_architecture(self.linear_relu_stack)
-
     def forward(self, model_input):
+        network_output = super().forward(model_input)
         param, goal = model_input
 
-        is_single_parameter = False
-        # Flatten the param
-        flatten_param = self.flatten(param)
-        if param.dim() == 2:
-            # If the input is a single parameter
-            is_single_parameter = True
-            flatten_param = torch.flatten(param)
-
-        # Concatenate flatten_param and goal along the second dimension
-        if is_single_parameter:
-            flatten_input = torch.cat((flatten_param, goal))
-        else:
-            flatten_input = torch.cat((flatten_param, goal), dim=1)
-
-        # Pass the flatten input through the linear_relu_stack
-        network_output = self.linear_relu_stack(flatten_input)
+        is_single_parameter = True if param.dim() == 2 else False
 
         # Calculate the angles from the network output.
         # The network outputs 2 values for each joint, sin(x) and cos(y).
@@ -79,11 +44,20 @@ class KinematicsNetwork(nn.Module):
 
         return all_angles
 
+    @staticmethod
+    def calc_distances(param, pred, goal):
+        """
+        Calculates the distances between the end effector positions of the parameters and the goal.
+        """
+        # Update theta values with predictions
+        updated_param = update_theta_values(parameters=param, new_theta_values=pred)
+        distances = calculate_parameter_goal_distances(updated_param, goal)
+        return distances
 
-def loss_fn(param, goal):
-    """
-    Calculates the loss for the given parameters and goal.
-    The loss is calculated as the mean of the distances between the end effector positions of the parameters and the goal.
-    """
-    distances = calculate_parameter_goal_distances(param, goal)
-    return distances.mean()
+    def loss_fn(self, param, pred, goal, ground_truth):
+        """
+        Calculates the loss for the given parameters and goal.
+        The loss is calculated as the mean of the distances between the end effector positions of the parameters and the goal.
+        """
+        distances = KinematicsNetwork.calc_distances(param=param, pred=pred, goal=goal)
+        return distances.mean()

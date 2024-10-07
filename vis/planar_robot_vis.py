@@ -8,14 +8,16 @@ import numpy as np
 import seaborn as sns
 
 import pandas as pd
+import torch
+from sympy.stats.rv import probability
 
-from util.forward_kinematics import calculate_parameter_goal_distances
+from util.forward_kinematics import calculate_parameter_goal_distances, calculate_euclidean_distances
 
 
 def visualize_planar_robot(parameter, default_line_transparency, default_line_width, max_legend_length, goal=None,
                            link_accuracy: List = None, save_to_file=False, show_joints=False, show_joint_label=True,
                            show_end_effectors=False, show_plot=True, robot_label_note="", show_legend=True,
-                           show_distance=False, logger=None, current_step=None, do_heat_map=False, chart_index = 1):
+                           show_distance=False, logger=None, current_step=None, do_heat_map=False, chart_index=1):
     """
     Visualize one or multiple planar robot arms based on the given parameters using matplotlib.
     Args:
@@ -107,7 +109,7 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
     plt.tight_layout()
 
     if logger is not None:
-        path = "chart"+str(chart_index)
+        path = "chart" + str(chart_index)
         logger.log_image(plt, current_step, path)
 
     if save_to_file:
@@ -121,7 +123,8 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
     plt.close()
 
     if multiple_robots and do_heat_map:
-        create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter, chart_index)
+        create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter,
+                           chart_index)
 
 
 def plot_planar_robot(
@@ -217,6 +220,59 @@ def plot_planar_robot(
     return end_coordinates
 
 
+def plot_single_link(
+        ax,
+        link_length,
+        angle,
+        default_line_width,
+        device,
+        draw_best_end_effector=False,
+        transparency=1.0,
+        show_distance=False,
+        goal=None,
+        start_point=np.array([0, 0]),
+        start_angle=0.0,
+        color='b',
+):
+    total_angle = start_angle + angle
+    end_coordinates = start_point + np.array(
+        [link_length * math.cos(total_angle), link_length * math.sin(total_angle)]
+    )
+
+    # Plot single link
+    (link_line,) = ax.plot(
+        [start_point[0], end_coordinates[0]],
+        [start_point[1], end_coordinates[1]],
+        lw=default_line_width,
+        alpha=transparency,
+        color=color
+    )
+
+    # Add a label only once for each robot arm, since this is only executed for the first link
+    if show_distance:
+        distance_label = ""
+        if show_distance and goal is not None:
+            end_coordinates = torch.tensor(end_coordinates).to(device)
+            goal = goal.clone().detach().to(device)
+            distance = calculate_euclidean_distances(end_coordinates, goal)
+            distance_label = f"({distance:.2f})"
+        probability_label = f"[{transparency:.1f}]"
+        link_line.set_label(
+            f"Robot Arm" + distance_label + probability_label
+        )
+
+    if draw_best_end_effector:
+        # Plot end effector
+        ax.plot(
+            end_coordinates[0].item(),
+            end_coordinates[1].item(),
+            "-o",
+            markersize=1,
+            color=color,
+            alpha=0.5,
+        )
+
+
 def set_plot_settings(parameter):
     # General settings
     sns.set_theme(style="darkgrid")
@@ -251,7 +307,7 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
         plt.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]", color='r')
 
     if logger is not None:
-        path = "heatmap"+str(chart_index)
+        path = "heatmap" + str(chart_index)
         logger.log_image(plt, step, path=path)
 
     if save_to_file:
@@ -276,6 +332,7 @@ def compute_max_robot_length(parameter):
         for i in range(parameter.shape[0]):
             max_length += parameter[i, 1].item()
     return max_length, multiple_robots
+
 
 def visualize_model_value_loss(value_function, parameter, logger, current_step, show_plot, save_to_file, index):
     sns.set_theme(style="darkgrid")
@@ -303,7 +360,8 @@ def visualize_model_value_loss(value_function, parameter, logger, current_step, 
     value_loss = np.array(value_loss).reshape(len(x), len(y))
 
     # Plot the heatmap
-    c = ax.imshow(value_loss, extent=(x.min(), x.max(), y.min(), y.max()), origin='lower', aspect='auto', cmap="coolwarm")
+    c = ax.imshow(value_loss, extent=(x.min(), x.max(), y.min(), y.max()), origin='lower', aspect='auto',
+                  cmap="coolwarm")
     # Add a color bar
     plt.colorbar(c, ax=ax)
 
@@ -313,7 +371,7 @@ def visualize_model_value_loss(value_function, parameter, logger, current_step, 
     y_circle = np.sin(theta) * max_length
 
     # Draw circle around (0, 0) with radius of max_length with dotted blue line
-    ax.plot(x_circle, y_circle, label="Boundary", lw=2,color='g')
+    ax.plot(x_circle, y_circle, label="Boundary", lw=2, color='g')
 
     # Set the limits and aspect ratio
     plt.xlim(-max_length, max_length)
@@ -321,7 +379,7 @@ def visualize_model_value_loss(value_function, parameter, logger, current_step, 
     ax.set_aspect(1)
 
     if logger is not None:
-        path = "value_loss"+str(index)
+        path = "value_loss" + str(index)
         logger.log_image(plt, current_step, path=path)
 
     if save_to_file:

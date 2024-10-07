@@ -20,13 +20,13 @@ DONE:
 
 
 In Progress:
+- Analytical distribution implementieren
+
 
 TODO:
 - NaN Fehler debuggen
     - PPO network output beobachten. Verhältnis davon anschauen
-- Analytical reparametrization
-- Analytical distribution implementieren
-
+- Analytical reparametrization trick
 
 - Gymnasium für analytical erstellen
 	wrapper

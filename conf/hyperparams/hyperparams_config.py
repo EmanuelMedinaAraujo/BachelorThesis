@@ -33,6 +33,8 @@ class AnalyticalHyperparams:
     epochs: int
     testing_interval: int
     optimizer: str
+    output_type: str
+    distribution_tolerance: float
 
 
 @dataclass

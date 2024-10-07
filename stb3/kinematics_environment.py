@@ -47,11 +47,11 @@ class KinematicsEnvironment(gym.Env):
         )
 
         self.parameter = self.problem_generator.get_random_parameters()
-        self.goal = generate_achievable_goal(self.parameter, self.device)
+        self.goal, _ = generate_achievable_goal(self.parameter, self.device)
 
     def reset(self, seed=None, options=None):
         self.parameter = self.problem_generator.get_random_parameters()
-        self.goal = generate_achievable_goal(self.parameter, self.device)
+        self.goal, _ = generate_achievable_goal(self.parameter, self.device)
 
         return (
             torch.concat([self.parameter.flatten(), self.goal]).detach().cpu().numpy(),
