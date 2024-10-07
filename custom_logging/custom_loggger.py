@@ -43,17 +43,29 @@ class GeneralLogger:
 
     def log_training(self, loss, epoch_num: int, accuracy):
         if self.log_in_console:
-            tqdm.write(
-                f"Epoch {epoch_num}: Accuracy: {accuracy:>0.2f}%, Mean loss: {loss:>7f}"
-            )
+            if accuracy is None:
+                tqdm.write(f"Epoch {epoch_num}: Mean loss: {loss:>7f}")
+            else:
+                tqdm.write(
+                    f"Epoch {epoch_num}: Accuracy: {accuracy:>0.2f}%, Mean loss: {loss:>7f}"
+                )
         if self.log_in_wandb:
-            wandb.log({"train/acc": accuracy, "train/loss": loss}, step=epoch_num)
+            if accuracy is None:
+                wandb.log({"train/loss": loss}, step=epoch_num)
+            else:
+                wandb.log({"train/acc": accuracy, "train/loss": loss}, step=epoch_num)
 
     def log_test(self, accuracy, loss, current_step=None):
         if self.log_in_console:
-            tqdm.write(f"Test: Accuracy: {accuracy :>0.2f}%, Avg loss: {loss:>8f}\n")
+            if accuracy is None:
+                tqdm.write(f"Test: Avg loss: {loss:>8f}")
+            else:
+                tqdm.write(f"Test: Accuracy: {accuracy :>0.2f}%, Avg loss: {loss:>8f}\n")
         if self.log_in_wandb:
-            wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
+            if accuracy is None:
+                wandb.log({"test/loss": loss}, step=current_step)
+            else:
+                wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
 
     def watch_model(self, model):
         if self.log_in_wandb:

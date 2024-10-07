@@ -32,4 +32,4 @@ def generate_achievable_goal(dh_parameter: torch.Tensor, device_to_use):
     fk = forward_kinematics(dh_conventions.dh_to_homogeneous(valid_parameter))
 
     # Sum of second column of DH parameters
-    return fk.get_matrix()[..., :2, 3].to(device_to_use)
+    return fk.get_matrix()[..., :2, 3].to(device_to_use), theta_values

@@ -34,10 +34,10 @@ class CustomParameterDataset(Dataset):
             max_len=max_link_len,
         )
         self.dh_parameters = generator.get_random_dh_parameters()
-        self.goal = generate_achievable_goal(self.dh_parameters, device_to_use)
+        self.goal, self.ground_truth = generate_achievable_goal(self.dh_parameters, device_to_use)
 
     def __len__(self):
         return self.length
 
     def __getitem__(self, idx):
-        return self.dh_parameters[idx], self.goal[idx]
+        return self.dh_parameters[idx], self.goal[idx], self.ground_truth[idx]

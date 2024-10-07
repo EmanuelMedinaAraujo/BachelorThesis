@@ -19,6 +19,8 @@ analytical:
   use_gradual_transparency: true
   plot_all_in_one: true
 
+  distribution_samples: 20
+
 
 stb3:
   visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
