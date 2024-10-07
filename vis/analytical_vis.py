@@ -2,7 +2,6 @@ from datetime import datetime
 
 import numpy as np
 import torch
-from torch.utils.hipify.hipify_python import InputError
 
 from analyticalRL.kinematics_network import KinematicsNetwork
 from analyticalRL.kinematics_network_base import KinematicsNetworkBase
@@ -97,7 +96,6 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
         plt.show()
     plt.close()
 
-
 def visualize_analytical_distribution(model: KinematicsNetworkBase, param, ground_truth, goal, cfg: TrainConfig, device,
                                       logger=None,
                                       current_step=None, chart_index=1):
@@ -125,7 +123,7 @@ def visualize_analytical_distribution(model: KinematicsNetworkBase, param, groun
             expected_truth_prob = torch.exp(normal_dist.log_prob(torch.tensor(point).to(device))).item()
             if expected_truth_prob > 1:
                 expected_truth_prob = 1
-                #raise InputError("Expected truth probability is greater than 1")
+                # raise InputError("Expected truth probability is greater than 1")
             if expected_truth_prob < 0.1:
                 expected_truth_prob = 0.1
             link_probabilities[joint_number].append(expected_truth_prob)
