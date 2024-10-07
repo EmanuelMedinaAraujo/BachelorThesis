@@ -267,7 +267,7 @@ def plot_single_link(
             end_coordinates[0].item(),
             end_coordinates[1].item(),
             "-o",
-            markersize=1,
+            markersize=3,
             color=color,
             alpha=0.5,
         )

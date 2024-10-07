@@ -17,16 +17,19 @@ Frage:
 DONE:
 - action space ausprobieren
 - state value function für recurrent model fixen
-
+- Analytical distribution implementieren
 
 In Progress:
-- Analytical distribution implementieren
 
 
 TODO:
 - NaN Fehler debuggen
     - PPO network output beobachten. Verhältnis davon anschauen
 - Analytical reparametrization trick
+- Analytical distribution fixen
+- Normal verteilung mit anderer Verteilung (finiter Wertebereich, mehrere Maxima)
+    - Fallback beta distribution
+- heatmap für eef für analytical distribution erstellen
 
 - Gymnasium für analytical erstellen
 	wrapper

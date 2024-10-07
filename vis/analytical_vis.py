@@ -45,11 +45,15 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
             draw_end_effector = False
             if is_last_link and link_prob == max(link_probabilities[joint_number]):
                 draw_end_effector = True
+            if link_prob < 0.1:
+                link_prob = 0.1
+            if link_prob >1.:
+                link_prob = 1.
             plot_single_link(ax=ax,
                              link_length=parameter[joint_number, 1].item(),
                              angle=link_angles[joint_number][link_num],
                              default_line_width=default_line_width,
-                             transparency=link_probabilities[joint_number][link_num],
+                             transparency=link_prob,
                              show_distance=is_last_link,
                              draw_best_end_effector=draw_end_effector,
                              goal=goal,
@@ -105,27 +109,17 @@ def visualize_analytical_distribution(model: KinematicsNetworkBase, param, groun
     link_angles = [[] for _ in range(cfg.number_of_joints)]
     link_probabilities = [[] for _ in range(cfg.number_of_joints)]
     for joint_number in range(cfg.number_of_joints):
-        index = 2 * joint_number
-        mu_output = pred[index]
-        sigma_output = pred[index + 1]
+        distribution_params = pred[joint_number]
+        mu = distribution_params[0].unsqueeze(-1)
+        sigma = distribution_params[1].unsqueeze(-1)
 
-        # Map sigma to positive values from [0,1] to [1,2]
-        sigma = sigma_output + 1
-
-        # Map mu from [0,1] to [-pi,pi]
-        mu = ((mu_output * 2) - 1) * np.pi
+        normal_dist = torch.distributions.Normal(loc=mu, scale=sigma)
 
         link_angles[joint_number].extend(np.linspace(mu.item() - sigma.item(), mu.item() + sigma.item(),
                                                      num=cfg.vis.analytical.distribution_samples))
 
-        normal_dist = torch.distributions.Normal(mu, sigma)
         for point in link_angles[joint_number]:
             expected_truth_prob = torch.exp(normal_dist.log_prob(torch.tensor(point).to(device))).item()
-            if expected_truth_prob > 1:
-                expected_truth_prob = 1
-                # raise InputError("Expected truth probability is greater than 1")
-            if expected_truth_prob < 0.1:
-                expected_truth_prob = 0.1
             link_probabilities[joint_number].append(expected_truth_prob)
 
     vis_params = cfg.vis
