@@ -4,7 +4,6 @@ from torch import Tensor, nn
 
 from analyticalRL.kinematics_network import KinematicsNetwork
 from analyticalRL.kinematics_network_base import KinematicsNetworkBase
-from custom_logging.custom_loggger import GeneralLogger
 
 
 class KinematicsNetworkNormDist(KinematicsNetworkBase):
@@ -87,9 +86,10 @@ class KinematicsNetworkNormDist(KinematicsNetworkBase):
 
             # Calculate probability of ground truth using normal distribution with mu and sigma
             value = ground_truth[joint_number] if is_single_parameter else ground_truth[:, joint_number]
-            expected_truth_prob = torch.exp(normal_dist.log_prob(value))
+            #expected_truth_prob = torch.exp(normal_dist.log_prob(value))
 
-            prob_loss = torch.exp(-expected_truth_prob)
+            #prob_loss = torch.exp(-expected_truth_prob)
+            prob_loss = -normal_dist.log_prob(value)
             if all_prob_losses is None:
                 all_prob_losses = prob_loss
             else:
