@@ -318,7 +318,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
 
     # Use optimizer specified in the config
     optimizer = getattr(torch.optim, cfg.hyperparams.analytical.optimizer)(
-        model.parameters(), lr=cfg.hyperparams.analytical.learning_rate, maximize=True,
+        model.parameters(), lr=cfg.hyperparams.analytical.learning_rate,# maximize=True,
     )
 
     # Create Problem Generator

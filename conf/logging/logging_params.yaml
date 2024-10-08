@@ -4,5 +4,5 @@ wandb:
   wand_callback_logging_freq: 100000
   project_name: thesis-optuna3
 
-log_in_console: false
+log_in_console: true
 log_architecture: false

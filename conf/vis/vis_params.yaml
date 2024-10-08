@@ -19,8 +19,7 @@ analytical:
   use_gradual_transparency: true
   plot_all_in_one: true
 
-  distribution_samples: 20
-
+  distribution_samples: 5
 
 stb3:
   visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
@@ -31,7 +30,3 @@ stb3:
   interval: 100000 # Number of steps after which the visualization is updated
   default_line_transparency: 0.1
   default_line_width: 1.5
-
-
-
-
