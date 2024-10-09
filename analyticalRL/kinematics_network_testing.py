@@ -24,13 +24,11 @@ def test_loop(test_dataset, model:KinematicsNetworkBase, tolerable_accuracy_erro
     """
     model.eval()
     test_loss, num_correct = 0, 0
-    counter = 0
     with torch.no_grad():
         for param, goal, ground_truth in test_dataset:
             pred = model((param, goal))
 
             loss = model.loss_fn(param=param, pred=pred, goal=goal, ground_truth=ground_truth)
-            counter +=1
             test_loss += loss.sum().item()
             if is_normal_output:
                 distances = model.calc_distances(param=param, pred=pred, goal=goal)

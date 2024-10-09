@@ -9,7 +9,6 @@ import seaborn as sns
 
 import pandas as pd
 import torch
-from sympy.stats.rv import probability
 
 from util.forward_kinematics import calculate_parameter_goal_distances, calculate_euclidean_distances
 
