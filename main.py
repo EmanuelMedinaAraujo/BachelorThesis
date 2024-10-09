@@ -1,4 +1,6 @@
 import sys
+from typing import Callable, Union
+
 
 import hydra
 import optuna
@@ -6,6 +8,7 @@ from hydra.core.config_store import ConfigStore
 import torch
 from optuna import Study
 from stable_baselines3.common.callbacks import CallbackList
+from torch import nn as nn
 from wandb.integration.sb3 import WandbCallback
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
@@ -95,34 +98,69 @@ def main(train_config: TrainConfig):
 def _optimize(study: Study, train_config, num_trials_per_process):
     study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process)
 
+def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
+    """
+    Linear learning rate schedule.
+
+    :param initial_value: (float or str)
+    :return: (function)
+    """
+    # Force conversion to float
+    initial_value_ = float(initial_value)
+
+    def func(progress_remaining: float) -> float:
+        """
+        Progress will decrease from 1 (beginning) to 0
+        :param progress_remaining: (float)
+        :return: (float)
+        """
+        return progress_remaining * initial_value_
+
+    return func
 
 def _objective(defaults: TrainConfig, trial: optuna.Trial):
     """Copies the default config and adds the trial parameters to it."""
     cfg_copy = copy_cfg(defaults)
-    lr = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
+    lr = trial.suggest_float('learning_rate', 1e-5, 1, log=True)
     batch_size_exp = trial.suggest_int('batch_size', 4, 9)  # from 16 to 512
     batch_size = 2 ** batch_size_exp
     if defaults.use_stb3:
-        cfg_copy.hyperparams.stb3.learning_rate = lr
-        cfg_copy.hyperparams.stb3.batch_size = batch_size
-        cfg_copy.hyperparams.stb3.use_recurrent_policy = trial.suggest_categorical('use_recurrent_policy',
-                                                                                   [True, False])
-
         n_envs_exp = trial.suggest_int('n_envs', 0, 4)  # from 1 to 256 in 4 base
         cfg_copy.hyperparams.stb3.n_envs = 4 ** n_envs_exp
 
-        n_steps_exp = trial.suggest_int('n_steps', 1, 11)  # from 16 to 512
+        # Ranges from https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/rl_zoo3/hyperparams_opt.py
+        cfg_copy.hyperparams.stb3.batch_size = batch_size
+        n_steps_exp = trial.suggest_int('n_steps', 1, 11)  # from 16 to 2048
         cfg_copy.hyperparams.stb3.n_steps = 2 ** n_steps_exp
+        cfg_copy.hyperparams.stb3.learning_rate = lr
+        cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 1e-8, 0.1)
+        clip_range_factor = trial.suggest_int('clip_range', 1, 4)  # from [0.1, 0.2, 0.3, 0.4]
+        cfg_copy.hyperparams.stb3.clip_range = 0.1 * clip_range_factor
+        cfg_copy.hyperparams.stb3.epochs = trial.suggest_categorical("epochs", [1, 5, 10, 20])
+        cfg_copy.hyperparams.stb3.gae_lambda  = trial.suggest_categorical("gae_lambda", [0.8, 0.9, 0.92, 0.95, 0.98, 0.99, 1.0])
+        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_categorical("max_grad_norm", [0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5])
+        cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0., 1.)
 
-        cfg_copy.hyperparams.stb3.epochs = trial.suggest_int('epochs', 1, 512, log=True)
-        cfg_copy.hyperparams.stb3.ent_coef = trial.suggest_float('ent_coef', 0.0, 0.99)
-        cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', -2, 0)
+        # new Parameters
+        cfg_copy.hyperparams.stb3.net_arch_type = trial.suggest_categorical("net_arch", ["tiny", "small", "medium"])
+        cfg_copy.hyperparams.stb3.ortho_init = trial.suggest_categorical('ortho_init', [False, True])
+        cfg_copy.hyperparams.stb3.activation_fn_name = trial.suggest_categorical("activation_fn", ["tanh", "relu", "elu", "leaky_relu"])
+        # TODO fix this
+        # cfg_copy.hyperparams.stb3.lr_schedule = trial.suggest_categorical('lr_schedule', ['linear', 'constant'])
+        # if cfg_copy.hyperparams.stb3.lr_schedule == "linear":
+        #     cfg_copy.hyperparams.stb3.learning_rate = linear_schedule(cfg_copy.hyperparams.stb3.learning_rate)
 
-        cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_float('gae_lambda', 0.0, 1.0)
-        cfg_copy.hyperparams.stb3.clip_range = trial.suggest_float('clip_range', 0.1, 1.0)
+        cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', -1.6, 0)
         cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
-        cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0.1, 1.5)
-        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_float('max_grad_norm', 0.1, 1.0)
+
+
+        cfg_copy.hyperparams.stb3.use_recurrent_policy = trial.suggest_categorical('use_recurrent_policy',
+                                                                                   [True, False])
+        if cfg_copy.hyperparams.stb3.use_recurrent_policy:
+            cfg_copy.hyperparams.stb3.enable_critic_lstm = trial.suggest_categorical("enable_critic_lstm", [False, True])
+            lstm_hidden_size_exp = trial.suggest_int('batch_size', 4, 9)  # from 16 to 512
+            cfg_copy.hyperparams.stb3.lstm_hidden_size = 2 ** lstm_hidden_size_exp
+
     else:
         cfg_copy.hyperparams.analytical.learning_rate = lr
         cfg_copy.hyperparams.analytical.batch_size = batch_size
@@ -224,6 +262,13 @@ def do_stable_baselines3_learning(
     )
 
     # Define the model
+    activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[
+        cfg.hyperparams.stb3.activation_fn_name]
+    net_arch = {
+        "tiny": dict(pi=[64], vf=[64]),
+        "small": dict(pi=[64, 64], vf=[64, 64]),
+        "medium": dict(pi=[256, 256], vf=[256, 256]),
+    }[cfg.hyperparams.stb3.net_arch_type]
     model = PPO(
         policy=cfg.hyperparams.stb3.non_recurrent_policy,
         env=env,
@@ -239,8 +284,12 @@ def do_stable_baselines3_learning(
         vf_coef=cfg.hyperparams.stb3.vf_coef,
         max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
         seed=cfg.random_seed,
+        device=device,
         policy_kwargs=dict(
             log_std_init=cfg.hyperparams.stb3.log_std_init,
+            net_arch=net_arch,
+            activation_fn=activation_fn,
+            ortho_init=cfg.hyperparams.stb3.ortho_init,
             normalize_images=False
         ),
     )
@@ -261,8 +310,16 @@ def do_stable_baselines3_learning(
             vf_coef=cfg.hyperparams.stb3.vf_coef,
             max_grad_norm=cfg.hyperparams.stb3.max_grad_norm,
             seed=cfg.random_seed,
-            policy_kwargs=dict(log_std_init=cfg.hyperparams.stb3.log_std_init,
-                               normalize_images=False),
+            device=device,
+            policy_kwargs=dict(
+                log_std_init=cfg.hyperparams.stb3.log_std_init,
+                net_arch=net_arch,
+                activation_fn=activation_fn,
+                ortho_init=cfg.hyperparams.stb3.ortho_init,
+                normalize_images=False,
+                enable_critic_lstm=cfg.hyperparams.stb3.enable_critic_lstm,
+                lstm_hidden_size=cfg.hyperparams.stb3.lstm_hidden_size,
+            ),
         )
 
     logger_callback = LoggerCallback(

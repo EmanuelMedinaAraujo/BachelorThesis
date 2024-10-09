@@ -87,16 +87,16 @@ class GeneralLogger:
         current_step=None,
     ):
         if self.log_in_console:
-            tqdm.write(f"train/approx_kl: {approx_kl}")
-            tqdm.write(f"train/clip_fraction: {clip_fraction}")
-            tqdm.write(f"train/clip_range: {clip_range}")
-            tqdm.write(f"train/entropy_loss: {entropy_loss}")
-            tqdm.write(f"train/explained_variance: {explained_variance}")
-            tqdm.write(f"train/learning_rate: {learning_rate}")
+            # tqdm.write(f"train/approx_kl: {approx_kl}")
+            # tqdm.write(f"train/clip_fraction: {clip_fraction}")
+            # tqdm.write(f"train/clip_range: {clip_range}")
+            # tqdm.write(f"train/entropy_loss: {entropy_loss}")
+            # tqdm.write(f"train/explained_variance: {explained_variance}")
+            # tqdm.write(f"train/learning_rate: {learning_rate}")
             tqdm.write(f"train/loss: {loss}")
-            tqdm.write(f"train/n_updates: {n_updates}")
+            # tqdm.write(f"train/n_updates: {n_updates}")
             tqdm.write(f"train/policy_gradient_loss: {policy_gradient_loss}")
-            tqdm.write(f"train/std: {std}")
+            # tqdm.write(f"train/std: {std}")
             tqdm.write(f"train/value_loss: {value_loss}")
             print("--------------------------------")
         if self.log_in_wandb:

@@ -1,4 +1,4 @@
-show_plot: true
+show_plot: false
 show_joint_label: false
 show_joints: false
 show_end_effectors: false
@@ -6,7 +6,7 @@ show_legend: true
 show_distance_in_legend: true
 max_legend_length: 10
 save_to_file: false
-num_problems_to_visualize: 1 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
+num_problems_to_visualize: 3 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
 
 analytical:
   interval: 20 # Number of epochs after which the visualization is updated
@@ -24,9 +24,9 @@ analytical:
 stb3:
   visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
   visualize_value_loss: false
-  do_heat_map: false # Only applied when multiple robots will be visualized and is on top of the visualization
+  do_heat_map: true # Only applied when multiple robots will be visualized and is on top of the visualization
   num_distribution_samples: 500
 
-  interval: 250000 # Number of steps after which the visualization is updated
+  interval: 100000 # Number of steps after which the visualization is updated
   default_line_transparency: 0.1
   default_line_width: 1.5
