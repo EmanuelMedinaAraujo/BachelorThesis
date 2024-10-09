@@ -3,8 +3,8 @@ from datetime import datetime
 import numpy as np
 import torch
 
-from analyticalRL.kinematics_network import KinematicsNetwork
-from analyticalRL.kinematics_network_base import KinematicsNetworkBase
+from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
+from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 from conf.config import TrainConfig
 
 import matplotlib.pyplot as plt

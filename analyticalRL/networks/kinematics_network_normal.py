@@ -1,6 +1,6 @@
 import torch
 
-from analyticalRL.kinematics_network_base import KinematicsNetworkBase
+from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 from util.forward_kinematics import calculate_parameter_goal_distances, update_theta_values
 
 

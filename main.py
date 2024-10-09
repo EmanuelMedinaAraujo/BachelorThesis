@@ -15,10 +15,12 @@ from sb3_contrib import RecurrentPPO
 from tqdm import tqdm
 import torch as th
 
-from analyticalRL.kinematics_network import KinematicsNetwork
-from analyticalRL.kinematics_network_norm_dist import KinematicsNetworkNormDist
+from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
+from analyticalRL.networks.kinematics_network_norm_dist import KinematicsNetworkNormDist
 from analyticalRL.kinematics_network_testing import test_loop
 from analyticalRL.kinematics_network_training import train_loop
+from analyticalRL.networks.kinematics_network_rand_sample import KinematicsNetworkRandomSampleDist
+from analyticalRL.networks.kinematics_network_reparam_dist import KinematicsNetworkReparamDist
 from data_generation.parameter_dataset import CustomParameterDataset
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
 from custom_logging.custom_loggger import GeneralLogger
@@ -305,6 +307,20 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             ).to(device)
         case "NormDist":
             model = KinematicsNetworkNormDist(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "ReparameterizationDist":
+            model = KinematicsNetworkReparamDist(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "RandomSampleDist":
+            model = KinematicsNetworkRandomSampleDist(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
