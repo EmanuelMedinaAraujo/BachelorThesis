@@ -2,11 +2,11 @@ import numpy as np
 import torch
 from torch import Tensor, nn
 
-from analyticalRL.kinematics_network import KinematicsNetwork
-from analyticalRL.kinematics_network_base import KinematicsNetworkBase
+from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
 
 
-class KinematicsNetworkNormDist(KinematicsNetworkBase):
+class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
     """
     This class is used to create a neural network that predicts the angles of the joints of a planar robotic arm.
     The network takes two inputs, the parameters (DH or MDH) of the arm and the goal position.
@@ -42,7 +42,7 @@ class KinematicsNetworkNormDist(KinematicsNetworkBase):
                 sigma_output = network_output[:, index + 1]
 
             # Map sigma to positive values from [0,1] to [1,2]
-            sigma = sigma_output+1
+            sigma = sigma_output*2
             sigma = sigma.clamp(min=1e-6)
 
             # Map mu from [0,1] to [-pi,pi]
@@ -70,7 +70,6 @@ class KinematicsNetworkNormDist(KinematicsNetworkBase):
     def loss_fn(self, param, pred: Tensor, goal, ground_truth):
         is_single_parameter = True if param.dim() == 2 else False
 
-        all_prob_losses = None
         all_angles = None
         for joint_number in range(self.num_joints):
             if is_single_parameter:
@@ -83,29 +82,15 @@ class KinematicsNetworkNormDist(KinematicsNetworkBase):
                 sigma = distribution_params[:, 1].unsqueeze(-1)
 
             normal_dist = torch.distributions.Normal(loc=mu, scale=sigma)
+            angle = normal_dist.rsample().unsqueeze(-1)
 
-            # Calculate probability of ground truth using normal distribution with mu and sigma
-            value = ground_truth[joint_number] if is_single_parameter else ground_truth[:, joint_number]
-            #expected_truth_prob = torch.exp(normal_dist.log_prob(value))
-
-            #prob_loss = torch.exp(-expected_truth_prob)
-            prob_loss = -normal_dist.log_prob(value)
-            if all_prob_losses is None:
-                all_prob_losses = prob_loss
+            if all_angles is None:
+                all_angles = angle
             else:
                 if is_single_parameter:
-                    all_prob_losses = torch.cat((all_prob_losses, prob_loss), dim=0)
+                    all_angles = torch.cat([all_angles, angle]).to(param.device)
                 else:
-                    all_prob_losses = torch.cat((all_prob_losses, prob_loss), dim=1)
+                    all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
         # Use distance for loss
-        #     angle = mu.unsqueeze(-1)
-        #     if all_angles is None:
-        #         all_angles = angle
-        #     else:
-        #         if is_single_parameter:
-        #             all_angles = torch.cat([all_angles, angle]).to(param.device)
-        #         else:
-        #             all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
-        # distances = KinematicsNetwork.calc_distances(param=param, pred=all_angles.squeeze(), goal=goal)
-        # return distances.mean()
-        return all_prob_losses.mean(dim=0).mean()
+        distances = KinematicsNetwork.calc_distances(param=param, pred=all_angles.squeeze(), goal=goal)
+        return distances.mean()

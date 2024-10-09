@@ -1,7 +1,6 @@
 import torch
 
-from analyticalRL.kinematics_network import KinematicsNetwork
-from util.forward_kinematics import update_theta_values, calculate_parameter_goal_distances
+from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
 
 
 def test_loop(test_dataset, model:KinematicsNetwork, tolerable_accuracy_error, logger, epoche_num, is_normal_output):
