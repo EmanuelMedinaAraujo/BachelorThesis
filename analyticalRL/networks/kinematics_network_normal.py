@@ -13,6 +13,8 @@ class KinematicsNetwork(KinematicsNetworkBase):
     The output of the network is the two values for each joint from which the angle can be calculated.
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
+    def __init__(self, num_joints, num_layer, layer_sizes, logger):
+        super().__init__(num_joints, num_layer, layer_sizes, logger)
 
     def forward(self, model_input):
         network_output = super().forward(model_input)

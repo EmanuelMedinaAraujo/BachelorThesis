@@ -4,6 +4,7 @@ from torch import Tensor, nn
 
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
+from custom_logging.custom_loggger import GeneralLogger
 
 
 class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
@@ -15,6 +16,9 @@ class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
     The output of the network is the parameter for a normal distribution for each joint.
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
+
+    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger):
+        super().__init__(num_joints, num_layer, layer_sizes, logger)
 
     def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
         stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
