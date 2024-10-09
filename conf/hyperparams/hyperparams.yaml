@@ -13,7 +13,7 @@ analytical:
   output_type: "BetaDist" # "Normal", "NormDist", "ReparameterizationDist", "RandomSampleDist", "BetaDist"
 
 stb3:
-  use_recurrent_policy: true
+  use_recurrent_policy: false
 
   non_recurrent_policy: "MlpPolicy"
 
@@ -22,11 +22,11 @@ stb3:
   n_steps: 4
   total_timesteps: 1000000
 
-  learning_rate: 0.0013399023953888005
+  learning_rate: 0.01 # default value: 0.0003
   batch_size: 512 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
   epochs: 171
 
-  gamma: 0.40509666802858935
+  gamma: 0.0
   ent_coef: 0.3923435836538981 # default value: 0.0, PPO 0.01
   log_std_init: 3.146588794820072 # default value: 0.0
 
@@ -36,7 +36,13 @@ stb3:
   norm_advantages: true # default value: true
   vf_coef: 0.5          # default value: 0.5
   max_grad_norm: 0.5    # default value: 0.5
+  net_arch_type: "tiny"      # from "tiny", "small", "medium"
+  ortho_init: true      # default value: true
+  activation_fn_name: "tanh" # from "tanh", "relu", "elu", "leaky_relu". Only used for hyperparameter optimization
+  lr_schedule: "constant" # from "linear", "constant" # Not implemented yet
+  # For recurrent_policy
+  enable_critic_lstm: true # default value: true
+  lstm_hidden_size: 256     # default value: 256
   ####################
 
-  testing_interval: 749687 # Number of steps after which to test the model
-
+  testing_interval: 100000 # Number of steps after which to test the model

@@ -21,7 +21,12 @@ class StB3Hyperparams:
     norm_advantages: bool
     vf_coef: float
     max_grad_norm: float
-
+    net_arch_type: str
+    ortho_init: bool
+    activation_fn_name: str
+    lr_schedule: str
+    enable_critic_lstm: bool
+    lstm_hidden_size: int
 
 @dataclass
 class AnalyticalHyperparams:

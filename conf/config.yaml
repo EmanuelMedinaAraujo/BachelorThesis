@@ -5,11 +5,11 @@ defaults:
   - optuna : optuna_params
   - _self_
 
-random_seed: 42
+random_seed: 69
 
 use_stb3: true
 do_vis: true
-use_optuna: false
+use_optuna: true
 
 server_postfix: "" # :1 for the first server, "" for local execution
 torch_num_threads: 1
