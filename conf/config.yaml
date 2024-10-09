@@ -5,7 +5,7 @@ defaults:
   - optuna : optuna_params
   - _self_
 
-random_seed: 10
+random_seed: 42
 
 use_stb3: false
 do_vis: true

@@ -8,6 +8,8 @@ from analyticalRL.networks.kinematics_network_base_class import KinematicsNetwor
 from conf.config import TrainConfig
 
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 import os
 
 from vis.planar_robot_vis import set_plot_settings, plot_planar_robot, plot_single_link
@@ -47,7 +49,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
                 draw_end_effector = True
             if link_prob < 0.1:
                 link_prob = 0.1
-            if link_prob >1.:
+            if link_prob > 1.:
                 link_prob = 1.
             plot_single_link(ax=ax,
                              link_length=parameter[joint_number, 1].item(),
@@ -100,6 +102,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
         plt.show()
     plt.close()
 
+
 def visualize_analytical_distribution(model: KinematicsNetworkBase, param, ground_truth, goal, cfg: TrainConfig, device,
                                       logger=None,
                                       current_step=None, chart_index=1):
@@ -110,17 +113,47 @@ def visualize_analytical_distribution(model: KinematicsNetworkBase, param, groun
     link_probabilities = [[] for _ in range(cfg.number_of_joints)]
     for joint_number in range(cfg.number_of_joints):
         distribution_params = pred[joint_number]
-        mu = distribution_params[0].unsqueeze(-1)
-        sigma = distribution_params[1].unsqueeze(-1)
+        parameter_1 = distribution_params[0].unsqueeze(-1)
+        parameter_2 = distribution_params[1].unsqueeze(-1)
 
-        normal_dist = torch.distributions.Normal(loc=mu, scale=sigma)
+        if cfg.hyperparams.analytical.output_type == "BetaDist":
+            epsilon = 1e-6
+            parameter_1 = parameter_1 + epsilon
+            parameter_2 = parameter_2 + epsilon
+            dist = torch.distributions.Beta(parameter_1, parameter_2)
 
-        link_angles[joint_number].extend(np.linspace(mu.item() - sigma.item(), mu.item() + sigma.item(),
-                                                     num=cfg.vis.analytical.distribution_samples))
+            # Print paramters of the beta distribution
+            # print(f"Parameter 1: {parameter_1.item()}, Parameter 2: {parameter_2.item()}")
 
-        for point in link_angles[joint_number]:
-            expected_truth_prob = torch.exp(normal_dist.log_prob(torch.tensor(point).to(device))).item()
-            link_probabilities[joint_number].append(expected_truth_prob)
+            # Visulize the beta distribution dist with matlibplot
+            # samples = dist.sample(torch.tensor([10000])).detach().cpu().numpy()
+            # sns.set_theme(style="darkgrid")
+            # fig, ax = plt.subplots()
+            # ax.grid(True)
+            # plt.hist(samples, bins=100, density=True)
+            # plt.show()
+            # plt.close()
+            mean = dist.mean
+            prob = torch.exp(dist.log_prob(mean)).item()
+            link_probabilities[joint_number].append(prob)
+            angle = (2 * mean.item() - 1) * np.pi
+            link_angles[joint_number].append(angle)
+            # for i in range(cfg.vis.analytical.distribution_samples):
+            #     sample = dist.sample()
+            #     prob = torch.exp(dist.log_prob(sample)).item()
+            #     link_probabilities[joint_number].append(prob)
+            #     angle = (2 * sample.item() - 1) * np.pi
+            #     link_angles[joint_number].append(angle)
+
+        else:
+            dist = torch.distributions.Normal(loc=parameter_1, scale=parameter_2)
+            link_angles[joint_number].extend(
+                np.linspace(parameter_1.item() - parameter_2.item(),
+                            parameter_1.item() + parameter_2.item(),
+                            num=cfg.vis.analytical.distribution_samples))
+            for point in link_angles[joint_number]:
+                expected_truth_prob = torch.exp(dist.log_prob(torch.tensor(point).to(device))).item()
+                link_probabilities[joint_number].append(expected_truth_prob)
 
     vis_params = cfg.vis
 

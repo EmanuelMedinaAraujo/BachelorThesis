@@ -1,16 +1,16 @@
 analytical:
-  num_hidden_layer: 5
-  hidden_layer_sizes: [ 64, 512, 1024, 256, 64 ]
+  num_hidden_layer: 6
+  hidden_layer_sizes: [ 64, 512, 1024, 512, 256, 64 ]
 
   learning_rate: 1e-5
   batch_size: 64
 
   problems_per_epoch: 1024
-  epochs: 10000
+  epochs: 5000
   testing_interval: 1000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
-  output_type: "ReparameterizationDist" # "Normal", "NormDist", "ReparameterizationDist", "RandomSampleDist"
+  output_type: "BetaDist" # "Normal", "NormDist", "ReparameterizationDist", "RandomSampleDist", "BetaDist"
 
 stb3:
   use_recurrent_policy: false
