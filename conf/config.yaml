@@ -22,4 +22,4 @@ parameter_convention: "DH"
 min_link_length: 0.3
 max_link_length: 0.5
 
-number_of_test_problems: 55555# Number of test problems to generate
+number_of_test_problems: 5000 # Number of test problems to generate

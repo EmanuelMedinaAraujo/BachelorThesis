@@ -1,9 +1,9 @@
 import torch
 
-from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
+from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 
 
-def test_loop(test_dataset, model:KinematicsNetwork, tolerable_accuracy_error, logger, epoche_num, is_normal_output):
+def test_loop(test_dataset, model:KinematicsNetworkBase, tolerable_accuracy_error, logger, epoche_num, is_normal_output):
     """
     Tests the model on the given dataset and logs the accuracy and loss with the given logger.
 
@@ -24,13 +24,13 @@ def test_loop(test_dataset, model:KinematicsNetwork, tolerable_accuracy_error, l
     """
     model.eval()
     test_loss, num_correct = 0, 0
-
+    counter = 0
     with torch.no_grad():
         for param, goal, ground_truth in test_dataset:
             pred = model((param, goal))
 
             loss = model.loss_fn(param=param, pred=pred, goal=goal, ground_truth=ground_truth)
-
+            counter +=1
             test_loss += loss.sum().item()
             if is_normal_output:
                 distances = model.calc_distances(param=param, pred=pred, goal=goal)
