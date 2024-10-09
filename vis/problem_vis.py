@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from conf.config import TrainConfig
+from conf.conf_dataclasses.config import TrainConfig
 from util.forward_kinematics import calculate_angles_from_network_output
 from vis.planar_robot_vis import visualize_planar_robot
 

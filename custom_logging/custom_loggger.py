@@ -1,7 +1,7 @@
 import wandb
 from tqdm.gui import tqdm
 
-from conf.config import TrainConfig
+from conf.conf_dataclasses.config import TrainConfig
 
 
 def init_wandb(cfg: TrainConfig):

@@ -6,7 +6,7 @@ import torch
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.utils import safe_mean
 
-from conf.config import TrainConfig
+from conf.conf_dataclasses.config import TrainConfig
 from util.forward_kinematics import calculate_parameter_goal_distances, calculate_angles_from_network_output
 from vis.planar_robot_vis import visualize_model_value_loss
 from vis.problem_vis import visualize_stb3_problem
