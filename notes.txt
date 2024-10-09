@@ -1,3 +1,43 @@
+Frage:
+- Wie die analytical network nennen ? Online -> Multilayer perceptron; Du -> Distral learning...
+-------------------------------------------------------------------------------------
+DONE:
+- Analytical reparametrization trick implementieren
+    - Gute Erklärung: https://medium.com/@llionj/the-reparameterization-trick-4ff30fe92954
+- Analytical distribution fixen (cross entropy loss funktioniert nicht-> sample-distance loss funktioniert)
+- Normal verteilung mit anderer Verteilung (finiter Wertebereich, mehrere Maxima)
+- beta distribution funktioniert nur mit mean aus samples
+
+In Progress:
+- NaN Fehler debuggen
+    - PPO network output beobachten. Verhältnis davon anschauen, ob Winkel besondere Werte haben
+
+TODO:
+- heatmap für eef für analytical distribution erstellen
+
+- Gymnasium für analytical erstellen
+	wrapper
+		base environment
+			alle return sind torch.tensoren
+		stable baselines environment erbt
+			gibt numpy arrays zurück
+- reread PPO optimizer Paper
+- reread Adam optimizer Paper
+
+--------------------------------------------------------------------------------------
+Distributions Discussion:
+- custom Periodic PDF (sinus, cosinus)
+
+- multimodal distribution (fixed amount of possible peaks)
+    Die Dirichletverteilung
+    Generalized von Mises (bimodal)
+    Gaussian Mixture Model
+    Clustering Methods?
+
+- Problem, dass ein peak vom ersten joint nicht zu einem peak im zweiten joint passt
+    - Lösung: Peaks in den joints sind abhängig von den anderen joints
+
+--------------------------------------------------------------------------------------
 Server:
     @tars.cps.in.tum.de
         watch -n 0.5 nvidia-smi
@@ -11,34 +51,6 @@ Server:
     To detach/attach tmux:
         Ctrl+b, d
         tmux a
-
-Frage:
-
-DONE:
-- action space ausprobieren
-- state value function für recurrent model fixen
-- Analytical distribution implementieren
-
-In Progress:
-
-
-TODO:
-- NaN Fehler debuggen
-    - PPO network output beobachten. Verhältnis davon anschauen
-- Analytical reparametrization trick
-- Analytical distribution fixen
-- Normal verteilung mit anderer Verteilung (finiter Wertebereich, mehrere Maxima)
-    - Fallback beta distribution
-- heatmap für eef für analytical distribution erstellen
-
-- Gymnasium für analytical erstellen
-	wrapper
-		base environment
-			alle return sind torch.tensoren
-		stable baselines environment erbt
-			gibt numpy arrays zurück
-- reread PPO optimizer Paper
-- reread Adam optimizer Paper
 
 --------------------------------------------------------------------------------------
 Theoretical notes:

@@ -199,7 +199,7 @@ class LoggerCallback(BaseCallback):
         distance_sum = 0
         self.model.policy.set_training_mode(False)
 
-        for param, goal in self.test_dataloader:
+        for param, goal, _ in self.test_dataloader:
             # Set visualization goal and parameter to training_env
             env.env_method("set_goal", goal)
             env.env_method("set_parameter", param)
