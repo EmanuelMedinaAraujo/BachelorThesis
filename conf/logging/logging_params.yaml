@@ -1,8 +1,8 @@
 wandb:
-  log_in_wandb: false
+  log_in_wandb: true
   log_visualization_plots: true
   wand_callback_logging_freq: 100000
-  project_name: thesis-optuna3
+  project_name: thesis-analytical-dist-norm
 
 log_in_console: true
 log_architecture: false

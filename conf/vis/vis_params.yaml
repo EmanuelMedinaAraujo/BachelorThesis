@@ -1,4 +1,4 @@
-show_plot: true
+show_plot: false
 show_joint_label: false
 show_joints: false
 show_end_effectors: false
@@ -6,10 +6,10 @@ show_legend: true
 show_distance_in_legend: true
 max_legend_length: 10
 save_to_file: false
-num_problems_to_visualize: 1 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
+num_problems_to_visualize: 3 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
 
 analytical:
-  interval: 50 # Number of epochs after which the visualization is updated
+  interval: 500 # Number of epochs after which the visualization is updated
 
   max_history_length: 10
 
