@@ -24,9 +24,9 @@ analytical:
 stb3:
   visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false
   visualize_value_loss: false
-  do_heat_map: false # Only applied when multiple joints will be visualized and is additionally to the visualization
-  num_distribution_samples: 1000
+  do_heat_map: false # Only applied when multiple robots will be visualized and is on top of the visualization
+  num_distribution_samples: 500
 
-  interval: 100000 # Number of steps after which the visualization is updated
+  interval: 250000 # Number of steps after which the visualization is updated
   default_line_transparency: 0.1
   default_line_width: 1.5

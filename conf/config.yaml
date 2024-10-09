@@ -7,7 +7,7 @@ defaults:
 
 random_seed: 42
 
-use_stb3: false
+use_stb3: true
 do_vis: true
 use_optuna: false
 
@@ -22,4 +22,4 @@ parameter_convention: "DH"
 min_link_length: 0.3
 max_link_length: 0.5
 
-number_of_test_problems: 1000 # Number of test problems to generate
+number_of_test_problems: 5000 # Number of test problems to generate
