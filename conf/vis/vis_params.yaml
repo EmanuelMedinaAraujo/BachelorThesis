@@ -9,7 +9,7 @@ save_to_file: false
 num_problems_to_visualize: 3 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
 
 analytical:
-  interval: 500 # Number of epochs after which the visualization is updated
+  interval: 250 # Number of epochs after which the visualization is updated
 
   max_history_length: 10
 
@@ -19,7 +19,7 @@ analytical:
   use_gradual_transparency: true
   plot_all_in_one: true
 
-  distribution_samples: 5
+  distribution_samples: 10
 
 stb3:
   visualize_distribution: true # Set use_gradual_transparency to false, set plot_all_in_one to true and set show_distance_in_legend to false

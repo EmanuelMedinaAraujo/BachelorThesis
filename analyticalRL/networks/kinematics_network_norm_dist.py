@@ -42,12 +42,12 @@ class KinematicsNetworkNormDist(KinematicsNetworkBase):
                 mu_output = network_output[:, index]
                 sigma_output = network_output[:, index + 1]
 
+            # Map mu from [0,1] to [-pi,pi]
+            mu = ((mu_output * 2) - 1) * np.pi
+
             # Map sigma to positive values from [0,1] to [1,2]
             sigma = sigma_output+1
             sigma = sigma.clamp(min=1e-6)
-
-            # Map mu from [0,1] to [-pi,pi]
-            mu = ((mu_output * 2) - 1) * np.pi
 
             # Ensure mu and sigma have to correct shape
             mu = mu.unsqueeze(-1) if mu.dim() == 1 else mu

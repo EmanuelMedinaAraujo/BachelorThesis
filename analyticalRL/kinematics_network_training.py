@@ -31,8 +31,8 @@ def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, probl
     """
     model.train()
     num_correct, loss_sum = 0, 0
-
-    for _ in range(problems_per_epoch // batch_size):
+    num_problems = problems_per_epoch // batch_size
+    for _ in range(num_problems):
         # Generate random parameters and goals
         param = problem_generator.get_random_parameters()
         goal, ground_truth = generate_achievable_goal(param, device)
@@ -56,10 +56,10 @@ def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, probl
     if is_normal_output:
         accuracy = num_correct * 100 / problems_per_epoch
         logger.log_training(
-            loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=accuracy
+            loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=accuracy
         )
     else:
         logger.log_training(
-            loss=loss_sum / problems_per_epoch, epoch_num=epoch_num, accuracy=None
+            loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=None
         )
-    return loss_sum / problems_per_epoch
+    return loss_sum / num_problems

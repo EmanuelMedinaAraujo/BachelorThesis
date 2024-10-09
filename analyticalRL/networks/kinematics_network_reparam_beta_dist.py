@@ -4,10 +4,9 @@ from torch import Tensor, nn
 
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
-from custom_logging.custom_loggger import GeneralLogger
 
 
-class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
+class KinematicsNetworkBetaDist(KinematicsNetworkBase):
     """
     This class is used to create a neural network that predicts the angles of the joints of a planar robotic arm.
     The network takes two inputs, the parameters (DH or MDH) of the arm and the goal position.
@@ -16,13 +15,12 @@ class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
     The output of the network is the parameter for a normal distribution for each joint.
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
-
-    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger):
+    def __init__(self, num_joints, num_layer, layer_sizes, logger):
         super().__init__(num_joints, num_layer, layer_sizes, logger)
 
     def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
         stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
-        stack_list.append(nn.Softmax(dim=-1))
+        stack_list.append(nn.ReLU())
         return stack_list
 
     @staticmethod
@@ -39,27 +37,24 @@ class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
             index = 2 * joint_number
 
             if is_single_parameter:
-                mu_output = network_output[index]
-                sigma_output = network_output[index + 1]
+                p_output = network_output[index]
+                q_output = network_output[index + 1]
             else:
-                mu_output = network_output[:, index]
-                sigma_output = network_output[:, index + 1]
+                p_output = network_output[:, index]
+                q_output = network_output[:, index + 1]
 
-            # Map mu from [0,1] to [-pi,pi]
-            mu = ((mu_output * 2) - 1) * np.pi
+            # Ensure p and q have to correct shape
+            p = p_output.unsqueeze(-1) if p_output.dim() == 1 else p_output
+            q = q_output.unsqueeze(-1) if q_output.dim() == 1 else q_output
 
-            # Map sigma to positive values from [0,1] to [1,2]
-            sigma = sigma_output*2
-            sigma = sigma.clamp(min=1e-6)
-
-            # Ensure mu and sigma have to correct shape
-            mu = mu.unsqueeze(-1) if mu.dim() == 1 else mu
-            sigma = sigma.unsqueeze(-1) if sigma.dim() == 1 else sigma
+            epsilon = 1e-1
+            p = p + epsilon
+            q = q + epsilon
 
             if is_single_parameter:
-                distribution = torch.cat([mu.unsqueeze(-1), sigma.unsqueeze(-1)])
+                distribution = torch.cat([p.unsqueeze(-1), q.unsqueeze(-1)])
             else:
-                distribution = torch.cat([mu, sigma], dim=-1)
+                distribution = torch.cat([p, q], dim=-1)
 
             if all_distributions is None:
                 all_distributions = distribution
@@ -78,15 +73,18 @@ class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
         for joint_number in range(self.num_joints):
             if is_single_parameter:
                 distribution_params = pred[joint_number]
-                mu = distribution_params[0].unsqueeze(-1)
-                sigma = distribution_params[1].unsqueeze(-1)
+                p = distribution_params[0].unsqueeze(-1)
+                q = distribution_params[1].unsqueeze(-1)
             else:
                 distribution_params = pred[:, joint_number]
-                mu = distribution_params[:, 0].unsqueeze(-1)
-                sigma = distribution_params[:, 1].unsqueeze(-1)
+                p = distribution_params[:, 0].unsqueeze(-1)
+                q = distribution_params[:, 1].unsqueeze(-1)
 
-            normal_dist = torch.distributions.Normal(loc=mu, scale=sigma)
-            angle = normal_dist.rsample().unsqueeze(-1)
+            beta_dist = torch.distributions.Beta(p, q)
+            angle = beta_dist.mean.unsqueeze(-1)
+
+            # Map angle from [0,1] to [-pi, pi]
+            angle = (2 * angle - 1) * np.pi
 
             if all_angles is None:
                 all_angles = angle
@@ -97,4 +95,5 @@ class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
                     all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
         # Use distance for loss
         distances = KinematicsNetwork.calc_distances(param=param, pred=all_angles.squeeze(), goal=goal)
+
         return distances.mean()

@@ -20,6 +20,7 @@ from analyticalRL.networks.kinematics_network_norm_dist import KinematicsNetwork
 from analyticalRL.kinematics_network_testing import test_loop
 from analyticalRL.kinematics_network_training import train_loop
 from analyticalRL.networks.kinematics_network_rand_sample import KinematicsNetworkRandomSampleDist
+from analyticalRL.networks.kinematics_network_reparam_beta_dist import KinematicsNetworkBetaDist
 from analyticalRL.networks.kinematics_network_reparam_dist import KinematicsNetworkReparamDist
 from data_generation.parameter_dataset import CustomParameterDataset
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
@@ -321,6 +322,13 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             ).to(device)
         case "RandomSampleDist":
             model = KinematicsNetworkRandomSampleDist(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "BetaDist":
+            model = KinematicsNetworkBetaDist(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
