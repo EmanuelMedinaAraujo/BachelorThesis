@@ -5,10 +5,9 @@ import torch
 
 from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
-from conf.config import TrainConfig
+from conf.conf_dataclasses.config import TrainConfig
 
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 import os
 
@@ -122,28 +121,11 @@ def visualize_analytical_distribution(model: KinematicsNetworkBase, param, groun
             parameter_2 = parameter_2 + epsilon
             dist = torch.distributions.Beta(parameter_1, parameter_2)
 
-            # Print paramters of the beta distribution
-            # print(f"Parameter 1: {parameter_1.item()}, Parameter 2: {parameter_2.item()}")
-
-            # Visulize the beta distribution dist with matlibplot
-            # samples = dist.sample(torch.tensor([10000])).detach().cpu().numpy()
-            # sns.set_theme(style="darkgrid")
-            # fig, ax = plt.subplots()
-            # ax.grid(True)
-            # plt.hist(samples, bins=100, density=True)
-            # plt.show()
-            # plt.close()
-            mean = dist.mean
-            prob = torch.exp(dist.log_prob(mean)).item()
+            sample = dist.sample(torch.tensor([1000])).mean(dim=0)
+            prob = torch.exp(dist.log_prob(sample)).item()
             link_probabilities[joint_number].append(prob)
-            angle = (2 * mean.item() - 1) * np.pi
+            angle = (2 * sample.item() - 1) * np.pi
             link_angles[joint_number].append(angle)
-            # for i in range(cfg.vis.analytical.distribution_samples):
-            #     sample = dist.sample()
-            #     prob = torch.exp(dist.log_prob(sample)).item()
-            #     link_probabilities[joint_number].append(prob)
-            #     angle = (2 * sample.item() - 1) * np.pi
-            #     link_angles[joint_number].append(angle)
 
         else:
             dist = torch.distributions.Normal(loc=parameter_1, scale=parameter_2)

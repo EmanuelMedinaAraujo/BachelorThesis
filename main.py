@@ -28,7 +28,7 @@ from custom_logging.custom_loggger import GeneralLogger
 from custom_logging.logger_callback import LoggerCallback
 from stb3.kinematics_environment import KinematicsEnvironment
 from vis.analytical_vis import visualize_analytical_problem, visualize_analytical_distribution
-from conf.config import TrainConfig
+from conf.conf_dataclasses.config import TrainConfig
 
 cs = ConfigStore.instance()
 cs.store(name="train_conf", node=TrainConfig)

@@ -81,8 +81,7 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
                 q = distribution_params[:, 1].unsqueeze(-1)
 
             beta_dist = torch.distributions.Beta(p, q)
-            angle = beta_dist.mean.unsqueeze(-1)
-
+            angle = beta_dist.rsample(torch.tensor([1000])).mean(dim=0).unsqueeze(-1)
             # Map angle from [0,1] to [-pi, pi]
             angle = (2 * angle - 1) * np.pi
 

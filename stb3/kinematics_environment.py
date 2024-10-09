@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from gymnasium import spaces
 
-from conf.config import TrainConfig
+from conf.conf_dataclasses.config import TrainConfig
 from data_generation.goal_generator import generate_achievable_goal
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
 from util.forward_kinematics import update_theta_values, calculate_parameter_goal_distances, calculate_angles_from_network_output

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from conf.hyperparams.hyperparams_config import Hyperparams
-from conf.logging.logging_config import Logging
-from conf.vis.vis_config import Visualization
+from conf.conf_dataclasses.hyperparams_config import Hyperparams
+from conf.conf_dataclasses.logging_config import Logging
+from conf.conf_dataclasses.vis_config import Visualization
 
 @dataclass
 class OptunaConfig:
