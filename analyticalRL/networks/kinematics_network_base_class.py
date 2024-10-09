@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 import torch
 from torch import nn
@@ -6,8 +6,9 @@ from torch import nn
 from custom_logging.custom_loggger import GeneralLogger
 
 
-class KinematicsNetworkBase(nn.Module, ABC):
+class KinematicsNetworkBase(nn.Module, metaclass=ABCMeta):
 
+    @abstractmethod
     def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger):
         """
         Initializes the KinematicsNetwork.
