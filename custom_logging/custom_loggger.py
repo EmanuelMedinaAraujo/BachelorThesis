@@ -8,6 +8,7 @@ def init_wandb(cfg: TrainConfig):
     wandb.init(
         # set the wandb project where this run will be logged
         project=cfg.logging.wandb.project_name,
+        reinit=True,
         # track hyperparameters and run metadata
         config=cfg.__dict__
     )
@@ -139,5 +140,24 @@ class GeneralLogger:
             wandb.log({path:wandb.Image(plot)}, step=current_step)
 
     def finish_logging(self, exit_code):
+        if self.log_in_console:
+            match exit_code:
+                case 0:
+                    tqdm.write("Training finished successfully")
+                case 1:
+                    tqdm.write("Training was prunded")
+                case 2:
+                    tqdm.write("Training failed due to ValueError, ZeroDivisionError or RuntimeError.")
+                case 3:
+                    tqdm.write("Training failed with unanticipated error.")
+            tqdm.close()
         if self.log_in_wandb:
+            match exit_code:
+                case 0:
+                    pass
+                case 1:
+                    wandb.run.tags += ("Pruned",)
+                    exit_code = 0
+                case _:
+                    wandb.run.tags += ("Error ",)
             wandb.finish(exit_code=exit_code)
