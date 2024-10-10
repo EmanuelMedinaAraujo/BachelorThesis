@@ -21,15 +21,6 @@ def visualize_stb3_problem(
     Visualize a single robot arm with the given parameters and goal.
     """
     with torch.no_grad():
-        env = model.get_env()
-        # Get goal and parameter from model environment
-        old_goal = env.env_method("get_wrapper_attr", "goal")
-        old_param = env.env_method("get_wrapper_attr", "parameter")
-
-        # Set visualization goal and parameter to training_env
-        env.env_method("set_goal", goal)
-        env.env_method("set_parameter", param)
-
         observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
 
         if cfg.hyperparams.stb3.use_recurrent_policy:
@@ -56,10 +47,6 @@ def visualize_stb3_problem(
                 pred = torch.tensor(pred).to(device)
                 all_angles = calculate_angles_from_network_output(pred, cfg.number_of_joints, param.device)
                 predictions.append(all_angles)
-
-        # Reset goal and parameter
-        env.env_method("set_goal", old_goal[0])
-        env.env_method("set_parameter", old_param[0])
 
         vis_params = cfg.vis.stb3
 
