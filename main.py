@@ -210,9 +210,9 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
         visualization_ground_truth.append(ground_truth)
 
     visualization_history = []
-    exit_code = 0
-    eval_score = -1
+
     logger = None
+    exit_code = 1
     try:
         logger = GeneralLogger(cfg=train_config)
         logger.log_used_device(device=device)
@@ -241,13 +241,16 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
                 tensor_type=tensor_type,
                 trial=trial
             )
-    except (ValueError, ZeroDivisionError, RuntimeError) as e:
+    except (ValueError, ZeroDivisionError, RuntimeError, TrialPruned) as e:
         logger.finish_logging(1)
         tqdm.write("Done with exception!")
         raise e
     else:
-        logger.finish_logging(0)
-        tqdm.write("Done without exception!")
+        exit_code = 0
+        tqdm.write("No exceptions!")
+    finally:
+        logger.finish_logging(exit_code)
+        tqdm.write("Done!")
     return eval_score
 
 
