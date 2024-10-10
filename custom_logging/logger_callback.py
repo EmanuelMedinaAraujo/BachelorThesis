@@ -190,20 +190,11 @@ class LoggerCallback(BaseCallback):
                 self.skip_first_log = False
 
     def test_model(self):
-        env = self.model.get_env()
-        # Get goal and parameter from model environment
-        old_goal = env.env_method("get_wrapper_attr", "goal")
-        old_param = env.env_method("get_wrapper_attr", "parameter")
-
         counter_success = 0
         distance_sum = 0
         self.model.policy.set_training_mode(False)
 
         for param, goal, _ in self.test_dataloader:
-            # Set visualization goal and parameter to training_env
-            env.env_method("set_goal", goal)
-            env.env_method("set_parameter", param)
-
             observation = torch.concat([param.flatten(), goal]).detach().cpu().numpy()
 
             if self.cfg.hyperparams.stb3.use_recurrent_policy:
@@ -228,10 +219,6 @@ class LoggerCallback(BaseCallback):
 
         accuracy = counter_success / len(self.test_dataloader)
         mean_reward = distance_sum / len(self.test_dataloader)
-
-        # Reset goal and parameter
-        env.env_method("set_goal", old_goal[0])
-        env.env_method("set_parameter", old_param[0])
 
         self.model.policy.set_training_mode(True)
         return accuracy, mean_reward
