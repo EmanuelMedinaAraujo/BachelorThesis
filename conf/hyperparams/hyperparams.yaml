@@ -24,7 +24,7 @@ stb3:
 
   learning_rate: 0.01 # default value: 0.0003
   batch_size: 512 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
-  epochs: 171
+  epochs: 10
 
   gamma: 0.0
   ent_coef: 0.3923435836538981 # default value: 0.0, PPO 0.01

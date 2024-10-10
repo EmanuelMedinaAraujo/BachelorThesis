@@ -1,7 +1,6 @@
 import sys
 from typing import Callable, Union
 
-
 import hydra
 import optuna
 from hydra.core.config_store import ConfigStore
@@ -16,7 +15,6 @@ from stable_baselines3.common.utils import set_random_seed
 from sb3_contrib import RecurrentPPO
 
 from tqdm import tqdm
-import torch as th
 
 from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
 from analyticalRL.networks.kinematics_network_norm_dist import KinematicsNetworkNormDist
@@ -63,7 +61,7 @@ def main(train_config: TrainConfig):
     set_random_seed(train_config.random_seed)
 
     torch.set_num_threads(train_config.torch_num_threads)
-    #th.autograd.set_detect_anomaly(True)
+    # th.autograd.set_detect_anomaly(True)
 
     if not train_config.use_optuna:
         train_and_test_model(copy_cfg(train_config))
@@ -96,7 +94,9 @@ def main(train_config: TrainConfig):
 
 
 def _optimize(study: Study, train_config, num_trials_per_process):
-    study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process, catch=[ValueError, ZeroDivisionError, RuntimeError, TrialPruned])
+    study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process,
+                   catch=[ValueError, ZeroDivisionError, RuntimeError, TrialPruned])
+
 
 def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
     """
@@ -118,6 +118,7 @@ def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float
 
     return func
 
+
 def _objective(defaults: TrainConfig, trial: optuna.Trial):
     """Copies the default config and adds the trial parameters to it."""
     cfg_copy = copy_cfg(defaults)
@@ -137,14 +138,17 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
         clip_range_factor = trial.suggest_int('clip_range', 1, 4)  # from [0.1, 0.2, 0.3, 0.4]
         cfg_copy.hyperparams.stb3.clip_range = 0.1 * clip_range_factor
         cfg_copy.hyperparams.stb3.epochs = trial.suggest_categorical("epochs", [1, 5, 10, 20])
-        cfg_copy.hyperparams.stb3.gae_lambda  = trial.suggest_categorical("gae_lambda", [0.8, 0.9, 0.92, 0.95, 0.98, 0.99, 1.0])
-        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_categorical("max_grad_norm", [0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5])
+        cfg_copy.hyperparams.stb3.gae_lambda = trial.suggest_categorical("gae_lambda",
+                                                                         [0.8, 0.9, 0.92, 0.95, 0.98, 0.99, 1.0])
+        cfg_copy.hyperparams.stb3.max_grad_norm = trial.suggest_categorical("max_grad_norm",
+                                                                            [0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 5])
         cfg_copy.hyperparams.stb3.vf_coef = trial.suggest_float('vf_coef', 0., 1.)
 
         # new Parameters
         cfg_copy.hyperparams.stb3.net_arch_type = trial.suggest_categorical("net_arch", ["tiny", "small", "medium"])
         cfg_copy.hyperparams.stb3.ortho_init = trial.suggest_categorical('ortho_init', [False, True])
-        cfg_copy.hyperparams.stb3.activation_fn_name = trial.suggest_categorical("activation_fn", ["tanh", "relu", "elu", "leaky_relu"])
+        cfg_copy.hyperparams.stb3.activation_fn_name = trial.suggest_categorical("activation_fn",
+                                                                                 ["tanh", "relu", "elu", "leaky_relu"])
         # TODO fix this
         # cfg_copy.hyperparams.stb3.lr_schedule = trial.suggest_categorical('lr_schedule', ['linear', 'constant'])
         # if cfg_copy.hyperparams.stb3.lr_schedule == "linear":
@@ -153,11 +157,11 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
         cfg_copy.hyperparams.stb3.log_std_init = trial.suggest_float('log_std_init', -1.6, 0)
         cfg_copy.hyperparams.stb3.norm_advantages = trial.suggest_categorical('norm_advantages', [True, False])
 
-
         cfg_copy.hyperparams.stb3.use_recurrent_policy = trial.suggest_categorical('use_recurrent_policy',
                                                                                    [True, False])
         if cfg_copy.hyperparams.stb3.use_recurrent_policy:
-            cfg_copy.hyperparams.stb3.enable_critic_lstm = trial.suggest_categorical("enable_critic_lstm", [False, True])
+            cfg_copy.hyperparams.stb3.enable_critic_lstm = trial.suggest_categorical("enable_critic_lstm",
+                                                                                     [False, True])
             lstm_hidden_size_exp = trial.suggest_int('batch_size', 4, 9)  # from 16 to 512
             cfg_copy.hyperparams.stb3.lstm_hidden_size = 2 ** lstm_hidden_size_exp
 
@@ -212,7 +216,7 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
     visualization_history = []
 
     logger = None
-    exit_code = 1
+    exit_code = 3
     try:
         logger = GeneralLogger(cfg=train_config)
         logger.log_used_device(device=device)
@@ -241,16 +245,16 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
                 tensor_type=tensor_type,
                 trial=trial
             )
-    except (ValueError, ZeroDivisionError, RuntimeError, TrialPruned) as e:
+    except TrialPruned as trial_pruned_exception:
         logger.finish_logging(1)
-        tqdm.write("Done with exception!")
+        raise trial_pruned_exception
+    except (ValueError, ZeroDivisionError, RuntimeError) as e:
+        logger.finish_logging(2)
         raise e
     else:
         exit_code = 0
-        tqdm.write("No exceptions!")
     finally:
         logger.finish_logging(exit_code)
-        tqdm.write("Done!")
     return eval_score
 
 
@@ -409,7 +413,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
 
     # Use optimizer specified in the config
     optimizer = getattr(torch.optim, cfg.hyperparams.analytical.optimizer)(
-        model.parameters(), lr=cfg.hyperparams.analytical.learning_rate,# maximize=True,
+        model.parameters(), lr=cfg.hyperparams.analytical.learning_rate,  # maximize=True,
     )
 
     # Create Problem Generator
