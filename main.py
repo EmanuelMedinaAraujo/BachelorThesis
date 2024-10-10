@@ -6,7 +6,7 @@ import hydra
 import optuna
 from hydra.core.config_store import ConfigStore
 import torch
-from optuna import Study
+from optuna import Study, TrialPruned
 from stable_baselines3.common.callbacks import CallbackList
 from torch import nn as nn
 from wandb.integration.sb3 import WandbCallback
@@ -96,7 +96,7 @@ def main(train_config: TrainConfig):
 
 
 def _optimize(study: Study, train_config, num_trials_per_process):
-    study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process)
+    study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process, catch=[ValueError, ZeroDivisionError, RuntimeError, TrialPruned])
 
 def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
     """
@@ -191,9 +191,6 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
 
     tensor_type = torch.float32
 
-    logger = GeneralLogger(cfg=train_config)
-    logger.log_used_device(device=device)
-
     test_dataset = CustomParameterDataset(
         length=train_config.number_of_test_problems,
         device_to_use=device,
@@ -213,34 +210,44 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
         visualization_ground_truth.append(ground_truth)
 
     visualization_history = []
-
-    if train_config.use_stb3:
-        eval_score = do_stable_baselines3_learning(
-            device=device,
-            cfg=train_config,
-            logger=logger,
-            test_dataset=test_dataset,
-            visualization_history=visualization_history,
-            visualization_goals=visualization_goals,
-            visualization_params=visualization_params,
-            tensor_type=tensor_type,
-            trial=trial
-        )
+    exit_code = 0
+    eval_score = -1
+    logger = None
+    try:
+        logger = GeneralLogger(cfg=train_config)
+        logger.log_used_device(device=device)
+        if train_config.use_stb3:
+            eval_score = do_stable_baselines3_learning(
+                device=device,
+                cfg=train_config,
+                logger=logger,
+                test_dataset=test_dataset,
+                visualization_history=visualization_history,
+                visualization_goals=visualization_goals,
+                visualization_params=visualization_params,
+                tensor_type=tensor_type,
+                trial=trial
+            )
+        else:
+            eval_score = do_analytical_learning(
+                device=device,
+                cfg=train_config,
+                logger=logger,
+                test_dataset=test_dataset,
+                visualization_history=visualization_history,
+                visualization_goals=visualization_goals,
+                visualization_params=visualization_params,
+                visualization_ground_truth=visualization_ground_truth,
+                tensor_type=tensor_type,
+                trial=trial
+            )
+    except (ValueError, ZeroDivisionError, RuntimeError) as e:
+        logger.finish_logging(1)
+        tqdm.write("Done with exception!")
+        raise e
     else:
-        eval_score = do_analytical_learning(
-            device=device,
-            cfg=train_config,
-            logger=logger,
-            test_dataset=test_dataset,
-            visualization_history=visualization_history,
-            visualization_goals=visualization_goals,
-            visualization_params=visualization_params,
-            visualization_ground_truth=visualization_ground_truth,
-            tensor_type=tensor_type,
-            trial=trial
-        )
-    tqdm.write("Done!")
-    logger.finish_logging()
+        logger.finish_logging(0)
+        tqdm.write("Done without exception!")
     return eval_score
 
 
