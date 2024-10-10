@@ -63,7 +63,7 @@ def main(train_config: TrainConfig):
     set_random_seed(train_config.random_seed)
 
     torch.set_num_threads(train_config.torch_num_threads)
-    th.autograd.set_detect_anomaly(True)
+    #th.autograd.set_detect_anomaly(True)
 
     if not train_config.use_optuna:
         train_and_test_model(copy_cfg(train_config))
