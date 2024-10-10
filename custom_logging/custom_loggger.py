@@ -138,6 +138,6 @@ class GeneralLogger:
         if self.log_in_wandb:
             wandb.log({path:wandb.Image(plot)}, step=current_step)
 
-    def finish_logging(self):
+    def finish_logging(self, exit_code):
         if self.log_in_wandb:
-            wandb.finish()
+            wandb.finish(exit_code=exit_code)
