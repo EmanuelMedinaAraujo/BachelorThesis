@@ -3,33 +3,35 @@ from typing import Callable, Union
 
 import hydra
 import optuna
-from hydra.core.config_store import ConfigStore
 import torch
+from hydra.core.config_store import ConfigStore
 from optuna import Study, TrialPruned
-from stable_baselines3.common.callbacks import CallbackList
-from torch import nn as nn
-from wandb.integration.sb3 import WandbCallback
+from sb3_contrib import RecurrentPPO
 from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import CallbackList
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.utils import set_random_seed
-from sb3_contrib import RecurrentPPO
-
+from torch import nn as nn
 from tqdm import tqdm
+from wandb.integration.sb3 import WandbCallback
 
-from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
-from analyticalRL.networks.kinematics_network_norm_dist import KinematicsNetworkNormDist
-from analyticalRL.kinematics_network_testing import test_loop
-from analyticalRL.kinematics_network_training import train_loop
-from analyticalRL.networks.kinematics_network_rand_sample import KinematicsNetworkRandomSampleDist
-from analyticalRL.networks.kinematics_network_reparam_beta_dist import KinematicsNetworkBetaDist
-from analyticalRL.networks.kinematics_network_reparam_dist import KinematicsNetworkReparamDist
-from data_generation.parameter_dataset import CustomParameterDataset
-from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
+from analyticalRL.network_eval import test_loop, train_loop
+from analyticalRL.networks.distributions.two_parameter_distributions.kinematics_network_reparam_beta_dist import \
+    KinematicsNetworkBetaDist
+from analyticalRL.networks.distributions.two_parameter_distributions.normal_distributions.kinematics_network_norm_dist import \
+    KinematicsNetworkNormDist
+from analyticalRL.networks.distributions.two_parameter_distributions.normal_distributions.kinematics_network_rand_sample import \
+    KinematicsNetworkRandomSampleDist
+from analyticalRL.networks.distributions.two_parameter_distributions.normal_distributions.kinematics_network_reparam_dist import \
+    KinematicsNetworkReparamDist
+from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
+from conf.conf_dataclasses.config import TrainConfig
 from custom_logging.custom_loggger import GeneralLogger
 from custom_logging.logger_callback import LoggerCallback
+from data_generation.parameter_dataset import CustomParameterDataset
+from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
 from stb3.kinematics_environment import KinematicsEnvironment
-from vis.analytical_vis import visualize_analytical_problem, visualize_analytical_distribution
-from conf.conf_dataclasses.config import TrainConfig
+from vis.model_type_vis.analytical_vis import visualize_analytical_problem, visualize_analytical_distribution
 
 cs = ConfigStore.instance()
 cs.store(name="train_conf", node=TrainConfig)
@@ -177,6 +179,7 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
         cfg_copy.hyperparams.analytical.epochs = trial.suggest_int('epochs', 1, 1028)
         cfg_copy.hyperparams.analytical.testing_interval = trial.suggest_int('testing_interval', 1,
                                                                              cfg_copy.hyperparams.analytical.epochs)
+        # noinspection SpellCheckingInspection
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
 
     return train_and_test_model(cfg_copy, trial)
@@ -371,7 +374,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                            ):
     match cfg.hyperparams.analytical.output_type:
         case "Normal":
-            model = KinematicsNetwork(
+            model = SimpleKinematicsNetwork(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
@@ -409,7 +412,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             raise ValueError(
                 f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the config.")
 
-    logger.watch_model(model)
+    logger.watch_model(model, cfg.logging.wandb.wand_callback_logging_freq)
 
     # Use optimizer specified in the config
     optimizer = getattr(torch.optim, cfg.hyperparams.analytical.optimizer)(
@@ -479,7 +482,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 model=model,
                 logger=logger,
                 tolerable_accuracy_error=cfg.tolerable_accuracy_error,
-                epoche_num=epoch_num,
+                num_epoch=epoch_num,
                 is_normal_output=cfg.hyperparams.analytical.output_type == "Normal"
             )
 

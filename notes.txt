@@ -13,12 +13,13 @@ DONE:
     -> Neue angepasste Hyperparameter von https://stable-baselines3.readthedocs.io/en/master/guide/rl_zoo.html
         -> https://rl-baselines3-zoo.readthedocs.io/en/master/guide/tuning.html
         -> Viel bessere Ergebnisse
+- heatmap für eef für analytical distribution erstellen
+- Analytical distributions mit num_links>2 gefixed
 
 In Progress:
 
 
 TODO:
-- heatmap für eef für analytical distribution erstellen
 
 - Gymnasium für analytical erstellen
     - https://gymnasium.farama.org/introduction/train_agent/ - Gymnasium für analytical erstellen

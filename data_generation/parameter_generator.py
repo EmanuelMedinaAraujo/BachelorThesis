@@ -20,14 +20,14 @@ class ParameterGeneratorForPlanarRobot(Iterator, ABC):
     """
 
     def __init__(
-        self,
-        batch_size: int = 1,
-        device: Optional[str] = None,
-        tensor_type: torch.dtype = torch.float32,
-        num_joints: int = 2,
-        parameter_convention: Union[ParameterConvention, str] = "DH",
-        min_len: float = 0.1,
-        max_len: float = 20.0,
+            self,
+            batch_size: int = 1,
+            device: Optional[str] = None,
+            tensor_type: torch.dtype = torch.float32,
+            num_joints: int = 2,
+            parameter_convention: Union[ParameterConvention, str] = "DH",
+            min_len: float = 0.1,
+            max_len: float = 20.0,
     ):
         """
         Initializes the problem generator.
@@ -89,11 +89,11 @@ class ParameterGeneratorForPlanarRobot(Iterator, ABC):
 
         # Randomly set some a
         a = (
-            self.min_len
-            + torch.rand((self.batch_size, self.num_joints, 1)).to(
-                device=device, dtype=ttype
-            )
-            * delta
+                self.min_len
+                + torch.rand((self.batch_size, self.num_joints, 1)).to(
+            device=device, dtype=ttype
+        )
+                * delta
         )
 
         # Set d to zero as we are currently only interested in planar robots

@@ -12,7 +12,7 @@ from util.dh_conventions import dh_to_homogeneous
 
 
 def forward_kinematics(
-    joint_offsets: Union[torch.Tensor, BatchTransform], full: bool = False
+        joint_offsets: Union[torch.Tensor, BatchTransform], full: bool = False
 ) -> BatchTransform:
     """
     Computes the forward kinematics for a given sequence of joint offsets.
@@ -60,7 +60,7 @@ def calculate_eef_positions(parameters):
 
 
 def update_theta_values(
-    parameters: torch.Tensor, new_theta_values: Union[torch.Tensor, np.ndarray]
+        parameters: torch.Tensor, new_theta_values: Union[torch.Tensor, np.ndarray]
 ) -> torch.Tensor:
     """
     Update the theta values of the parameters with the new theta values.
@@ -91,7 +91,7 @@ def update_theta_values(
 
 
 def calculate_parameter_goal_distances(
-    param: torch.Tensor, goal: Union[torch.Tensor, np.ndarray]
+        param: torch.Tensor, goal: Union[torch.Tensor, np.ndarray]
 ) -> torch.Tensor:
     """
     Calculate the Euclidean distance between the end effector position and the goal position.
