@@ -55,11 +55,6 @@ class KinematicsNetworkBase(nn.Module, metaclass=ABCMeta):
         # Pass the flatten input through the linear_relu_stack
         return self.linear_relu_stack(flatten_input)
 
-    @staticmethod
-    @abstractmethod
-    def calc_distances(param, pred, goal):
-        pass
-
     @abstractmethod
     def loss_fn(self, param, pred, goal, ground_truth):
         pass

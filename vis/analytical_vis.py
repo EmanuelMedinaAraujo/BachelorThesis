@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
-from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.kinematics_network_base_class import KinematicsNetworkBase
 from conf.conf_dataclasses.config import TrainConfig
 
 import matplotlib.pyplot as plt
@@ -37,22 +37,29 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
         )
 
     is_last_link = False
-    start_point = [0, 0]
-    start_angle = 0
-    end_effector_list = []
+
+    all_start_angles = np.zeros(1)
+    all_start_points = np.zeros((1,2))
+
+    start_angle_max = 0
+    start_point_max = [0, 0]
+
     for joint_number in range(link_angles.__len__()):
         if joint_number == link_angles.__len__() - 1:
             is_last_link = True
+        tmp_all_start_angles = []
+        tmp_all_start_points = []
         for link_num in range(link_angles[joint_number].__len__()):
+            for i in range(all_start_angles.__len__()):
+                current_total_angle = all_start_angles[i] + link_angles[joint_number][link_num]
+                tmp_all_start_angles.append(current_total_angle)
+                tmp_all_start_points.append(all_start_points[i] + np.array(
+                    [parameter[joint_number, 1].item() * np.cos(current_total_angle), parameter[joint_number, 1].item() * np.sin(current_total_angle)]
+                ))
+
             link_prob = link_probabilities[joint_number][link_num]
             draw_end_effector = False
-            if is_last_link:
-                total_angle = start_angle + link_angles[joint_number][link_num]
-                end_coordinates = start_point + np.array(
-                    [parameter[joint_number, 1].item() * np.cos(total_angle), parameter[joint_number, 1].item() * np.sin(total_angle)]
-                )
-                end_effector_list.append(end_coordinates)
-                if link_prob == max(link_probabilities[joint_number]):
+            if is_last_link and link_prob == max(link_probabilities[joint_number]):
                     draw_end_effector = True
             if link_prob < 0.1:
                 link_prob = 0.1
@@ -66,15 +73,18 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
                              show_distance=is_last_link,
                              draw_best_end_effector=draw_end_effector,
                              goal=goal,
-                             start_point=start_point,
-                             start_angle=start_angle,
+                             start_point=start_point_max,
+                             start_angle=start_angle_max,
                              color="blue" if is_last_link else 'g',
                              device=device)
         # Get index of maximum probability in link_probabilities[joint_number]
         max_prob_index = link_probabilities[joint_number].index(max(link_probabilities[joint_number]))
-        start_angle += link_angles[joint_number][max_prob_index]
-        start_point = [start_point[0] + parameter[joint_number, 1].item() * np.cos(start_angle),
-                       start_point[1] + parameter[joint_number, 1].item() * np.sin(start_angle)]
+        start_angle_max += link_angles[joint_number][max_prob_index]
+        start_point_max = [start_point_max[0] + parameter[joint_number, 1].item() * np.cos(start_angle_max),
+                       start_point_max[1] + parameter[joint_number, 1].item() * np.sin(start_angle_max)]
+
+        all_start_angles = np.array(tmp_all_start_angles)
+        all_start_points = np.array(tmp_all_start_points)
 
     # Plot the goal of the robot
     if goal is not None:
@@ -110,7 +120,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
     plt.close()
 
     if do_heat_map:
-        create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter,
+        create_eef_heatmap(all_start_points, goal, logger, current_step, show_plot, save_to_file, parameter,
                            chart_index)
 
 

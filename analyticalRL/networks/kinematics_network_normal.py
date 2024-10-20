@@ -1,6 +1,6 @@
 import torch
 
-from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.kinematics_network_base_class import KinematicsNetworkBase
 from util.forward_kinematics import calculate_parameter_goal_distances, update_theta_values
 
 
@@ -43,7 +43,6 @@ class KinematicsNetwork(KinematicsNetworkBase):
                     all_angles = torch.cat([all_angles, angle]).to(param.device)
                 else:
                     all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
-
         return all_angles
 
     @staticmethod
@@ -61,5 +60,5 @@ class KinematicsNetwork(KinematicsNetworkBase):
         Calculates the loss for the given parameters and goal.
         The loss is calculated as the mean of the distances between the end effector positions of the parameters and the goal.
         """
-        distances = KinematicsNetwork.calc_distances(param=param, pred=pred, goal=goal)
+        distances = self.calc_distances(param=param, pred=pred, goal=goal)
         return distances.mean()

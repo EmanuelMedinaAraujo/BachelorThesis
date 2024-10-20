@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch import Tensor, nn
 
-from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.kinematics_network_base_class import KinematicsNetworkBase
 from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
 from custom_logging.custom_loggger import GeneralLogger
 
@@ -62,12 +62,12 @@ class KinematicsNetworkRandomSampleDist(KinematicsNetworkBase):
                 distribution = torch.cat([mu, sigma], dim=-1)
 
             if all_distributions is None:
-                all_distributions = distribution
+                all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
             else:
                 if is_single_parameter:
-                    all_distributions = torch.cat([all_distributions.unsqueeze(0), distribution.unsqueeze(0)]).to(param.device)
+                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(param.device)
                 else:
-                    all_distributions = torch.cat([all_distributions.unsqueeze(1), distribution.unsqueeze(1)], dim=1).to(param.device)
+                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(param.device)
 
         return all_distributions
 
