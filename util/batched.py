@@ -91,7 +91,7 @@ class BatchTransform:
         return self.get_matrix().equal(other.get_matrix())
 
     def __getitem__(
-        self, index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor]
+            self, index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor]
     ) -> BatchTransform:
         """
         Args:
@@ -112,9 +112,9 @@ class BatchTransform:
         return prod(self.b)
 
     def __setitem__(
-        self,
-        index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor],
-        value,
+            self,
+            index: Union[int, List[int], slice, torch.BoolTensor, torch.LongTensor],
+            value,
     ):
         """Sets items of self._matrix"""
         if isinstance(value, BatchTransform):
@@ -231,7 +231,7 @@ class Rotate(BatchTransform):
 
     @classmethod
     def axis_angle(
-        cls, angle: torch.Tensor, axis: str, degrees: bool = False
+            cls, angle: torch.Tensor, axis: str, degrees: bool = False
     ) -> Rotate:
         """
         Create a new Transform representing 3D rotation using axis-angle representation.

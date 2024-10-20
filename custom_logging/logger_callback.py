@@ -8,8 +8,8 @@ from stable_baselines3.common.utils import safe_mean
 
 from conf.conf_dataclasses.config import TrainConfig
 from util.forward_kinematics import calculate_parameter_goal_distances, calculate_angles_from_network_output
+from vis.model_type_vis.stb3_vis import visualize_stb3_problem
 from vis.planar_robot_vis import visualize_model_value_loss
-from vis.problem_vis import visualize_stb3_problem
 
 
 def calculate_advantage_loss(x, y, device, parameter, model, use_recurrent_policy):

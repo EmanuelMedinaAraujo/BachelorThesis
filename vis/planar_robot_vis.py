@@ -1,16 +1,15 @@
-import math
 import os
 from datetime import datetime
 from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn as sns
 
-import pandas as pd
-import torch
-
-from util.forward_kinematics import calculate_parameter_goal_distances, calculate_euclidean_distances
+from util.forward_kinematics import calculate_parameter_goal_distances
+from vis.vis_utils import set_plot_settings, compute_max_robot_length, plot_line, \
+    finish_and_close_plot
 
 
 def visualize_planar_robot(parameter, default_line_transparency, default_line_width, max_legend_length, goal=None,
@@ -87,39 +86,9 @@ def visualize_planar_robot(parameter, default_line_transparency, default_line_wi
             goal=goal,
         )
 
-    # Plot the goal of the robot
-    if goal is not None:
-        x, y = goal[0].item(), goal[1].item()
-        ax.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]")
-
-    if show_legend:
-        # Only show first max_legend_length entries
-        handles, labels = ax.get_legend_handles_labels()
-        if len(labels) > max_legend_length:
-            labels = [labels.pop()] + labels[-max_legend_length - 1:]
-            handles = [handles.pop()] + handles[-max_legend_length - 1:]
-        ax.legend(
-            handles,
-            labels,
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
-        )
-
-    plt.tight_layout()
-
-    if logger is not None:
-        path = "chart" + str(chart_index)
-        logger.log_image(plt, current_step, path)
-
-    if save_to_file:
-        # Get day and time for the filename
-        day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
-        path = os.path.join("../plots", f"rbt_plt_{day_time}.png")
-        plt.savefig(path)
-
-    if show_plot:
-        plt.show()
-    plt.close()
+    # Plot the goal of the robot, configure the legend, log, save, open and close the plot
+    finish_and_close_plot(ax, chart_index, current_step, goal, logger, max_legend_length, save_to_file, show_legend,
+                          show_plot)
 
     if multiple_robots and do_heat_map:
         create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter,
@@ -165,18 +134,8 @@ def plot_planar_robot(
         link_angle = parameter[i, 3].item()
         total_angle += link_angle
 
-        end_coordinates = start_coordinates + np.array(
-            [link_length * math.cos(total_angle), link_length * math.sin(total_angle)]
-        )
-
-        # Plot single link
-        (link_line,) = ax.plot(
-            [start_coordinates[0], end_coordinates[0]],
-            [start_coordinates[1], end_coordinates[1]],
-            lw=default_line_width,
-            alpha=transparency,
-            color=color
-        )
+        end_coordinates, link_line = plot_line(ax, color, default_line_width, link_length,
+                                               start_coordinates, total_angle, transparency)
 
         # Add a label only once for each robot arm, since this is only executed for the first link
         if i == 0:
@@ -219,73 +178,6 @@ def plot_planar_robot(
     return end_coordinates
 
 
-def plot_single_link(
-        ax,
-        link_length,
-        angle,
-        default_line_width,
-        device,
-        draw_best_end_effector=False,
-        transparency=1.0,
-        show_distance=False,
-        goal=None,
-        start_point=np.array([0, 0]),
-        start_angle=0.0,
-        color='b',
-):
-    total_angle = start_angle + angle
-    end_coordinates = start_point + np.array(
-        [link_length * math.cos(total_angle), link_length * math.sin(total_angle)]
-    )
-
-    # Plot single link
-    (link_line,) = ax.plot(
-        [start_point[0], end_coordinates[0]],
-        [start_point[1], end_coordinates[1]],
-        lw=default_line_width,
-        alpha=transparency,
-        color=color
-    )
-
-    # Add a label only once for each robot arm, since this is only executed for the first link
-    if show_distance:
-        distance_label = ""
-        if show_distance and goal is not None:
-            end_coordinates = torch.tensor(end_coordinates).to(device)
-            goal = goal.clone().detach().to(device)
-            distance = calculate_euclidean_distances(end_coordinates, goal)
-            distance_label = f"({distance:.2f})"
-        probability_label = f"[{transparency:.1f}]"
-        link_line.set_label(
-            f"Robot Arm" + distance_label + probability_label
-        )
-
-    if draw_best_end_effector:
-        # Plot end effector
-        ax.plot(
-            end_coordinates[0].item(),
-            end_coordinates[1].item(),
-            "-o",
-            markersize=3,
-            color=color,
-            alpha=0.5,
-        )
-
-
-def set_plot_settings(parameter):
-    # General settings
-    sns.set_theme(style="darkgrid")
-    fig, ax = plt.subplots()
-    ax.grid(True)
-    ax.axhline(0, color="black", lw=1.5)
-    ax.axvline(0, color="black", lw=1.5)
-    max_length, multiple_robots = compute_max_robot_length(parameter)
-    # Set the limits of the plot
-    ax.set_xlim(-max_length, max_length)
-    ax.set_ylim(-max_length, max_length)
-    return ax, multiple_robots
-
-
 def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to_file, parameter, chart_index):
     if end_effector_list is None or len(end_effector_list) == 0:
         return
@@ -318,19 +210,6 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     if show_plot:
         plt.show()
     plt.close()
-
-
-def compute_max_robot_length(parameter):
-    # Calculate the maximum length of the robot arm from the given parameters
-    max_length = 0
-    multiple_robots = len(parameter.size()) == 3
-    if multiple_robots:
-        for i in range(parameter.shape[1]):
-            max_length += parameter[0, i, 1].item()
-    else:
-        for i in range(parameter.shape[0]):
-            max_length += parameter[i, 1].item()
-    return max_length, multiple_robots
 
 
 def visualize_model_value_loss(value_function, parameter, logger, current_step, show_plot, save_to_file, index):

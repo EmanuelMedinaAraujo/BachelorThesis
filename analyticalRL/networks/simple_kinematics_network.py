@@ -1,10 +1,9 @@
 import torch
 
-from analyticalRL.kinematics_network_base_class import KinematicsNetworkBase
-from util.forward_kinematics import calculate_parameter_goal_distances, update_theta_values
+from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 
 
-class KinematicsNetwork(KinematicsNetworkBase):
+class SimpleKinematicsNetwork(KinematicsNetworkBase):
     """
     This class is used to create a neural network that predicts the angles of the joints of a planar robotic arm.
     The network takes two inputs, the parameters (DH or MDH) of the arm and the goal position.
@@ -13,6 +12,7 @@ class KinematicsNetwork(KinematicsNetworkBase):
     The output of the network is the two values for each joint from which the angle can be calculated.
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
+
     def __init__(self, num_joints, num_layer, layer_sizes, logger):
         super().__init__(num_joints, num_layer, layer_sizes, logger)
 
@@ -45,20 +45,10 @@ class KinematicsNetwork(KinematicsNetworkBase):
                     all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
         return all_angles
 
-    @staticmethod
-    def calc_distances(param, pred, goal):
-        """
-        Calculates the distances between the end effector positions of the parameters and the goal.
-        """
-        # Update theta values with predictions
-        updated_param = update_theta_values(parameters=param, new_theta_values=pred)
-        distances = calculate_parameter_goal_distances(updated_param, goal)
-        return distances
-
     def loss_fn(self, param, pred, goal, ground_truth):
         """
         Calculates the loss for the given parameters and goal.
         The loss is calculated as the mean of the distances between the end effector positions of the parameters and the goal.
         """
-        distances = self.calc_distances(param=param, pred=pred, goal=goal)
+        distances = super().calc_distances(param=param, angles_pred=pred, goal=goal)
         return distances.mean()

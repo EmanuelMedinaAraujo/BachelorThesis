@@ -51,7 +51,7 @@ def visualize_stb3_problem(
         vis_params = cfg.vis.stb3
 
         predictions = torch.stack(predictions)
-        link_accuracy = torch.tensor([cfg.vis.stb3.default_line_transparency] * predictions.shape[0] )
+        link_accuracy = torch.tensor([cfg.vis.stb3.default_line_transparency] * predictions.shape[0])
 
         predictions_tensor = predictions.unsqueeze(-1)
         repeated_params = param.expand(predictions_tensor.shape[0], 2, 3)

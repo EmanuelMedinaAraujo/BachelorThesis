@@ -28,6 +28,7 @@ class StB3Hyperparams:
     enable_critic_lstm: bool
     lstm_hidden_size: int
 
+
 @dataclass
 class AnalyticalHyperparams:
     num_hidden_layer: int

@@ -12,14 +12,14 @@ class CustomParameterDataset(Dataset):
     """
 
     def __init__(
-        self,
-        length=10000,
-        device_to_use=None,
-        num_of_joints=2,
-        parameter_convention="DH",
-        tensor_type=torch.float32,
-        min_link_len=0.1,
-        max_link_len=20.0,
+            self,
+            length=10000,
+            device_to_use=None,
+            num_of_joints=2,
+            parameter_convention="DH",
+            tensor_type=torch.float32,
+            min_link_len=0.1,
+            max_link_len=20.0,
     ):
         self.dh_parameters = []
         self.goal = []

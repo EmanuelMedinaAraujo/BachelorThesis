@@ -68,24 +68,24 @@ class GeneralLogger:
             else:
                 wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
 
-    def watch_model(self, model):
+    def watch_model(self, model, log_freq=100):
         if self.log_in_wandb:
-            wandb.watch(model)
+            wandb.watch(model, log_freq=log_freq)  # type: ignore
 
     def log_train_rollout(
-        self,
-        approx_kl,
-        clip_fraction,
-        clip_range,
-        entropy_loss,
-        explained_variance,
-        learning_rate,
-        loss,
-        n_updates,
-        policy_gradient_loss,
-        value_loss,
-        std,
-        current_step=None,
+            self,
+            approx_kl,
+            clip_fraction,
+            clip_range,
+            entropy_loss,
+            explained_variance,
+            learning_rate,
+            loss,
+            n_updates,
+            policy_gradient_loss,
+            value_loss,
+            std,
+            current_step=None,
     ):
         if self.log_in_console:
             # tqdm.write(f"train/approx_kl: {approx_kl}")
@@ -119,7 +119,7 @@ class GeneralLogger:
             )
 
     def log_rollout(
-        self, ep_rew_mean, success_rate, rollout_buf_mean_rew, current_step=None
+            self, ep_rew_mean, success_rate, rollout_buf_mean_rew, current_step=None
     ):
         if self.log_in_console:
             tqdm.write(
@@ -137,7 +137,7 @@ class GeneralLogger:
 
     def log_image(self, plot, current_step=None, path="chart"):
         if self.log_in_wandb:
-            wandb.log({path:wandb.Image(plot)}, step=current_step)
+            wandb.log({path: wandb.Image(plot)}, step=current_step)
 
     def finish_logging(self, exit_code):
         if self.log_in_console:
@@ -145,12 +145,11 @@ class GeneralLogger:
                 case 0:
                     tqdm.write("Training finished successfully")
                 case 1:
-                    tqdm.write("Training was prunded")
+                    tqdm.write("Training was pruned")
                 case 2:
                     tqdm.write("Training failed due to ValueError, ZeroDivisionError or RuntimeError.")
                 case 3:
                     tqdm.write("Training failed with unanticipated error.")
-            tqdm.close()
         if self.log_in_wandb:
             match exit_code:
                 case 0:

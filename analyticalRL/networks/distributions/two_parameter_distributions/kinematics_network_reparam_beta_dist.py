@@ -2,11 +2,12 @@ import numpy as np
 import torch
 from torch import Tensor, nn
 
-from analyticalRL.kinematics_network_base_class import KinematicsNetworkBase
-from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
+from analyticalRL.networks.distributions.two_parameter_distributions.two_param_dist_network_base import \
+    TwoParameterDistributionNetworkBase
+from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 
 
-class KinematicsNetworkBetaDist(KinematicsNetworkBase):
+class KinematicsNetworkBetaDist(TwoParameterDistributionNetworkBase):
     """
     This class is used to create a neural network that predicts the angles of the joints of a planar robotic arm.
     The network takes two inputs, the parameters (DH or MDH) of the arm and the goal position.
@@ -15,6 +16,7 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
     The output of the network is the parameter for a normal distribution for each joint.
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
+
     def __init__(self, num_joints, num_layer, layer_sizes, logger):
         super().__init__(num_joints, num_layer, layer_sizes, logger)
 
@@ -22,10 +24,6 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
         stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
         stack_list.append(nn.ReLU())
         return stack_list
-
-    @staticmethod
-    def calc_distances(param, pred, goal):
-        raise NotImplementedError("calc_distances is not implemented for KinematicsNetworkNormDist")
 
     def forward(self, model_input):
         network_output = super().forward(model_input)
@@ -47,22 +45,11 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
             p = p_output.unsqueeze(-1) if p_output.dim() == 1 else p_output
             q = q_output.unsqueeze(-1) if q_output.dim() == 1 else q_output
 
-            epsilon = 1e-1
+            epsilon = 1e-2
             p = p + epsilon
             q = q + epsilon
 
-            if is_single_parameter:
-                distribution = torch.cat([p.unsqueeze(-1), q.unsqueeze(-1)])
-            else:
-                distribution = torch.cat([p, q], dim=-1)
-
-            if all_distributions is None:
-                all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
-            else:
-                if is_single_parameter:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(param.device)
-                else:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(param.device)
+            all_distributions = super().cat_distribution(all_distributions, is_single_parameter, p, param, q)
 
         return all_distributions
 
@@ -71,14 +58,7 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
 
         all_angles = None
         for joint_number in range(self.num_joints):
-            if is_single_parameter:
-                distribution_params = pred[joint_number]
-                p = distribution_params[0].unsqueeze(-1)
-                q = distribution_params[1].unsqueeze(-1)
-            else:
-                distribution_params = pred[:, joint_number]
-                p = distribution_params[:, 0].unsqueeze(-1)
-                q = distribution_params[:, 1].unsqueeze(-1)
+            p, q = self.extract_two_dist_parameters(is_single_parameter, joint_number, pred)
 
             beta_dist = torch.distributions.Beta(p, q)
             angle = beta_dist.rsample(torch.Size([1000])).mean(dim=0).unsqueeze(-1)
@@ -93,6 +73,6 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
                 else:
                     all_angles = torch.cat([all_angles, angle], dim=1).to(param.device)
         # Use distance for loss
-        distances = KinematicsNetwork.calc_distances(param=param, pred=all_angles.squeeze(), goal=goal)
+        distances = SimpleKinematicsNetwork.calc_distances(param=param, angles_pred=all_angles.squeeze(), goal=goal)
 
         return distances.mean()

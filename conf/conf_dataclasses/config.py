@@ -4,6 +4,7 @@ from conf.conf_dataclasses.hyperparams_config import Hyperparams
 from conf.conf_dataclasses.logging_config import Logging
 from conf.conf_dataclasses.vis_config import Visualization
 
+
 @dataclass
 class OptunaConfig:
     min_num_steps: int
