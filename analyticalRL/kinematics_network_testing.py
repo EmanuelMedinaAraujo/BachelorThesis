@@ -1,6 +1,6 @@
 import torch
 
-from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.kinematics_network_base_class import KinematicsNetworkBase
 
 
 def test_loop(test_dataset, model:KinematicsNetworkBase, tolerable_accuracy_error, logger, epoche_num, is_normal_output):

@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch import Tensor, nn
 
-from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.kinematics_network_base_class import KinematicsNetworkBase
 from analyticalRL.networks.kinematics_network_normal import KinematicsNetwork
 
 
@@ -57,12 +57,12 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
                 distribution = torch.cat([p, q], dim=-1)
 
             if all_distributions is None:
-                all_distributions = distribution
+                all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
             else:
                 if is_single_parameter:
-                    all_distributions = torch.cat([all_distributions.unsqueeze(0), distribution.unsqueeze(0)]).to(param.device)
+                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(param.device)
                 else:
-                    all_distributions = torch.cat([all_distributions.unsqueeze(1), distribution.unsqueeze(1)], dim=1).to(param.device)
+                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(param.device)
 
         return all_distributions
 
@@ -81,7 +81,7 @@ class KinematicsNetworkBetaDist(KinematicsNetworkBase):
                 q = distribution_params[:, 1].unsqueeze(-1)
 
             beta_dist = torch.distributions.Beta(p, q)
-            angle = beta_dist.rsample(torch.tensor([1000])).mean(dim=0).unsqueeze(-1)
+            angle = beta_dist.rsample(torch.Size([1000])).mean(dim=0).unsqueeze(-1)
             # Map angle from [0,1] to [-pi, pi]
             angle = (2 * angle - 1) * np.pi
 

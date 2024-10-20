@@ -19,7 +19,7 @@ analytical:
   use_gradual_transparency: true
   plot_all_in_one: true
 
-  distribution_samples: 500
+  distribution_samples: 25
   do_heat_map: true # Only applied for distributions
 
 stb3:
@@ -28,6 +28,6 @@ stb3:
   do_heat_map: true # Only applied when multiple robots will be visualized and is on top of the visualization
   num_distribution_samples: 500
 
-  interval: 100000 # Number of steps after which the visualization is updated
+  interval: 10000 # Number of steps after which the visualization is updated
   default_line_transparency: 0.1
   default_line_width: 1.5
