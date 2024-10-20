@@ -9,7 +9,7 @@ class AnalyticalVisualization:
     use_gradual_transparency: bool
     plot_all_in_one: bool
     distribution_samples: int
-
+    do_heat_map: bool
 
 @dataclass
 class StB3Visualization:

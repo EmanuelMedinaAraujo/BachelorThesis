@@ -11,11 +11,12 @@ import matplotlib.pyplot as plt
 
 import os
 
-from vis.planar_robot_vis import set_plot_settings, plot_planar_robot, plot_single_link
+from vis.planar_robot_vis import set_plot_settings, plot_planar_robot, plot_single_link, create_eef_heatmap
 
 
 def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, chart_index, goal, default_line_width,
-                      save_to_file, show_plot, max_legend_length, logger, current_step, show_legend, device):
+                      save_to_file, show_plot, max_legend_length, logger, current_step, show_legend, device,
+                      do_heat_map):
     ax, _ = set_plot_settings(parameter)
 
     # Plot the ground truth
@@ -38,14 +39,21 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
     is_last_link = False
     start_point = [0, 0]
     start_angle = 0
+    end_effector_list = []
     for joint_number in range(link_angles.__len__()):
         if joint_number == link_angles.__len__() - 1:
             is_last_link = True
         for link_num in range(link_angles[joint_number].__len__()):
             link_prob = link_probabilities[joint_number][link_num]
             draw_end_effector = False
-            if is_last_link and link_prob == max(link_probabilities[joint_number]):
-                draw_end_effector = True
+            if is_last_link:
+                total_angle = start_angle + link_angles[joint_number][link_num]
+                end_coordinates = start_point + np.array(
+                    [parameter[joint_number, 1].item() * np.cos(total_angle), parameter[joint_number, 1].item() * np.sin(total_angle)]
+                )
+                end_effector_list.append(end_coordinates)
+                if link_prob == max(link_probabilities[joint_number]):
+                    draw_end_effector = True
             if link_prob < 0.1:
                 link_prob = 0.1
             if link_prob > 1.:
@@ -101,6 +109,10 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
         plt.show()
     plt.close()
 
+    if do_heat_map:
+        create_eef_heatmap(end_effector_list, goal, logger, current_step, show_plot, save_to_file, parameter,
+                           chart_index)
+
 
 def visualize_analytical_distribution(model: KinematicsNetworkBase, param, ground_truth, goal, cfg: TrainConfig, device,
                                       logger=None,
@@ -121,7 +133,7 @@ def visualize_analytical_distribution(model: KinematicsNetworkBase, param, groun
             parameter_2 = parameter_2 + epsilon
             dist = torch.distributions.Beta(parameter_1, parameter_2)
 
-            sample = dist.sample(torch.tensor([1000])).mean(dim=0)
+            sample = dist.sample(torch.Size([1000])).mean(dim=0)
             prob = torch.exp(dist.log_prob(sample)).item()
             link_probabilities[joint_number].append(prob)
             angle = (2 * sample.item() - 1) * np.pi
@@ -153,7 +165,8 @@ def visualize_analytical_distribution(model: KinematicsNetworkBase, param, groun
         logger=logger if cfg.logging.wandb.log_visualization_plots else None,
         current_step=current_step,
         show_legend=vis_params.show_legend,
-        device=device
+        device=device,
+        do_heat_map=vis_params.analytical.do_heat_map
     )
 
     model.train()
