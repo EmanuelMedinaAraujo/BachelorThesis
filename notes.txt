@@ -7,15 +7,21 @@ DONE:
 - Analytical distribution fixen (cross entropy loss funktioniert nicht-> sample-distance loss funktioniert)
 - Normal verteilung mit anderer Verteilung (finiter Wertebereich, mehrere Maxima)
 - beta distribution funktioniert nur mit mean aus samples
-
-In Progress:
 - NaN Fehler debuggen
     - PPO network output beobachten. Verhältnis davon anschauen, ob Winkel besondere Werte haben
+    --> Konnte nicht den Fehler finden...Hyperparameter passen nicht?
+    -> Neue angepasste Hyperparameter von https://stable-baselines3.readthedocs.io/en/master/guide/rl_zoo.html
+        -> https://rl-baselines3-zoo.readthedocs.io/en/master/guide/tuning.html
+        -> Viel bessere Ergebnisse
+
+In Progress:
+
 
 TODO:
 - heatmap für eef für analytical distribution erstellen
 
 - Gymnasium für analytical erstellen
+    - https://gymnasium.farama.org/introduction/train_agent/ - Gymnasium für analytical erstellen
 	wrapper
 		base environment
 			alle return sind torch.tensoren
