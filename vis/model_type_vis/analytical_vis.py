@@ -3,6 +3,8 @@ import torch
 
 from analyticalRL.networks.distributions.one_peak_distributions.two_param_dist_network_base import \
     TwoParameterDistrNetworkBase
+from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
+    TwoPeakNormalDistrNetwork
 from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 from conf.conf_dataclasses.config import TrainConfig
 from vis.planar_robot_vis import plot_planar_robot, create_eef_heatmap
@@ -92,7 +94,8 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
                            chart_index)
 
 
-def visualize_analytical_distribution(model: TwoParameterDistrNetworkBase, param, ground_truth, goal, cfg: TrainConfig, device,
+def visualize_analytical_distribution(model: TwoParameterDistrNetworkBase, param, ground_truth, goal, cfg: TrainConfig,
+                                      device,
                                       logger=None,
                                       current_step=None, chart_index=1):
     model.eval()
@@ -122,7 +125,29 @@ def visualize_analytical_distribution(model: TwoParameterDistrNetworkBase, param
             link_probabilities[joint_number].append(1)
             angle = (2 * dist.mean.item() - 1) * np.pi
             link_angles[joint_number].append(angle)
+        elif cfg.hyperparams.analytical.output_type == "TwoPeakNormDist":
+            parameter_3 = distribution_params[2].unsqueeze(-1)
+            parameter_4 = distribution_params[3].unsqueeze(-1)
+            parameter_5 = distribution_params[4].unsqueeze(-1)
+            parameter_6 = distribution_params[5].unsqueeze(-1)
 
+            (mu1, sigma1, weight1, mu2, sigma2, weight2)=TwoPeakNormalDistrNetwork.map_six_parameters(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5,parameter_6)
+
+            mu, sigma = TwoPeakNormalDistrNetwork.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2)
+
+            # Sample standard normal noise
+            noise = torch.randn(torch.Size([cfg.vis.analytical.distribution_samples])).to(device)
+
+            # Reparameterized sampling
+            angles = mu + sigma * noise
+
+            link_angles[joint_number].extend(angles.tolist())
+
+            # Calculate probabilities using mixture of normal distributions
+            expected_truth_prob = weight1 * torch.exp(torch.distributions.Normal(mu1, sigma1).log_prob(angles)) + \
+                                    weight2 * torch.exp(torch.distributions.Normal(mu2, sigma2).log_prob(angles))
+
+            link_probabilities[joint_number].extend(expected_truth_prob.squeeze().tolist())
         else:
             dist = torch.distributions.Normal(loc=parameter_1, scale=parameter_2)
 

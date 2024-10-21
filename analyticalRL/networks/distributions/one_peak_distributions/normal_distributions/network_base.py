@@ -23,7 +23,7 @@ class NormalDistrNetworkBase(TwoParameterDistrNetworkBase, ABC):
 
     def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
         stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
-        stack_list.append(nn.Softmax(dim=-1))
+        stack_list.append(nn.Sigmoid())
         return stack_list
 
     @staticmethod
