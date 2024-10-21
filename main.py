@@ -11,7 +11,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CallbackList
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.utils import set_random_seed
-from torch import nn as nn
+from torch import nn
 from tqdm import tqdm
 from wandb.integration.sb3 import WandbCallback
 
@@ -22,6 +22,8 @@ from analyticalRL.networks.distributions.one_peak_distributions.normal_distribut
     NormalDistrMuDistanceNetworkBase
 from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.rsample_network import NormalDistrRandomSampleDistNetwork
 from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.manual_reparam_network import NormalDistrManualReparameterizationNetwork
+from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
+    TwoPeakNormalDistrNetwork
 from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 from conf.conf_dataclasses.config import TrainConfig
 from custom_logging.custom_loggger import GeneralLogger
@@ -409,6 +411,13 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             ).to(device)
         case "BetaDist":
             model = BetaDistrRSampleMeanNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "TwoPeakNormDist":
+            model = TwoPeakNormalDistrNetwork(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
