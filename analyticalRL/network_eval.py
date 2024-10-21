@@ -28,13 +28,14 @@ def test_loop(test_dataset, model: KinematicsNetworkBase, tolerable_accuracy_err
     test_loss, num_correct = 0, 0
     with torch.no_grad():
         for param, goal, ground_truth in test_dataset:
-            loss, loss_sum, num_correct = eval_model(tolerable_accuracy_error,
+            loss, test_loss, num_correct = eval_model(tolerable_accuracy_error,
                                                      goal,
                                                      ground_truth,
                                                      is_normal_output,
-                                                     loss_sum,
+                                                     test_loss,
                                                      model,
-                                                     num_correct, param)
+                                                     num_correct,
+                                                      param)
 
     dataset_size = len(test_dataset)
     test_loss /= dataset_size

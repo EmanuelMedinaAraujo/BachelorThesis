@@ -1,7 +1,8 @@
 import numpy as np
 import torch
 
-from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.networks.distributions.one_peak_distributions.two_param_dist_network_base import \
+    TwoParameterDistrNetworkBase
 from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 from conf.conf_dataclasses.config import TrainConfig
 from vis.planar_robot_vis import plot_planar_robot, create_eef_heatmap
@@ -91,7 +92,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
                            chart_index)
 
 
-def visualize_analytical_distribution(model: KinematicsNetworkBase, param, ground_truth, goal, cfg: TrainConfig, device,
+def visualize_analytical_distribution(model: TwoParameterDistrNetworkBase, param, ground_truth, goal, cfg: TrainConfig, device,
                                       logger=None,
                                       current_step=None, chart_index=1):
     model.eval()

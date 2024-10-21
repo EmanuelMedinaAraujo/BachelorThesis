@@ -143,9 +143,9 @@ class GeneralLogger:
         if self.log_in_console:
             match exit_code:
                 case 0:
-                    tqdm.write("Training finished successfully")
+                    tqdm.write("Training finished successfully!")
                 case 1:
-                    tqdm.write("Training was pruned")
+                    tqdm.write("Training was pruned.")
                 case 2:
                     tqdm.write("Training failed due to ValueError, ZeroDivisionError or RuntimeError.")
                 case 3:
