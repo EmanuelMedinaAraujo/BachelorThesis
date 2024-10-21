@@ -10,7 +10,18 @@ analytical:
   testing_interval: 1000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
-  output_type: "BetaDist" # "Normal", "NormDist", "ReparameterizationDist", "RandomSampleDist", "BetaDist"
+  # Supported Output Types:
+    # "Normal": Network outputs angle for each joint
+    # One Peak Distributions
+      # Normal distributions
+        # "NormDistMuDist": Network outputs normal distribution with mu distance used as loss
+        # "NormDistGroundTruth": Network outputs normal distribution with ground truth distance used as loss
+        # "ReparameterizationDist": Network outputs normal distribution with manual reparameterization trick used as loss
+        # "RandomSampleDist": Network outputs normal distribution with random sampling distance used as loss
+      # "BetaDist": Network outputs beta distribution with mean of 1000 samples distance used as loss
+    # Two Peak Distributions
+      # "TwoPeakNormDist": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
+  output_type: "BetaDist"
 
 stb3:
   use_recurrent_policy: false

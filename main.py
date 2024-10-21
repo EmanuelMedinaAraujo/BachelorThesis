@@ -16,14 +16,12 @@ from tqdm import tqdm
 from wandb.integration.sb3 import WandbCallback
 
 from analyticalRL.network_eval import test_loop, train_loop
-from analyticalRL.networks.distributions.two_parameter_distributions.kinematics_network_reparam_beta_dist import \
-    KinematicsNetworkBetaDist
-from analyticalRL.networks.distributions.two_parameter_distributions.normal_distributions.kinematics_network_norm_dist import \
-    KinematicsNetworkNormDist
-from analyticalRL.networks.distributions.two_parameter_distributions.normal_distributions.kinematics_network_rand_sample import \
-    KinematicsNetworkRandomSampleDist
-from analyticalRL.networks.distributions.two_parameter_distributions.normal_distributions.kinematics_network_reparam_dist import \
-    KinematicsNetworkReparamDist
+from analyticalRL.networks.distributions.one_peak_distributions.beta_rsample_dist_network import BetaDistrRSampleMeanNetwork
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.ground_truth_loss_network import NormalDistrGroundTruthLossNetwork
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.mu_distance_loss_network import \
+    NormalDistrMuDistanceNetworkBase
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.rsample_network import NormalDistrRandomSampleDistNetwork
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.manual_reparam_network import NormalDistrManualReparameterizationNetwork
 from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 from conf.conf_dataclasses.config import TrainConfig
 from custom_logging.custom_loggger import GeneralLogger
@@ -286,6 +284,7 @@ def do_stable_baselines3_learning(
         "small": dict(pi=[64, 64], vf=[64, 64]),
         "medium": dict(pi=[256, 256], vf=[256, 256]),
     }[cfg.hyperparams.stb3.net_arch_type]
+
     model = PPO(
         policy=cfg.hyperparams.stb3.non_recurrent_policy,
         env=env,
@@ -380,29 +379,36 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
             ).to(device)
-        case "NormDist":
-            model = KinematicsNetworkNormDist(
+        case "NormDistGroundTruth":
+            model = NormalDistrGroundTruthLossNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "NormDistMuDist":
+            model = NormalDistrMuDistanceNetworkBase(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
             ).to(device)
         case "ReparameterizationDist":
-            model = KinematicsNetworkReparamDist(
+            model = NormalDistrManualReparameterizationNetwork(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
             ).to(device)
         case "RandomSampleDist":
-            model = KinematicsNetworkRandomSampleDist(
+            model = NormalDistrRandomSampleDistNetwork(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
             ).to(device)
         case "BetaDist":
-            model = KinematicsNetworkBetaDist(
+            model = BetaDistrRSampleMeanNetwork(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
