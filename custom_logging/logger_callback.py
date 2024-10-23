@@ -77,7 +77,7 @@ class LoggerCallback(BaseCallback):
 
             reward = self.locals.get("rewards")[0]
             self.rew_buf += reward
-            if reward >= self.tolerable_accuracy_error:
+            if reward >= -self.tolerable_accuracy_error:
                 self.success_buf+=1.0
             self.rollout_counter += 1
 
