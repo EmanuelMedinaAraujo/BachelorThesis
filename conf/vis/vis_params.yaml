@@ -6,10 +6,10 @@ show_legend: true
 show_distance_in_legend: true
 max_legend_length: 10
 save_to_file: false
-num_problems_to_visualize: 3 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
+num_problems_to_visualize: 1 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
 
 analytical:
-  interval: 20 # Number of epochs after which the visualization is updated
+  interval: 500 # Number of epochs after which the visualization is updated
 
   max_history_length: 10
 
@@ -19,7 +19,7 @@ analytical:
   use_gradual_transparency: true
   plot_all_in_one: true
 
-  distribution_samples: 25
+  distribution_samples: 30
   do_heat_map: true # Only applied for distributions
 
 stb3:
@@ -28,6 +28,6 @@ stb3:
   do_heat_map: true # Only applied when multiple robots will be visualized and is on top of the visualization
   num_distribution_samples: 500
 
-  interval: 10000 # Number of steps after which the visualization is updated
+  interval: 250000 # Number of steps after which the visualization is updated
   default_line_transparency: 0.1
   default_line_width: 1.5

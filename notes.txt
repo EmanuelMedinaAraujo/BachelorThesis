@@ -9,10 +9,13 @@ TODO:
 - bestes PPO mit 2M steps laufen lassen
 - MLP Deterministic mit 3dof laufen lassen
 - Alle Stochastischen Modelle mit 3dof laufen lassen
-- Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
 - LSTM Mixed Gaussian implementieren
 - (LSTM Gaussian implementieren (falls Zeit ist))
-
+- Visualisierung
+    - Tabellen in mm Zeichnen lassen
+- Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
+    - Colorbar werte mit Anzahl an Samples teilen um distribution anzugeben
+    - Markieren was der wahrscheinlichste Punkt ist. (Wo ist jeweil der MEAN)
 - Gymnasium für analytical erstellen
     - https://gymnasium.farama.org/introduction/train_agent/ - Gymnasium für analytical erstellen
 	wrapper
@@ -20,7 +23,11 @@ TODO:
 			alle return sind torch.tensoren
 		stable baselines environment erbt
 			gibt numpy arrays zurück
-
+- Training Time aufzeichnen lassen
+- Jeden Lauf jeweils 5 mal laufen lassen um Ungenauigkeiten zu berechnen
+- Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slackk)
+- Tabellen zeichnen (siehe slack)
+- Bachelorarbeit fertigstellen
 --------------------------------------------------------------------------------------
 Distributions Discussion:
 - custom Periodic PDF (sinus, cosinus)
