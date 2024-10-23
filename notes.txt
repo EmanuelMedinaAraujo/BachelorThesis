@@ -1,25 +1,17 @@
 Frage:
-- Wie die analytical network nennen ? Online -> Multilayer perceptron; Du -> Distral learning...
 -------------------------------------------------------------------------------------
 DONE:
-- Analytical reparametrization trick implementieren
-    - Gute Erklärung: https://medium.com/@llionj/the-reparameterization-trick-4ff30fe92954
-- Analytical distribution fixen (cross entropy loss funktioniert nicht-> sample-distance loss funktioniert)
-- Normal verteilung mit anderer Verteilung (finiter Wertebereich, mehrere Maxima)
-- beta distribution funktioniert nur mit mean aus samples
-- NaN Fehler debuggen
-    - PPO network output beobachten. Verhältnis davon anschauen, ob Winkel besondere Werte haben
-    --> Konnte nicht den Fehler finden...Hyperparameter passen nicht?
-    -> Neue angepasste Hyperparameter von https://stable-baselines3.readthedocs.io/en/master/guide/rl_zoo.html
-        -> https://rl-baselines3-zoo.readthedocs.io/en/master/guide/tuning.html
-        -> Viel bessere Ergebnisse
-- heatmap für eef für analytical distribution erstellen
-- Analytical distributions mit num_links>2 gefixed
 
 In Progress:
 
 
 TODO:
+- bestes PPO mit 2M steps laufen lassen
+- MLP Deterministic mit 3dof laufen lassen
+- Alle Stochastischen Modelle mit 3dof laufen lassen
+- Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
+- LSTM Mixed Gaussian implementieren
+- (LSTM Gaussian implementieren (falls Zeit ist))
 
 - Gymnasium für analytical erstellen
     - https://gymnasium.farama.org/introduction/train_agent/ - Gymnasium für analytical erstellen
@@ -28,8 +20,6 @@ TODO:
 			alle return sind torch.tensoren
 		stable baselines environment erbt
 			gibt numpy arrays zurück
-- reread PPO optimizer Paper
-- reread Adam optimizer Paper
 
 --------------------------------------------------------------------------------------
 Distributions Discussion:

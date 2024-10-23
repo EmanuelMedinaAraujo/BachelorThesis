@@ -3,7 +3,7 @@ import torch
 
 from analyticalRL.networks.distributions.one_peak_distributions.two_param_dist_network_base import \
     TwoParameterDistrNetworkBase
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
+from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import \
     TwoPeakNormalDistrNetwork
 from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 from conf.conf_dataclasses.config import TrainConfig
