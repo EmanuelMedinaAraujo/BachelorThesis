@@ -1,12 +1,12 @@
 analytical:
-  num_hidden_layer: 6
+  num_hidden_layer: 6 # 3-5 layers mit lstm
   hidden_layer_sizes: [ 64, 512, 1024, 512, 256, 64 ]
 
   learning_rate: 1e-5
   batch_size: 64
 
   problems_per_epoch: 1024
-  epochs: 5000
+  epochs: 50000
   testing_interval: 1000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
@@ -21,7 +21,7 @@ analytical:
       # "BetaDist": Network outputs beta distribution with mean of 1000 samples distance used as loss
     # Two Peak Distributions
       # "TwoPeakNormDist": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
-  output_type: "BetaDist"
+  output_type: "TwoPeakNormDist"
 
 stb3:
   use_recurrent_policy: false
@@ -29,31 +29,31 @@ stb3:
   non_recurrent_policy: "MlpPolicy"
 
   recurrent_policy: "MlpLstmPolicy"
-  n_envs: 6
-  n_steps: 4
-  total_timesteps: 1000000
+  n_envs: 1
+  n_steps: 512
+  total_timesteps: 3000000
 
-  learning_rate: 0.01 # default value: 0.0003
-  batch_size: 512 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
+  learning_rate: 0.000022568175267734592 # default value: 0.0003
+  batch_size: 64 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
   epochs: 10
 
   gamma: 0.0
-  ent_coef: 0.3923435836538981 # default value: 0.0, PPO 0.01
-  log_std_init: 3.146588794820072 # default value: 0.0
+  ent_coef: 0.032400016123457165 # default value: 0.0, PPO 0.01
+  log_std_init: -0.40918312871720075 # default value: 0.0
 
   ##################
-  gae_lambda: 0.95      # default value: 0.95
-  clip_range: 0.2       # default value: 0.2
+  gae_lambda: 0.92      # default value: 0.95
+  clip_range: 0.1       # default value: 0.2
   norm_advantages: true # default value: true
-  vf_coef: 0.5          # default value: 0.5
+  vf_coef: 0.8129608941298637         # default value: 0.5
   max_grad_norm: 0.5    # default value: 0.5
-  net_arch_type: "tiny"      # from "tiny", "small", "medium"
+  net_arch_type: "medium"      # from "tiny", "small", "medium"
   ortho_init: true      # default value: true
-  activation_fn_name: "tanh" # from "tanh", "relu", "elu", "leaky_relu". Only used for hyperparameter optimization
+  activation_fn_name: "relu" # from "tanh", "relu", "elu", "leaky_relu". Only used for hyperparameter optimization
   lr_schedule: "constant" # from "linear", "constant" # Not implemented yet
   # For recurrent_policy
   enable_critic_lstm: true # default value: true
   lstm_hidden_size: 256     # default value: 256
   ####################
 
-  testing_interval: 100000 # Number of steps after which to test the model
+  testing_interval: 250000 # Number of steps after which to test the model
