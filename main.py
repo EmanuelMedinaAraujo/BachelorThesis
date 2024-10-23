@@ -351,15 +351,6 @@ def do_stable_baselines3_learning(
         tolerable_accuracy_error=cfg.tolerable_accuracy_error,
         trial=trial
     )
-    if cfg.logging.wandb.log_in_wandb:
-        logger_callback = CallbackList(
-            [
-                logger_callback,
-                WandbCallback(
-                    gradient_save_freq=cfg.logging.wandb.wand_callback_logging_freq
-                ),
-            ]
-        )
 
     # Train the model
     trained_model = model.learn(
@@ -426,8 +417,6 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
         case _:
             raise ValueError(
                 f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the config.")
-
-    logger.watch_model(model, cfg.logging.wandb.wand_callback_logging_freq)
 
     # Use optimizer specified in the config
     optimizer = getattr(torch.optim, cfg.hyperparams.analytical.optimizer)(

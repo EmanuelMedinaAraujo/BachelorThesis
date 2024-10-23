@@ -9,6 +9,7 @@ def init_wandb(cfg: TrainConfig):
         # set the wandb project where this run will be logged
         project=cfg.logging.wandb.project_name,
         reinit=True,
+        settings=wandb.Settings(_disable_stats=True),
         # track hyperparameters and run metadata
         config=cfg.__dict__
     )
@@ -68,10 +69,6 @@ class GeneralLogger:
             else:
                 wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
 
-    def watch_model(self, model, log_freq=100):
-        if self.log_in_wandb:
-            wandb.watch(model, log_freq=log_freq)  # type: ignore
-
     def log_train_rollout(
             self,
             approx_kl,
@@ -119,7 +116,7 @@ class GeneralLogger:
             )
 
     def log_rollout(
-            self, ep_rew_mean, success_rate, rollout_buf_mean_rew, current_step=None
+            self, ep_rew_mean,success_rate=0, current_step=None
     ):
         if self.log_in_console:
             tqdm.write(
@@ -130,7 +127,6 @@ class GeneralLogger:
                 {
                     "rollout/mean_reward": ep_rew_mean,
                     "rollout/success_rate": success_rate,
-                    "rollout/buf_mean_reward": rollout_buf_mean_rew,
                 },
                 step=current_step,
             )
