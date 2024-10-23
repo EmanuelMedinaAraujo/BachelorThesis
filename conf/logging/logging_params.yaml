@@ -1,7 +1,7 @@
 wandb:
   log_in_wandb: true
   log_visualization_plots: true
-  wand_callback_logging_freq: 500000
+  wand_callback_logging_freq: 1000000
   project_name: thesis-best-ppo
 
 log_in_console: false
