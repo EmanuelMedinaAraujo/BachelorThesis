@@ -159,6 +159,8 @@ class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
                                                                            parameter6)
 
             # Ensure the parameters have to correct shape
+            # for parameter in [parameter1, parameter2, parameter3, parameter4, parameter5, parameter6]:
+            #     parameter = parameter.unsqueeze(-1) if parameter.dim() == 1 else parameter
             parameter1 = parameter1.unsqueeze(-1) if parameter1.dim() == 1 else parameter1
             parameter2 = parameter2.unsqueeze(-1) if parameter2.dim() == 1 else parameter2
             parameter3 = parameter3.unsqueeze(-1) if parameter3.dim() == 1 else parameter3
