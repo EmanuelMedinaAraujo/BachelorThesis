@@ -16,7 +16,7 @@ torch_num_threads: 1
 
 
 # Problem Generation Parameter
-number_of_joints: 2
+number_of_joints: 3
 tolerable_accuracy_error: 0.01 # The tolerance in accuracy that is still regarded as correct
 parameter_convention: "DH"
 min_link_length: 0.3
