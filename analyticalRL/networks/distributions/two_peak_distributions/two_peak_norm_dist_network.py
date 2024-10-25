@@ -58,7 +58,7 @@ class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
         return parameter1, parameter2, parameter3, parameter4, parameter5, parameter6
 
     @staticmethod
-    def map_six_parameters(parameter1, parameter2, parameter3, parameter4, parameter5, parameter6):
+    def map_six_parameters_ranges(parameter1, parameter2, parameter3, parameter4, parameter5, parameter6):
         # Map mu from [0,1] to [-pi,pi]
         mu1 = ((parameter1 * 2) - 1) * np.pi
         # Map sigma to positive values from [0,1] to [1,2]
@@ -73,16 +73,6 @@ class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
 
     @staticmethod
     def extract_loss_variable_from_parameters(mu1, sigma1, weight1, mu2, sigma2, weight2):
-        # Torch implementation does not support MixtureSameFamily reparameterization trick
-        # mixed_dist = torch.distributions.MixtureSameFamily(
-        #     mixture_distribution=torch.distributions.Categorical(
-        #         probs=torch.cat([weight1.unsqueeze(dim=-1), weight2.unsqueeze(dim=-1)], dim=1)),
-        #     component_distribution=torch.distributions.Normal(
-        #         loc=torch.cat([mu1.unsqueeze(dim=-1), mu2.unsqueeze(dim=-1)], dim=1),
-        #         scale=torch.cat([sigma1.unsqueeze(dim=-1), sigma2.unsqueeze(dim=-1)], dim=1))
-        # )
-        # samples = mixed_dist.sample()
-
         mu, sigma = TwoPeakNormalDistrNetwork.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2)
         with torch.no_grad():
             noise = torch.randn(mu.size()).to(mu1.device)
@@ -151,12 +141,12 @@ class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
                 parameter6 = network_output[:, index + 5]
 
             (parameter1, parameter2, parameter3,
-             parameter4, parameter5, parameter6) = self.map_six_parameters(parameter1,
-                                                                           parameter2,
-                                                                           parameter3,
-                                                                           parameter4,
-                                                                           parameter5,
-                                                                           parameter6)
+             parameter4, parameter5, parameter6) = self.map_six_parameters_ranges(parameter1,
+                                                                                  parameter2,
+                                                                                  parameter3,
+                                                                                  parameter4,
+                                                                                  parameter5,
+                                                                                  parameter6)
 
             # Ensure the parameters have to correct shape
             # for parameter in [parameter1, parameter2, parameter3, parameter4, parameter5, parameter6]:

@@ -131,7 +131,7 @@ def visualize_analytical_distribution(model: TwoParameterDistrNetworkBase, param
             parameter_5 = distribution_params[4].unsqueeze(-1)
             parameter_6 = distribution_params[5].unsqueeze(-1)
 
-            (mu1, sigma1, weight1, mu2, sigma2, weight2)=TwoPeakNormalDistrNetwork.map_six_parameters(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5,parameter_6)
+            (mu1, sigma1, weight1, mu2, sigma2, weight2)=TwoPeakNormalDistrNetwork.map_six_parameters_ranges(parameter_1, parameter_2, parameter_3, parameter_4, parameter_5, parameter_6)
 
             mu, sigma = TwoPeakNormalDistrNetwork.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2)
 
