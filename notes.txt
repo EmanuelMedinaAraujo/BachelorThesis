@@ -1,12 +1,14 @@
 Frage:
 -------------------------------------------------------------------------------------
 DONE:
+- Move mixed gaussian run from ppo to analytical project in wandb
+    - https://wandb.ai/medina-tum/thesis-optuna/runs/jecczbko/overview
 
 In Progress:
-
+- bestes PPO mit 2M steps laufen lassen
 
 TODO:
-- bestes PPO mit 2M steps laufen lassen
+
 - Accuracy von MLP implementieren
 - MLP Deterministic mit 3dof laufen lassen
 - Alle Stochastischen Modelle mit 3dof laufen lassen

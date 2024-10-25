@@ -52,6 +52,12 @@ class LoggerCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         with torch.no_grad():
+            reward = self.locals.get("rewards")[0]
+            self.rew_buf += reward
+            if reward >= -self.tolerable_accuracy_error:
+                self.success_buf+=1.0
+            self.rollout_counter += 1
+
             if self.cfg.do_vis:
                 interval = (
                     self.cfg.vis.stb3.interval
@@ -74,12 +80,6 @@ class LoggerCallback(BaseCallback):
                         )
                     if self.cfg.vis.stb3.visualize_value_loss:
                         self.visualize_value_loss()
-
-            reward = self.locals.get("rewards")[0]
-            self.rew_buf += reward
-            if reward >= -self.tolerable_accuracy_error:
-                self.success_buf+=1.0
-            self.rollout_counter += 1
 
             # Evaluate the model
             testing_interval = (

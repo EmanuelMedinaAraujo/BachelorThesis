@@ -2,15 +2,8 @@ from dataclasses import dataclass
 
 from conf.conf_dataclasses.hyperparams_config import Hyperparams
 from conf.conf_dataclasses.logging_config import Logging
+from conf.conf_dataclasses.optuna_config import OptunaConfig
 from conf.conf_dataclasses.vis_config import Visualization
-
-
-@dataclass
-class OptunaConfig:
-    min_num_steps: int
-    num_processes: int
-    trials_per_process: int
-
 
 @dataclass
 class TrainConfig:
@@ -19,6 +12,8 @@ class TrainConfig:
     vis: Visualization
     optuna: OptunaConfig
     random_seed: int
+    save_trained_model: bool
+    model_save_dir: str
     use_stb3: bool
     do_vis: bool
     use_optuna: bool

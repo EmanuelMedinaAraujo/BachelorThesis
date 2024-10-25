@@ -1,3 +1,6 @@
+import os.path
+import time
+
 import wandb
 from tqdm.gui import tqdm
 
@@ -9,6 +12,8 @@ def init_wandb(cfg: TrainConfig):
         # set the wandb project where this run will be logged
         project=cfg.logging.wandb.project_name,
         reinit=True,
+        mode="online" if cfg.logging.wandb.log_in_wandb else "offline",
+        dir="./outputs",
         settings=wandb.Settings(_disable_stats=True),
         # track hyperparameters and run metadata
         config=cfg.__dict__
@@ -30,10 +35,9 @@ class GeneralLogger:
         self.log_in_console = cfg.logging.log_in_console
         self.log_architecture = cfg.logging.log_architecture
 
-        if self.log_in_wandb:
-            if cfg is None:
-                raise RuntimeError("Could not read the logging configuration correctly")
-            init_wandb(cfg)
+        if cfg is None:
+            raise RuntimeError("Could not read the logging configuration correctly")
+        init_wandb(cfg)
 
     @staticmethod
     def log_used_device(device):
@@ -51,11 +55,10 @@ class GeneralLogger:
                 tqdm.write(
                     f"Epoch {epoch_num}: Accuracy: {accuracy:>0.2f}%, Mean loss: {loss:>7f}"
                 )
-        if self.log_in_wandb:
-            if accuracy is None:
-                wandb.log({"train/loss": loss}, step=epoch_num)
-            else:
-                wandb.log({"train/acc": accuracy, "train/loss": loss}, step=epoch_num)
+        if accuracy is None:
+            wandb.log({"train/loss": loss}, step=epoch_num)
+        else:
+            wandb.log({"train/acc": accuracy, "train/loss": loss}, step=epoch_num)
 
     def log_test(self, accuracy, loss, current_step=None):
         if self.log_in_console:
@@ -63,11 +66,10 @@ class GeneralLogger:
                 tqdm.write(f"Test: Avg loss: {loss:>8f}")
             else:
                 tqdm.write(f"Test: Accuracy: {accuracy :>0.2f}%, Avg loss: {loss:>8f}\n")
-        if self.log_in_wandb:
-            if accuracy is None:
-                wandb.log({"test/loss": loss}, step=current_step)
-            else:
-                wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
+        if accuracy is None:
+            wandb.log({"test/loss": loss}, step=current_step)
+        else:
+            wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
 
     def log_train_rollout(
             self,
@@ -93,47 +95,55 @@ class GeneralLogger:
             # tqdm.write(f"train/learning_rate: {learning_rate}")
             tqdm.write(f"train/loss: {loss}")
             # tqdm.write(f"train/n_updates: {n_updates}")
-            tqdm.write(f"train/policy_gradient_loss: {policy_gradient_loss}")
+            # tqdm.write(f"train/policy_gradient_loss: {policy_gradient_loss}")
             # tqdm.write(f"train/std: {std}")
             tqdm.write(f"train/value_loss: {value_loss}")
             print("--------------------------------")
-        if self.log_in_wandb:
-            wandb.log(
-                {
-                    "train/approx_kl": approx_kl,
-                    "train/clip_fraction": clip_fraction,
-                    "train/clip_range": clip_range,
-                    "train/entropy_loss": entropy_loss,
-                    "train/explained_variance": explained_variance,
-                    "train/learning_rate": learning_rate,
-                    "train/loss": loss,
-                    "train/n_updates": n_updates,
-                    "train/policy_gradient_loss": policy_gradient_loss,
-                    "train/std": std,
-                    "train/value_loss": value_loss,
-                },
-                step=current_step,
-            )
+        wandb.log(
+            {
+                "train/approx_kl": approx_kl,
+                "train/clip_fraction": clip_fraction,
+                "train/clip_range": clip_range,
+                "train/entropy_loss": entropy_loss,
+                "train/explained_variance": explained_variance,
+                "train/learning_rate": learning_rate,
+                "train/loss": loss,
+                "train/n_updates": n_updates,
+                "train/policy_gradient_loss": policy_gradient_loss,
+                "train/std": std,
+                "train/value_loss": value_loss,
+            },
+            step=current_step,
+        )
 
     def log_rollout(
-            self, ep_rew_mean,success_rate=0, current_step=None
+            self, ep_rew_mean, success_rate=0, current_step=None
     ):
         if self.log_in_console:
             tqdm.write(
                 f"Rollout: Mean reward: {ep_rew_mean:>8f}, Success rate: {success_rate:>0.2f}%"
             )
-        if self.log_in_wandb:
-            wandb.log(
-                {
-                    "rollout/mean_reward": ep_rew_mean,
-                    "rollout/success_rate": success_rate,
-                },
-                step=current_step,
-            )
+        wandb.log(
+            {
+                "rollout/mean_reward": ep_rew_mean,
+                "rollout/success_rate": success_rate,
+            },
+            step=current_step,
+        )
 
-    def log_image(self, plot, current_step=None, path="chart"):
-        if self.log_in_wandb:
-            wandb.log({path: wandb.Image(plot)}, step=current_step)
+    @staticmethod
+    def log_image(plot, current_step=None, path="chart"):
+        wandb.log({path: wandb.Image(plot)}, step=current_step)
+
+    @staticmethod
+    def upload_model(path):
+        # Wait until file with path exists. Wait a maximum for 30 seconds.
+        for _ in range(30):
+            if os.path.exists(path):
+                break
+            else:
+                time.sleep(1.)
+        wandb.save(path)
 
     def finish_logging(self, exit_code):
         if self.log_in_console:
@@ -146,13 +156,12 @@ class GeneralLogger:
                     tqdm.write("Training failed due to ValueError, ZeroDivisionError or RuntimeError.")
                 case 3:
                     tqdm.write("Training failed with unanticipated error.")
-        if self.log_in_wandb:
-            match exit_code:
-                case 0:
-                    pass
-                case 1:
-                    wandb.run.tags += ("Pruned",)
-                    exit_code = 0
-                case _:
-                    wandb.run.tags += ("Error ",)
-            wandb.finish(exit_code=exit_code)
+        match exit_code:
+            case 0:
+                pass
+            case 1:
+                wandb.run.tags += ("Pruned",)
+                exit_code = 0
+            case _:
+                wandb.run.tags += ("Error ",)
+        wandb.finish(exit_code=exit_code)

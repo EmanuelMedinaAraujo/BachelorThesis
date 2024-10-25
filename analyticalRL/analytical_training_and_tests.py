@@ -1,0 +1,291 @@
+import sys
+from datetime import datetime
+
+import optuna
+import torch
+from tqdm import tqdm
+
+from analyticalRL.networks.distributions.one_peak_distributions.beta_rsample_dist_network import \
+    BetaDistrRSampleMeanNetwork
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.ground_truth_loss_network import \
+    NormalDistrGroundTruthLossNetwork
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.manual_reparam_network import \
+    NormalDistrManualReparameterizationNetwork
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.mu_distance_loss_network import \
+    NormalDistrMuDistanceNetworkBase
+from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.rsample_network import \
+    NormalDistrRandomSampleDistNetwork
+from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import \
+    TwoPeakNormalDistrNetwork
+from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
+from conf.conf_dataclasses.config import TrainConfig
+from data_generation.goal_generator import generate_achievable_goal
+from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
+from vis.model_type_vis.analytical_vis import visualize_analytical_problem, visualize_analytical_distribution
+
+
+def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visualization_history, visualization_goals,
+                           visualization_params, visualization_ground_truth, tensor_type, trial: optuna.Trial = None,
+                           ):
+    match cfg.hyperparams.analytical.output_type:
+        case "Normal":
+            model = SimpleKinematicsNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "NormDistGroundTruth":
+            model = NormalDistrGroundTruthLossNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "NormDistMuDist":
+            model = NormalDistrMuDistanceNetworkBase(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "ReparameterizationDist":
+            model = NormalDistrManualReparameterizationNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "RandomSampleDist":
+            model = NormalDistrRandomSampleDistNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "BetaDist":
+            model = BetaDistrRSampleMeanNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case "TwoPeakNormDist":
+            model = TwoPeakNormalDistrNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+            ).to(device)
+        case _:
+            raise ValueError(
+                f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the config.")
+
+    # Use optimizer specified in the config
+    optimizer = getattr(torch.optim, cfg.hyperparams.analytical.optimizer)(
+        model.parameters(), lr=cfg.hyperparams.analytical.learning_rate,  # maximize=True,
+    )
+
+    # Create Problem Generator
+    problem_generator = ParameterGeneratorForPlanarRobot(
+        batch_size=cfg.hyperparams.analytical.batch_size,
+        device=device,
+        tensor_type=tensor_type,
+        num_joints=cfg.number_of_joints,
+        parameter_convention=cfg.parameter_convention,
+        min_len=cfg.min_link_length,
+        max_len=cfg.max_link_length,
+    )
+    last_mean_loss = None
+    if cfg.do_vis:
+        visualize_analytical_model(cfg, device, 0, logger, model, visualization_goals,
+                                   visualization_ground_truth, visualization_history, visualization_params)
+    for epoch_num in tqdm(
+            range(cfg.hyperparams.analytical.epochs),
+            colour="green",
+            file=sys.stdout
+    ):
+        # Keep track of the last mean loss for optuna
+        last_mean_loss = train_loop(
+            model=model,
+            optimizer=optimizer,
+            problem_generator=problem_generator,
+            problems_per_epoch=cfg.hyperparams.analytical.problems_per_epoch,
+            batch_size=cfg.hyperparams.analytical.batch_size,
+            device=device,
+            logger=logger,
+            epoch_num=epoch_num,
+            error_tolerance=cfg.tolerable_accuracy_error,
+            is_normal_output=cfg.hyperparams.analytical.output_type == "Normal"
+        )
+
+        # Test the model every hyperparams.testing_interval epochs
+        if epoch_num % cfg.hyperparams.analytical.testing_interval == 0:
+            test_loop(
+                test_dataset=test_dataset,
+                model=model,
+                logger=logger,
+                tolerable_accuracy_error=cfg.tolerable_accuracy_error,
+                num_epoch=epoch_num,
+                is_normal_output=cfg.hyperparams.analytical.output_type == "Normal"
+            )
+
+        # Visualize the same problem every hyperparams.visualization.interval epochs
+        if cfg.do_vis and epoch_num % cfg.vis.analytical.interval == 0 and epoch_num != 0:
+            visualize_analytical_model(cfg, device, epoch_num, logger, model, visualization_goals,
+                                       visualization_ground_truth, visualization_history, visualization_params)
+        if trial is not None:
+            trial.report(last_mean_loss, epoch_num)
+            if trial.should_prune():
+                raise optuna.exceptions.TrialPruned()
+
+    if cfg.save_trained_model:
+        # Get date and time from system as string
+        date_time_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        path = cfg.model_save_dir + "/" + cfg.hyperparams.analytical.output_type + "_" + date_time_string + "_model.pth"
+        torch.save(model, path)
+        logger.upload_model(path=path)
+    return last_mean_loss
+
+
+def test_loop(test_dataset, model: KinematicsNetworkBase, tolerable_accuracy_error, logger, num_epoch,
+              is_normal_output):
+    """
+    Tests the model on the given dataset and logs the accuracy and loss with the given logger.
+
+    The accuracy is calculated by counting the number of correct predictions. A prediction is considered correct if the
+    distance between the predicted end effector position and the goal is less than the tolerable_accuracy_error.
+
+    The loss is calculated as the sum of the distances between the predicted end effector position and the goal
+    divided by the dataset_size.
+
+    Args:
+        test_dataset: test data set
+        model: The Kinematics Network
+        tolerable_accuracy_error: The maximum distance between the predicted end effector position and the goal
+                                         that is considered as a correct prediction
+        logger: The logger object used for custom_logging
+        num_epoch: The current epoch number
+        is_normal_output: True if the model outputs normal angles, False if it outputs distribution parameters
+    """
+    model.eval()
+    test_loss, num_correct = 0, 0
+    with torch.no_grad():
+        for param, goal, ground_truth in test_dataset:
+            loss, test_loss, num_correct = eval_model(tolerable_accuracy_error,
+                                                      goal,
+                                                      ground_truth,
+                                                      is_normal_output,
+                                                      test_loss,
+                                                      model,
+                                                      num_correct,
+                                                      param)
+
+    dataset_size = len(test_dataset)
+    test_loss /= dataset_size
+    accuracy = None
+    if is_normal_output:
+        accuracy = num_correct * 100 / dataset_size
+    logger.log_test(accuracy=accuracy, loss=test_loss, current_step=num_epoch)
+    model.train()
+
+
+def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, problems_per_epoch, batch_size, device,
+               logger, epoch_num, error_tolerance,
+               is_normal_output):
+    """
+    The training loop for the kinematics network. This function trains the model on random parameters and goals and
+    logs the training loss and accuracy at the end of each epoch.
+
+    The accuracy is calculated by counting the number of correct predictions. A prediction is considered correct if the
+    distance between the predicted end effector position and the goal is less than the tolerable_accuracy_error.
+
+    The loss is calculated as the sum of the distances between the predicted end effector position and the goal
+     divided by the dataset_size.
+
+    Args:
+        model: The Kinematics Network
+        optimizer: The optimizer used to update the model's parameters
+        problem_generator: The problem generator used to generate random parameters with the correct batch size
+        batch_size: The batch size used for training
+        problems_per_epoch: The number of problems to solve in each epoch
+        device: The device used for torch operations
+        logger: The logger object used to log training data
+        epoch_num: The current epoch number
+        error_tolerance: The maximum distance between the predicted eef position and the goal that is considered correct
+        is_normal_output: True if the model outputs normal angles, False if it outputs distribution parameters
+    """
+    model.train()
+    num_correct, loss_sum = 0, 0
+    num_problems = problems_per_epoch // batch_size
+    for _ in range(num_problems):
+        # Generate random parameters and goals
+        param = problem_generator.get_random_parameters()
+        goal, ground_truth = generate_achievable_goal(param, device)
+
+        param, goal, ground_truth = param.to(device), goal.to(device), ground_truth.to(device)
+        loss, loss_sum, num_correct = eval_model(error_tolerance,
+                                                 goal,
+                                                 ground_truth,
+                                                 is_normal_output,
+                                                 loss_sum,
+                                                 model,
+                                                 num_correct,
+                                                 param)
+
+        # Backpropagation
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    if is_normal_output:
+        accuracy = num_correct * 100 / problems_per_epoch
+        logger.log_training(
+            loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=accuracy
+        )
+    else:
+        logger.log_training(
+            loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=None
+        )
+    return loss_sum / num_problems
+
+
+def eval_model(error_tolerance, goal, ground_truth, is_normal_output, loss_sum, model, num_correct, param):
+    pred = model((param, goal))
+    loss = model.loss_fn(param=param, pred=pred, goal=goal, ground_truth=ground_truth)
+    loss_sum += loss.sum().item()
+    if is_normal_output:
+        distances = model.calc_distances(param=param, angles_pred=pred, goal=goal)
+        # Increase num_correct for each value in distances that is less than error_tolerance
+        num_correct += torch.le(distances, error_tolerance).int().sum().item()
+    return loss, loss_sum, num_correct
+
+
+def visualize_analytical_model(cfg, device, epoch_num, logger, model, visualization_goals, visualization_ground_truth,
+                               visualization_history, visualization_params):
+    with torch.no_grad():
+        for i in range(cfg.vis.num_problems_to_visualize):
+            if cfg.hyperparams.analytical.output_type == "Normal":
+                visualize_analytical_problem(
+                    model=model,
+                    param=visualization_params[i],
+                    goal=visualization_goals[i],
+                    param_history=visualization_history,
+                    cfg=cfg,
+                    logger=logger,
+                    current_step=epoch_num,
+                    chart_index=i + 1,
+                )
+            else:
+                visualize_analytical_distribution(
+                    model=model,
+                    param=visualization_params[i],
+                    goal=visualization_goals[i],
+                    ground_truth=visualization_ground_truth[i],
+                    cfg=cfg,
+                    logger=logger,
+                    current_step=epoch_num,
+                    chart_index=i + 1,
+                    device=device,
+                )
