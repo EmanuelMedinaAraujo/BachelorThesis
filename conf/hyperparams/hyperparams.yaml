@@ -6,7 +6,7 @@ analytical:
   batch_size: 64
 
   problems_per_epoch: 1024
-  epochs: 50000
+  epochs: 1
   testing_interval: 1000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
@@ -24,6 +24,7 @@ analytical:
   output_type: "TwoPeakNormDist"
 
 stb3:
+  testing_interval: 1000000 # Number of steps after which to test the model
   use_recurrent_policy: false
 
   non_recurrent_policy: "MlpPolicy"
@@ -31,7 +32,7 @@ stb3:
   recurrent_policy: "MlpLstmPolicy"
   n_envs: 1
   n_steps: 512
-  total_timesteps: 20000000
+  total_timesteps: 65000000
 
   learning_rate: 0.000022568175267734592 # default value: 0.0003
   batch_size: 64 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
@@ -56,4 +57,3 @@ stb3:
   lstm_hidden_size: 256     # default value: 256
   ####################
 
-  testing_interval: 250000 # Number of steps after which to test the model
