@@ -2,7 +2,7 @@ wandb:
   log_in_wandb: true
   log_visualization_plots: true
   wand_callback_logging_freq: 30000000
-  project_name: thesis-best-ppo
+  project_name: thesis-analytical
 
 log_in_console: false
-log_architecture: false
+log_architecture: true
