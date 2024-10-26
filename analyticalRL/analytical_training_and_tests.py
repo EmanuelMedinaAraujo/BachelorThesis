@@ -180,7 +180,7 @@ def test_loop(test_dataset, model: KinematicsNetworkBase, logger, num_epoch):
 
     dataset_size = len(test_dataset)
     loss_sum /= dataset_size
-    accuracy = num_correct / dataset_size
+    accuracy = num_correct * 100 / dataset_size
     logger.log_test(accuracy=accuracy, loss=loss_sum, current_step=num_epoch)
     model.train()
 
@@ -228,7 +228,7 @@ def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, probl
         loss.backward()
         optimizer.step()
 
-    accuracy = num_correct / problems_per_epoch
+    accuracy = num_correct * 100 / problems_per_epoch
     logger.log_training(
         loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=accuracy
     )
