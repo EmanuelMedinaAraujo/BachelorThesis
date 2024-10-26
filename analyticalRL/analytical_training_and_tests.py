@@ -1,3 +1,4 @@
+import os
 import sys
 from datetime import datetime
 
@@ -145,6 +146,8 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
     if cfg.save_trained_model:
         # Get date and time from system as string
         date_time_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        if not os.path.isdir(cfg.model_save_dir):
+            os.makedirs(cfg.model_save_dir)
         path = cfg.model_save_dir + "/" + cfg.hyperparams.analytical.output_type + "_" + date_time_string + "_model.pth"
         torch.save(model, path)
         logger.upload_model(path=path)

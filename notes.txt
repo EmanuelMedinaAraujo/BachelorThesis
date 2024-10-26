@@ -8,14 +8,14 @@ DONE:
 In Progress:
 - bestes PPO mit 2M steps laufen lassen
     - mti 60m steps laufen lassen wegen potentiellen performance
+    - https://wandb.ai/medina-tum/thesis-best-ppo/runs/htwrmi01
+- MLP Deterministic mit 3dof laufen lassen
+    - https://wandb.ai/medina-tum/thesis-analytical/runs/adl153d2
 
 TODO:
-- MLP Deterministic mit 3dof laufen lassen
 - Alle Stochastischen Modelle mit 3dof laufen lassen
 - LSTM Mixed Gaussian implementieren
 - (LSTM Gaussian implementieren (falls Zeit ist))
-- Visualisierung
-    - Tabellen in mm Zeichnen lassen
 - Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
     - Colorbar werte mit Anzahl an Samples teilen um distribution anzugeben
     - Markieren was der wahrscheinlichste Punkt ist. (Wo ist jeweil der MEAN)
@@ -28,6 +28,7 @@ TODO:
 			gibt numpy arrays zurück
 - Training Time aufzeichnen lassen
 - Jeden Lauf jeweils 5 mal laufen lassen um Ungenauigkeiten zu berechnen
+- Bachelorarbeit Tabellen in mm Zeichnen lassen
 - Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slackk)
 - Tabellen zeichnen (siehe slack)
 - Bachelorarbeit fertigstellen
