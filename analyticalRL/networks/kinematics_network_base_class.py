@@ -10,7 +10,7 @@ from util.forward_kinematics import calculate_parameter_goal_distances, update_t
 class KinematicsNetworkBase(nn.Module, ABC):
 
     @abstractmethod
-    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger):
+    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger, error_tolerance):
         """
         Initializes the KinematicsNetwork.
 
@@ -25,6 +25,7 @@ class KinematicsNetworkBase(nn.Module, ABC):
         stack_list = self.create_layer_stack_list(layer_sizes, num_joints, num_layer)
         self.linear_relu_stack = nn.Sequential(*stack_list)
         logger.log_network_architecture(self.linear_relu_stack)
+        self.error_tolerance = error_tolerance
 
     @staticmethod
     def create_layer_stack_list(layer_sizes, num_joints, num_layer):

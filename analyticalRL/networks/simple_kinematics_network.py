@@ -13,8 +13,8 @@ class SimpleKinematicsNetwork(KinematicsNetworkBase):
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
 
-    def __init__(self, num_joints, num_layer, layer_sizes, logger):
-        super().__init__(num_joints, num_layer, layer_sizes, logger)
+    def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
 
     def forward(self, model_input):
         network_output = super().forward(model_input)
@@ -51,4 +51,4 @@ class SimpleKinematicsNetwork(KinematicsNetworkBase):
         The loss is calculated as the mean of the distances between the end effector positions of the parameters and the goal.
         """
         distances = super().calc_distances(param=param, angles_pred=pred, goal=goal)
-        return distances.mean()
+        return distances.mean(),torch.le(distances, self.error_tolerance).int().sum().item()

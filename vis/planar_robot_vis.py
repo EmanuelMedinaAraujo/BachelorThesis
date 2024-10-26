@@ -1,5 +1,3 @@
-import os
-from datetime import datetime
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -9,7 +7,7 @@ import seaborn as sns
 
 from util.forward_kinematics import calculate_parameter_goal_distances
 from vis.vis_utils import set_plot_settings, compute_max_robot_length, plot_line, \
-    finish_and_close_plot
+    finish_and_close_plot, save_plot
 
 
 def visualize_planar_robot(parameter, default_line_transparency, default_line_width, max_legend_length, goal=None,
@@ -202,11 +200,7 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
         logger.log_image(plt, step, path=path)
 
     if save_to_file:
-        # Get day and time for the filename
-        day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
-        path = os.path.join("../heatmaps", f"rbt_heatmap_{day_time}.png")
-        plt.savefig(path)
-
+        save_plot("outputs/vis/heatmaps", "rbt_heatmap" + str(chart_index))
     if show_plot:
         plt.show()
     plt.close()
@@ -261,11 +255,7 @@ def visualize_model_value_loss(value_function, parameter, logger, current_step, 
         logger.log_image(plt, current_step, path=path)
 
     if save_to_file:
-        # Get day and time for the filename
-        day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
-        path = os.path.join("../heatmaps", f"rbt_heatmap_{day_time}.png")
-        plt.savefig(path)
-
+        save_plot("outputs/vis/value_loss", "rbt_value_loss_+ str(index)")
     if show_plot:
         plt.show()
     plt.close()

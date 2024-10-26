@@ -35,6 +35,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
             ).to(device)
         case "NormDistGroundTruth":
             model = NormalDistrGroundTruthLossNetwork(
@@ -42,6 +43,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
             ).to(device)
         case "NormDistMuDist":
             model = NormalDistrMuDistanceNetworkBase(
@@ -49,6 +51,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
             ).to(device)
         case "ReparameterizationDist":
             model = NormalDistrManualReparameterizationNetwork(
@@ -56,6 +59,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
             ).to(device)
         case "RandomSampleDist":
             model = NormalDistrRandomSampleDistNetwork(
@@ -70,6 +74,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
             ).to(device)
         case "TwoPeakNormDist":
             model = TwoPeakNormalDistrNetwork(
@@ -77,6 +82,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
             ).to(device)
         case _:
             raise ValueError(
@@ -116,8 +122,6 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             device=device,
             logger=logger,
             epoch_num=epoch_num,
-            error_tolerance=cfg.tolerable_accuracy_error,
-            is_normal_output=cfg.hyperparams.analytical.output_type == "Normal"
         )
 
         # Test the model every hyperparams.testing_interval epochs
@@ -126,9 +130,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 test_dataset=test_dataset,
                 model=model,
                 logger=logger,
-                tolerable_accuracy_error=cfg.tolerable_accuracy_error,
                 num_epoch=epoch_num,
-                is_normal_output=cfg.hyperparams.analytical.output_type == "Normal"
             )
 
         # Visualize the same problem every hyperparams.visualization.interval epochs
@@ -149,8 +151,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
     return last_mean_loss
 
 
-def test_loop(test_dataset, model: KinematicsNetworkBase, tolerable_accuracy_error, logger, num_epoch,
-              is_normal_output):
+def test_loop(test_dataset, model: KinematicsNetworkBase, logger, num_epoch):
     """
     Tests the model on the given dataset and logs the accuracy and loss with the given logger.
 
@@ -163,37 +164,29 @@ def test_loop(test_dataset, model: KinematicsNetworkBase, tolerable_accuracy_err
     Args:
         test_dataset: test data set
         model: The Kinematics Network
-        tolerable_accuracy_error: The maximum distance between the predicted end effector position and the goal
-                                         that is considered as a correct prediction
         logger: The logger object used for custom_logging
         num_epoch: The current epoch number
-        is_normal_output: True if the model outputs normal angles, False if it outputs distribution parameters
     """
     model.eval()
-    test_loss, num_correct = 0, 0
+    loss_sum, num_correct = 0, 0
     with torch.no_grad():
         for param, goal, ground_truth in test_dataset:
-            loss, test_loss, num_correct = eval_model(tolerable_accuracy_error,
-                                                      goal,
-                                                      ground_truth,
-                                                      is_normal_output,
-                                                      test_loss,
-                                                      model,
-                                                      num_correct,
-                                                      param)
+            loss, loss_sum, num_correct = eval_model(goal=goal,
+                                                     ground_truth=ground_truth,
+                                                     loss_sum=loss_sum,
+                                                     model=model,
+                                                     num_correct=num_correct,
+                                                     param=param)
 
     dataset_size = len(test_dataset)
-    test_loss /= dataset_size
-    accuracy = None
-    if is_normal_output:
-        accuracy = num_correct * 100 / dataset_size
-    logger.log_test(accuracy=accuracy, loss=test_loss, current_step=num_epoch)
+    loss_sum /= dataset_size
+    accuracy = num_correct / dataset_size
+    logger.log_test(accuracy=accuracy, loss=loss_sum, current_step=num_epoch)
     model.train()
 
 
 def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, problems_per_epoch, batch_size, device,
-               logger, epoch_num, error_tolerance,
-               is_normal_output):
+               logger, epoch_num):
     """
     The training loop for the kinematics network. This function trains the model on random parameters and goals and
     logs the training loss and accuracy at the end of each epoch.
@@ -213,8 +206,6 @@ def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, probl
         device: The device used for torch operations
         logger: The logger object used to log training data
         epoch_num: The current epoch number
-        error_tolerance: The maximum distance between the predicted eef position and the goal that is considered correct
-        is_normal_output: True if the model outputs normal angles, False if it outputs distribution parameters
     """
     model.train()
     num_correct, loss_sum = 0, 0
@@ -225,40 +216,30 @@ def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, probl
         goal, ground_truth = generate_achievable_goal(param, device)
 
         param, goal, ground_truth = param.to(device), goal.to(device), ground_truth.to(device)
-        loss, loss_sum, num_correct = eval_model(error_tolerance,
-                                                 goal,
-                                                 ground_truth,
-                                                 is_normal_output,
-                                                 loss_sum,
-                                                 model,
-                                                 num_correct,
-                                                 param)
+        loss, loss_sum, num_correct = eval_model(goal=goal,
+                                                 ground_truth=ground_truth,
+                                                 loss_sum=loss_sum,
+                                                 model=model,
+                                                 num_correct=num_correct,
+                                                 param=param)
 
         # Backpropagation
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    if is_normal_output:
-        accuracy = num_correct * 100 / problems_per_epoch
-        logger.log_training(
-            loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=accuracy
-        )
-    else:
-        logger.log_training(
-            loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=None
-        )
+    accuracy = num_correct / problems_per_epoch
+    logger.log_training(
+        loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=accuracy
+    )
     return loss_sum / num_problems
 
 
-def eval_model(error_tolerance, goal, ground_truth, is_normal_output, loss_sum, model, num_correct, param):
-    pred = model((param, goal))
-    loss = model.loss_fn(param=param, pred=pred, goal=goal, ground_truth=ground_truth)
+def eval_model(goal, ground_truth, loss_sum, model, num_correct, param):
+    predictions = model((param, goal))
+    loss, correct_predictions = model.loss_fn(param=param, pred=predictions, goal=goal, ground_truth=ground_truth)
     loss_sum += loss.sum().item()
-    if is_normal_output:
-        distances = model.calc_distances(param=param, angles_pred=pred, goal=goal)
-        # Increase num_correct for each value in distances that is less than error_tolerance
-        num_correct += torch.le(distances, error_tolerance).int().sum().item()
+    num_correct += correct_predictions
     return loss, loss_sum, num_correct
 
 

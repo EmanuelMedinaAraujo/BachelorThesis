@@ -26,8 +26,8 @@ class NormalizeWeightsLayer(nn.Module):
 
 class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
 
-    def __init__(self, num_joints, num_layer, layer_sizes, logger):
-        super().__init__(num_joints, num_layer, layer_sizes, logger)
+    def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
+        super().__init__(num_joints, num_layer, layer_sizes, logger,error_tolerance)
 
     def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
         stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
@@ -93,9 +93,9 @@ class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
         sigma = sigma1 * (component == 0).float() + sigma2 * (component == 1).float()
         return mu, sigma
 
-    def calculate_loss(self, all_loss_variables, goal, param):
-        distances = self.calc_distances(param=param, angles_pred=all_loss_variables.squeeze(), goal=goal)
-        return distances.mean()
+    def calculate_batch_loss(self, all_loss_variables, goal, param):
+        distances = self.calc_distances(param=param, angles_pred=all_loss_variables.squeeze(), goal=goal) # type: Tensor
+        return distances.mean(), torch.le(distances, self.error_tolerance).int().sum().item()
 
     def loss_fn(self, param, pred: Tensor, goal, ground_truth):
         is_single_parameter = True if param.dim() == 2 else False
@@ -114,7 +114,7 @@ class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
                     all_loss_variables = torch.cat([all_loss_variables, loss_variable]).to(param.device)
                 else:
                     all_loss_variables = torch.cat([all_loss_variables, loss_variable], dim=1).to(param.device)
-        return self.calculate_loss(all_loss_variables, goal, param)
+        return self.calculate_batch_loss(all_loss_variables, goal, param)
 
     def forward(self, model_input):
         network_output = super().forward(model_input)

@@ -14,8 +14,8 @@ class NormalDistrGroundTruthLossNetwork(NormalDistrNetworkBase):
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
 
-    def __init__(self, num_joints, num_layer, layer_sizes, logger):
-        super().__init__(num_joints, num_layer, layer_sizes, logger)
+    def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
 
     @staticmethod
     def extract_loss_variable_from_parameters(mu, sigma, ground_truth, is_single_parameter, joint_number):
@@ -29,5 +29,5 @@ class NormalDistrGroundTruthLossNetwork(NormalDistrNetworkBase):
         # return torch.exp(-expected_truth_prob)
         return -normal_dist.log_prob(value)
 
-    def calculate_loss(self, all_loss_variables, goal, param):
+    def calculate_batch_loss(self, all_loss_variables, goal, param):
         return all_loss_variables.mean(dim=0).mean()
