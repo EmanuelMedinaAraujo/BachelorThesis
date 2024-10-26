@@ -123,10 +123,17 @@ def finish_and_close_plot(ax, chart_index, current_step, goal, logger, max_legen
     if logger is not None:
         logger.log_image(plt, current_step, "chart" + str(chart_index))
     if save_to_file:
-        # Get day and time for the filename
-        day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
-        path = os.path.join("../plots", f"rbt_plt_{day_time}.png")
-        plt.savefig(path)
+        save_plot("outputs/vis/plots/", "chart" + str(chart_index))
     if show_plot:
         plt.show()
     plt.close()
+
+
+def save_plot(parent_folder, filename):
+    # Get day and time for the filename
+    day_time = str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
+    if parent_folder[-1] != "/":
+        parent_folder += "/"
+    if not os.path.isdir(parent_folder):
+        os.makedirs(parent_folder)
+    plt.savefig(parent_folder + filename + "_" + day_time + ".png")

@@ -8,8 +8,8 @@ from analyticalRL.networks.distributions.one_peak_distributions.two_param_dist_n
 
 class BetaDistrRSampleMeanNetwork(TwoParameterDistrNetworkBase):
 
-    def __init__(self, num_joints, num_layer, layer_sizes, logger):
-        super().__init__(num_joints, num_layer, layer_sizes, logger)
+    def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
 
     def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
         stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
