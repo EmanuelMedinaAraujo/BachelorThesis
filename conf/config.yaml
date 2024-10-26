@@ -11,7 +11,7 @@ use_stb3: true
 do_vis: true
 use_optuna: false
 
-server_postfix: "" # :1 for the first server, "" for local execution
+server_postfix: ":1" # :1 for the first server, "" for local execution
 torch_num_threads: 1
 
 save_trained_model: true

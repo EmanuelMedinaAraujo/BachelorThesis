@@ -6,9 +6,9 @@ DONE:
 
 In Progress:
 - bestes PPO mit 2M steps laufen lassen
+    - mti 60m steps laufen lassen wegen potentiellen performance
 
 TODO:
-
 - Accuracy von MLP implementieren
 - MLP Deterministic mit 3dof laufen lassen
 - Alle Stochastischen Modelle mit 3dof laufen lassen
