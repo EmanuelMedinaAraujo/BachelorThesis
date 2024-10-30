@@ -51,4 +51,4 @@ class SimpleKinematicsNetwork(KinematicsNetworkBase):
         The loss is calculated as the mean of the distances between the end effector positions of the parameters and the goal.
         """
         distances = super().calc_distances(param=param, angles_pred=pred, goal=goal)
-        return distances.mean(),torch.le(distances, self.error_tolerance).int().sum().item()
+        return distances.mean(), torch.le(distances, self.error_tolerance).int().sum().item()
