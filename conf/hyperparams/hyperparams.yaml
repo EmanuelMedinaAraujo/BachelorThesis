@@ -6,7 +6,7 @@ analytical:
   batch_size: 64
 
   problems_per_epoch: 1024
-  epochs: 100000
+  epochs: 1000000
   testing_interval: 1000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
@@ -21,7 +21,8 @@ analytical:
       # "BetaDist": Network outputs beta distribution with mean of 1000 samples distance used as loss
     # Two Peak Distributions
       # "TwoPeakNormDist": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
-  output_type: "Normal"
+      # "TwoPeakLSTMNormDist": Network outputs two normal distributions and weights for each joint. LSTM is used
+  output_type: "TwoPeakLSTMNormDist"
 
 stb3:
   testing_interval: 1000000 # Number of steps after which to test the model
