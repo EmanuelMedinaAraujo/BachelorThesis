@@ -30,4 +30,4 @@ class NormalDistrGroundTruthLossNetwork(NormalDistrNetworkBase):
         return -normal_dist.log_prob(value)
 
     def calculate_batch_loss(self, all_loss_variables, goal, param):
-        return all_loss_variables.mean(dim=0).mean() , torch.le(distances, self.error_tolerance).int().sum().item()
+        return all_loss_variables.mean(dim=0).mean() , torch.le(all_loss_variables, self.error_tolerance).int().sum().item()
