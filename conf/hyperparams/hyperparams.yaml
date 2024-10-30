@@ -6,8 +6,8 @@ analytical:
   batch_size: 64
 
   problems_per_epoch: 1024
-  epochs: 1000000
-  testing_interval: 1000 # Number of epochs after which to test the model
+  epochs: 10000
+  testing_interval: 500 # Number of epochs after which to test the model
   optimizer: "Adam"
 
   # Supported Output Types:
