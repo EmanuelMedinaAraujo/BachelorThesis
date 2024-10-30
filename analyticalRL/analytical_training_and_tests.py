@@ -6,100 +6,34 @@ import optuna
 import torch
 from tqdm import tqdm
 
-from analyticalRL.networks.distributions.one_peak_distributions.beta_rsample_dist_network import \
-    BetaDistrRSampleMeanNetwork
-from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.ground_truth_loss_network import \
-    NormalDistrGroundTruthLossNetwork
-from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.manual_reparam_network import \
-    NormalDistrManualReparameterizationNetwork
-from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.mu_distance_loss_network import \
-    NormalDistrMuDistanceNetworkBase
-from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.rsample_network import \
-    NormalDistrRandomSampleDistNetwork
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_lstm_network import \
-    TwoPeakNormalLstmDistrNetwork
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import \
-    TwoPeakNormalDistrNetwork
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
-from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 from conf.conf_dataclasses.config import TrainConfig
 from data_generation.goal_generator import generate_achievable_goal
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
 from vis.model_type_vis.analytical_vis import visualize_analytical_problem, visualize_analytical_distribution
 
 
+def create_model(device, cfg: TrainConfig, logger):
+    model_name = cfg.hyperparams.analytical.output_type
+    model_class = globals().get(model_name)
+    if model_class:
+        return model_class(
+            num_joints=cfg.number_of_joints,
+            num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+            layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+            logger=logger,
+            error_tolerance=cfg.tolerable_accuracy_error,
+        ).to(device)
+    else:
+        raise ValueError(
+            f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the hyperparams config."
+        )
+
+
 def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visualization_history, visualization_goals,
                            visualization_params, visualization_ground_truth, tensor_type, trial: optuna.Trial = None,
                            ):
-    match cfg.hyperparams.analytical.output_type:
-        case "Normal":
-            model = SimpleKinematicsNetwork(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case "NormDistGroundTruth":
-            model = NormalDistrGroundTruthLossNetwork(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case "NormDistMuDist":
-            model = NormalDistrMuDistanceNetworkBase(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case "ReparameterizationDist":
-            model = NormalDistrManualReparameterizationNetwork(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case "RandomSampleDist":
-            model = NormalDistrRandomSampleDistNetwork(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case "BetaDist":
-            model = BetaDistrRSampleMeanNetwork(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case "TwoPeakNormDist":
-            model = TwoPeakNormalDistrNetwork(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case "TwoPeakLSTMNormDist":
-            model = TwoPeakNormalLstmDistrNetwork(
-                num_joints=cfg.number_of_joints,
-                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-                logger=logger,
-                error_tolerance=cfg.tolerable_accuracy_error,
-            ).to(device)
-        case _:
-            raise ValueError(
-                f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the config.")
-
+    model = create_model(device, cfg, logger)
     # Use optimizer specified in the config
     optimizer = getattr(torch.optim, cfg.hyperparams.analytical.optimizer)(
         model.parameters(), lr=cfg.hyperparams.analytical.learning_rate,  # maximize=True,
