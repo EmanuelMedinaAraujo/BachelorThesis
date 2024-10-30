@@ -129,17 +129,21 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
     else:
         cfg_copy.hyperparams.analytical.learning_rate = lr
         cfg_copy.hyperparams.analytical.batch_size = batch_size
-        cfg_copy.hyperparams.analytical.num_hidden_layer = trial.suggest_int('num_hidden_layer', 1, 50)
-        cfg_copy.hyperparams.analytical.hidden_layer_sizes = [trial.suggest_int(f'hidden_layer_sizes_{i}', 1, 2048) for
+        cfg_copy.hyperparams.analytical.num_hidden_layer = trial.suggest_int('num_hidden_layer', 1, 20)
+        cfg_copy.hyperparams.analytical.hidden_layer_sizes = [2 ** trial.suggest_int(f'hidden_layer_sizes_{i}', 1, 11)
+                                                              for
                                                               i in
                                                               range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
-        cfg_copy.hyperparams.analytical.problems_per_epoch = trial.suggest_int('problems_per_epoch', 1, 100000,
-                                                                               log=True)
-        cfg_copy.hyperparams.analytical.epochs = trial.suggest_int('epochs', 1, 1028)
+        cfg_copy.hyperparams.analytical.problems_per_epoch = batch_size * trial.suggest_int('problems_per_epoch', 1, 20)
         cfg_copy.hyperparams.analytical.testing_interval = trial.suggest_int('testing_interval', 1,
                                                                              cfg_copy.hyperparams.analytical.epochs)
         # noinspection SpellCheckingInspection
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
+        cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type', ['NormDistMuDist',
+                                                                                                'NormDistGroundTruth',
+                                                                                                'ReparameterizationDist',
+                                                                                                'RandomSampleDist',
+                                                                                                'BetaDist'])
 
     return train_and_test_model(cfg_copy, trial)
 

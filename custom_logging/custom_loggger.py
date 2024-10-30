@@ -1,6 +1,5 @@
 import os.path
 import time
-from types import NoneType
 
 import wandb
 from tqdm.gui import tqdm

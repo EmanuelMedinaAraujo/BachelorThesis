@@ -15,8 +15,8 @@ class NormalDistrRandomSampleDistNetwork(NormalDistrNetworkBase):
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
 
-    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger):
-        super().__init__(num_joints, num_layer, layer_sizes, logger)
+    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger, error_tolerance):
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
 
     @staticmethod
     def extract_loss_variable_from_parameters(mu, sigma, ground_truth, is_single_parameter, joint_number):

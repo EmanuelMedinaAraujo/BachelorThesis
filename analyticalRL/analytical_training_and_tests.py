@@ -70,6 +70,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
                 logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
             ).to(device)
         case "BetaDist":
             model = BetaDistrRSampleMeanNetwork(
