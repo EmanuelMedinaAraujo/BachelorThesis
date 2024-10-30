@@ -1,5 +1,6 @@
 import os.path
 import time
+from types import NoneType
 
 import wandb
 from tqdm.gui import tqdm
@@ -160,8 +161,10 @@ class GeneralLogger:
             case 0:
                 pass
             case 1:
-                wandb.run.tags += ("Pruned",)
+                if wandb.run is not None:
+                    wandb.run.tags += ("Pruned",)
                 exit_code = 0
             case _:
-                wandb.run.tags += ("Error ",)
+                if wandb.run is not None:
+                    wandb.run.tags += ("Error ",)
         wandb.finish(exit_code=exit_code)

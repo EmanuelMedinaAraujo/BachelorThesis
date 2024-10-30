@@ -1,7 +1,7 @@
 wandb:
   log_in_wandb: true
   log_visualization_plots: true
-  project_name: thesis-analytical
+  project_name: thesis-mixed-gaussian
 
 log_in_console: false
-log_architecture: true
+log_architecture: false

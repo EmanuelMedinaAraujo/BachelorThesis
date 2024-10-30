@@ -16,6 +16,8 @@ from analyticalRL.networks.distributions.one_peak_distributions.normal_distribut
     NormalDistrMuDistanceNetworkBase
 from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.rsample_network import \
     NormalDistrRandomSampleDistNetwork
+from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_lstm_network import \
+    TwoPeakNormalLstmDistrNetwork
 from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import \
     TwoPeakNormalDistrNetwork
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
@@ -79,6 +81,14 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             ).to(device)
         case "TwoPeakNormDist":
             model = TwoPeakNormalDistrNetwork(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
+            ).to(device)
+        case "TwoPeakLSTMNormDist":
+            model = TwoPeakNormalLstmDistrNetwork(
                 num_joints=cfg.number_of_joints,
                 num_layer=cfg.hyperparams.analytical.num_hidden_layer,
                 layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,

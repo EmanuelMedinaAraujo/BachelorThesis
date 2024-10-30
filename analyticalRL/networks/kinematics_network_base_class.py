@@ -47,26 +47,27 @@ class KinematicsNetworkBase(nn.Module, ABC):
         return distances
 
     def forward(self, model_input):
+        flatten_input = self.flatten_model_input(model_input)
+
+        # Pass the flatten input through the linear_relu_stack
+        return self.linear_relu_stack(flatten_input)
+
+    def flatten_model_input(self, model_input):
         param, goal = model_input
-
         is_single_parameter = True if param.dim() == 2 else False
-
         # Flatten the param
         if is_single_parameter:
             # If the input is a single parameter
             flatten_param = torch.flatten(param)
         else:
             flatten_param = self.flatten(param)
-
         # Concatenate flatten_param and goal along the second dimension
         if is_single_parameter:
             # Input is a single parameter
             flatten_input = torch.cat((flatten_param, goal))
         else:
             flatten_input = torch.cat((flatten_param, goal), dim=1)
-
-        # Pass the flatten input through the linear_relu_stack
-        return self.linear_relu_stack(flatten_input)
+        return flatten_input
 
     @abstractmethod
     def loss_fn(self, param, pred, goal, ground_truth):
