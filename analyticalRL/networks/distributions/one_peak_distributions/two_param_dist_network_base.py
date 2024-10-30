@@ -36,7 +36,7 @@ class TwoParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
 
     def calculate_batch_loss(self, all_loss_variables, goal, param):
         distances = self.calc_distances(param=param, angles_pred=all_loss_variables.squeeze(), goal=goal)
-        return distances.mean(),torch.le(distances, self.error_tolerance).int().sum().item()
+        return distances.mean(), torch.le(distances, self.error_tolerance).int().sum().item()
 
     def loss_fn(self, param, pred: Tensor, goal, ground_truth):
         is_single_parameter = True if param.dim() == 2 else False
