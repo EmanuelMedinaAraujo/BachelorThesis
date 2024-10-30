@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-from scipy.cluster.hierarchy import single
 from torch import Tensor, nn
 from torch.autograd import Variable
 
