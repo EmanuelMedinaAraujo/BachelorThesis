@@ -38,7 +38,7 @@ def main(train_config: TrainConfig):
         pass
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
                                 pruner=optuna.pruners.MedianPruner(n_warmup_steps=minimal_steps),
-                                direction='maximize',
+                                direction='maximize' if train_config.use_stb3 else 'minimize',
                                 study_name='analytical',
                                 storage=f'sqlite:///analytical.db',
                                 )
@@ -54,7 +54,7 @@ def main(train_config: TrainConfig):
     print_optuna_results(study)
 
 
-def _optimize(study: Study, train_config, num_trials_per_process):
+def _optimize(study: Study, train_config:TrainConfig, num_trials_per_process: int):
     study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process,
                    catch=[ValueError, ZeroDivisionError, RuntimeError, TrialPruned])
 
@@ -144,7 +144,6 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
                                                                                                 'ReparameterizationDist',
                                                                                                 'RandomSampleDist',
                                                                                                 'BetaDist'])
-
     return train_and_test_model(cfg_copy, trial)
 
 
