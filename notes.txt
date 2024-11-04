@@ -4,17 +4,18 @@ DONE:
 - Move mixed gaussian run from ppo to analytical project in wandb
     - https://wandb.ai/medina-tum/thesis-optuna/runs/jecczbko/overview
 - Accuracy von MLP implementieren
-
-In Progress:
 - bestes PPO mit 2M steps laufen lassen
     - mti 60m steps laufen lassen wegen potentiellen performance
     - https://wandb.ai/medina-tum/thesis-best-ppo/runs/htwrmi01
 - MLP Deterministic mit 3dof laufen lassen
     - https://wandb.ai/medina-tum/thesis-analytical/runs/adl153d2
 
+In Progress:
+- Anaylytical optuna hyper parameter search
+- LSTM Mixed Gaussian implementieren
+
 TODO:
 - Alle Stochastischen Modelle mit 3dof laufen lassen
-- LSTM Mixed Gaussian implementieren
 - (LSTM Gaussian implementieren (falls Zeit ist))
 - Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
     - Colorbar werte mit Anzahl an Samples teilen um distribution anzugeben

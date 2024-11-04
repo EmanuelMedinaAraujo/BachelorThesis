@@ -3,20 +3,23 @@ import torch
 from torch import Tensor, nn
 from torch.autograd import Variable
 
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import NormalizeWeightsLayer, \
+from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_lstm_network import NormalizeWeightsLayer, \
     TwoPeakNormalDistrNetwork
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 
 
-class TwoPeakNormalLstmDistrNetwork(KinematicsNetworkBase):
+class TwoPeakNormalLstmVariantDistrNetwork(KinematicsNetworkBase):
 
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
         super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
-        self.hidden_size = num_joints * 6  # number of features in hidden state
-        self.num_layers = 6  # number of stacked LSTM layers
+        self.hidden_size = 256  # number of features in hidden state
+        self.num_layers = 5  # number of stacked LSTM layers
         self.output_size = num_joints * 6
         self.lstm = nn.LSTM(input_size=num_joints * 3 + 2, hidden_size=self.hidden_size,
                             num_layers=self.num_layers, batch_first=True)
+        self.dense_layer = nn.Linear(self.hidden_size,
+                                     64)
+        self.last_dense_layer = nn.Linear(64, self.output_size)
         self.relu = nn.ReLU()
 
     def forward(self, model_input):
@@ -35,6 +38,10 @@ class TwoPeakNormalLstmDistrNetwork(KinematicsNetworkBase):
         # Propagate input through LSTM
         output, _ = self.lstm(flatten_input, (h_0, c_0))  # lstm with input, hidden, and internal state
         out = output.squeeze(1)  # reshaping the data for Dense layer next
+        out = self.relu(out)
+        out = self.dense_layer(out)
+        out = self.relu(out)
+        out = self.last_dense_layer(out)
         out = torch.sigmoid(out)
         network_output = NormalizeWeightsLayer(self.num_joints)(out)
 
