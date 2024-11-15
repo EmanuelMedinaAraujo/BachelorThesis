@@ -1,4 +1,4 @@
-show_plot: true
+show_plot: false
 show_joint_label: false
 show_joints: false
 show_end_effectors: false
