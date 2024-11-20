@@ -1,7 +1,7 @@
 from torch import nn
 
 from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
-    TwoPeakNormalDistrNetworkBase, NormalizeAtan2WeightsLayer
+    TwoPeakNormalDistrNetworkBase, NormalizeWeightsLayer
 
 
 class TwoPeakNormalDistrNetwork(TwoPeakNormalDistrNetworkBase):
@@ -13,7 +13,7 @@ class TwoPeakNormalDistrNetwork(TwoPeakNormalDistrNetworkBase):
         stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
         stack_list.pop()
         stack_list.append(nn.Linear(layer_sizes[-1], num_joints * 8))
-        stack_list.append(NormalizeAtan2WeightsLayer(num_joints))
+        stack_list.append(NormalizeWeightsLayer(num_joints))
         return stack_list
 
     def forward(self, model_input):
@@ -21,4 +21,4 @@ class TwoPeakNormalDistrNetwork(TwoPeakNormalDistrNetworkBase):
         param, _ = model_input
         is_single_parameter = True if param.dim() == 2 else False
 
-        return super().collect_distributions(is_single_parameter, network_output, param)
+        return super().collect_distributions(is_single_parameter, network_output)

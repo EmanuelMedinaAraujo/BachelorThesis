@@ -1,13 +1,14 @@
-import numpy as np
+from abc import ABC, abstractmethod
+
 import torch
 from torch import Tensor, nn
 
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 
 
-class NormalizeAtan2WeightsLayer(nn.Module):
+class NormalizeWeightsLayer(nn.Module):
     def __init__(self, num_joints):
-        super(NormalizeAtan2WeightsLayer, self).__init__()
+        super(NormalizeWeightsLayer, self).__init__()
         self.num_joints = num_joints
 
     def forward(self, x):
@@ -90,14 +91,13 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
 
     @staticmethod
     def extract_loss_variable_from_parameters(mu1, sigma1, weight1, mu2, sigma2, weight2):
-        mu, sigma = TwoPeakNormalDistrNetwork.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2)
+        mu, sigma = TwoPeakNormalDistrNetworkBase.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2)
         with torch.no_grad():
             noise = torch.randn(mu.size()).to(mu1.device)
 
         # Reparameterized sampling
         samples = mu + sigma * noise
         return samples
-
 
     def calculate_batch_loss(self, all_loss_variables, goal, param):
         distances = self.calc_distances(param=param, angles_pred=all_loss_variables.squeeze(),
@@ -123,7 +123,7 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
                     all_loss_variables = torch.cat([all_loss_variables, loss_variable], dim=1).to(param.device)
         return self.calculate_batch_loss(all_loss_variables, goal, param)
 
-    def collect_distributions(self, is_single_parameter, network_output, param):
+    def collect_distributions(self, is_single_parameter, network_output):
         all_distributions = None
         for joint_number in range(self.num_joints):
             index = 8 * joint_number
@@ -168,8 +168,8 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
                 all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
             else:
                 if is_single_parameter:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(param.device)
+                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(network_output.device)
                 else:
                     all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(
-                        param.device)
+                        network_output.device)
         return all_distributions
