@@ -3,8 +3,8 @@ import torch
 from torch import Tensor, nn
 from torch.autograd import Variable
 
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_lstm_network import NormalizeWeightsLayer, \
-    TwoPeakNormalDistrNetwork
+from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import \
+    TwoPeakNormalDistrNetwork, NormalizeWeightsLayer
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 
 
@@ -27,7 +27,7 @@ class TwoPeakNormalLstmVariantDistrNetwork(KinematicsNetworkBase):
         param, _ = model_input
         is_single_parameter = True if param.dim() == 2 else False
         # Create a self.num_layer tensor where each element is flatten_input
-        flatten_input = flatten_input.unsqueeze(0 if is_single_parameter else 1 )
+        flatten_input = flatten_input.unsqueeze(0 if is_single_parameter else 1)
 
         if is_single_parameter:
             h_0 = Variable(torch.zeros(self.num_layers, self.hidden_size)).to(param.device)
@@ -50,7 +50,7 @@ class TwoPeakNormalLstmVariantDistrNetwork(KinematicsNetworkBase):
 
         all_distributions = None
         for joint_number in range(self.num_joints):
-            index = self.num_joints * joint_number
+            index = 6 * joint_number
 
             if is_single_parameter:
                 parameter1 = network_output[index]

@@ -9,10 +9,11 @@ DONE:
     - https://wandb.ai/medina-tum/thesis-best-ppo/runs/htwrmi01
 - MLP Deterministic mit 3dof laufen lassen
     - https://wandb.ai/medina-tum/thesis-analytical/runs/adl153d2
-
-In Progress:
 - Anaylytical optuna hyper parameter search
 - LSTM Mixed Gaussian implementieren
+
+In Progress:
+
 
 TODO:
 - Alle Stochastischen Modelle mit 3dof laufen lassen
