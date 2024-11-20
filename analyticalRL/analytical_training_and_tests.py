@@ -10,8 +10,8 @@ from analyticalRL.networks.distributions.one_peak_distributions.normal_distribut
 from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.manual_reparam_network import *  # noqa
 from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.mu_distance_loss_network import *  # noqa
 from analyticalRL.networks.distributions.one_peak_distributions.normal_distributions.rsample_network import *  # noqa
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_lstm_network import *  # noqa
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_lstm_network_variant import *  # noqa
+from analyticalRL.networks.distributions.two_peak_distributions.lstm.two_peak_norm_dist_lstm_network import *  # noqa
+from analyticalRL.networks.distributions.two_peak_distributions.lstm.two_peak_norm_dist_lstm_network_variant import *  # noqa
 from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import *  # noqa
 from analyticalRL.networks.simple_kinematics_network import *  # noqa
 from conf.conf_dataclasses.config import TrainConfig
