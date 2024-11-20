@@ -123,7 +123,7 @@ class TwoPeakNormalDistrNetwork(KinematicsNetworkBase):
 
         all_distributions = None
         for joint_number in range(self.num_joints):
-            index = self.num_joints * joint_number
+            index = 6* joint_number
 
             if is_single_parameter:
                 parameter1 = network_output[index]
