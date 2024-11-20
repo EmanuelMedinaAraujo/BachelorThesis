@@ -78,16 +78,16 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
         return mu1, sigma1, weight1, mu2, sigma2, weight2
 
     @staticmethod
-    def sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2):
+    def sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2, batch_size=1):
         # Sample from categorical distribution to choose the component
         weights = torch.cat([weight1.unsqueeze(dim=-1), weight2.unsqueeze(dim=-1)], dim=1)
         cat_dist = torch.distributions.Categorical(probs=weights)
-        component = cat_dist.sample()  # Sample which component to use
+        component = cat_dist.sample(torch.Size([batch_size]))  # Sample which component to use
 
         # Use the chosen component to select mu and sigma
         mu = mu1 * (component == 0).float() + mu2 * (component == 1).float()
         sigma = sigma1 * (component == 0).float() + sigma2 * (component == 1).float()
-        return mu, sigma
+        return mu.squeeze(), sigma.squeeze()
 
     @staticmethod
     def extract_loss_variable_from_parameters(mu1, sigma1, weight1, mu2, sigma2, weight2):
