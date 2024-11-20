@@ -58,7 +58,7 @@ class GeneralLogger:
         if accuracy is None:
             wandb.log({"train/loss": loss}, step=epoch_num)
         else:
-            wandb.log({"train/acc": accuracy, "train/loss": loss}, step=epoch_num)
+            wandb.log({ "train/loss": loss, "train/acc": accuracy}, step=epoch_num)
 
     def log_test(self, accuracy, loss, current_step=None):
         if self.log_in_console:
@@ -69,7 +69,7 @@ class GeneralLogger:
         if accuracy is None:
             wandb.log({"test/loss": loss}, step=current_step)
         else:
-            wandb.log({"test/acc": accuracy, "test/loss": loss}, step=current_step)
+            wandb.log({ "test/loss": loss,"test/acc": accuracy}, step=current_step)
 
     def log_train_rollout(
             self,
