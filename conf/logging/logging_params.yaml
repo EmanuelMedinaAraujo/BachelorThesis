@@ -3,5 +3,5 @@ wandb:
   log_visualization_plots: true
   project_name: thesis-mixed-gaussian
 
-log_in_console: true
+log_in_console: false
 log_architecture: false

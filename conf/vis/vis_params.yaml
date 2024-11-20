@@ -6,7 +6,7 @@ show_legend: true
 show_distance_in_legend: true
 max_legend_length: 10
 save_to_file: false
-num_problems_to_visualize: 1 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
+num_problems_to_visualize: 2 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
 
 analytical:
   interval: 1000 # Number of epochs after which the visualization is updated
