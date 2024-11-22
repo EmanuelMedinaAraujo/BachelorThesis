@@ -68,7 +68,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
         num_epoch=0,
     )
     for epoch_num in tqdm(
-            range(1,cfg.hyperparams.analytical.epochs1),
+            range(1,cfg.hyperparams.analytical.epochs+1),
             colour="green",
             file=sys.stdout
     ):
@@ -106,7 +106,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
         test_dataset=test_dataset,
         model=model,
         logger=logger,
-        num_epoch=cfg.hyperparams.analytical.epochs1,
+        num_epoch=cfg.hyperparams.analytical.epochs,
     )
 
     if cfg.save_trained_model:
