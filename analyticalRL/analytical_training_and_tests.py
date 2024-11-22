@@ -61,13 +61,19 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
     if cfg.do_vis:
         visualize_analytical_model(cfg, device, 0, logger, model, visualization_goals,
                                    visualization_ground_truth, visualization_history, visualization_params)
+    test_model(
+        test_dataset=test_dataset,
+        model=model,
+        logger=logger,
+        num_epoch=0,
+    )
     for epoch_num in tqdm(
-            range(cfg.hyperparams.analytical.epochs),
+            range(1,cfg.hyperparams.analytical.epochs1),
             colour="green",
             file=sys.stdout
     ):
         # Keep track of the last mean loss for optuna
-        last_mean_loss = train_loop(
+        last_mean_loss = train_model_loop(
             model=model,
             optimizer=optimizer,
             problem_generator=problem_generator,
@@ -80,7 +86,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
 
         # Test the model every hyperparams.testing_interval epochs
         if epoch_num % cfg.hyperparams.analytical.testing_interval == 0:
-            test_loop(
+            test_model(
                 test_dataset=test_dataset,
                 model=model,
                 logger=logger,
@@ -96,6 +102,13 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
             if trial.should_prune():
                 raise optuna.exceptions.TrialPruned()
 
+    test_model(
+        test_dataset=test_dataset,
+        model=model,
+        logger=logger,
+        num_epoch=cfg.hyperparams.analytical.epochs1,
+    )
+
     if cfg.save_trained_model:
         # Get date and time from system as string
         date_time_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -107,7 +120,7 @@ def do_analytical_learning(device, cfg: TrainConfig, logger, test_dataset, visua
     return last_mean_loss
 
 
-def test_loop(test_dataset, model: KinematicsNetworkBase, logger, num_epoch):
+def test_model(test_dataset, model: KinematicsNetworkBase, logger, num_epoch):
     """
     Tests the model on the given dataset and logs the accuracy and loss with the given logger.
 
@@ -141,7 +154,7 @@ def test_loop(test_dataset, model: KinematicsNetworkBase, logger, num_epoch):
     model.train()
 
 
-def train_loop(model: KinematicsNetworkBase, optimizer, problem_generator, problems_per_epoch, batch_size, device,
+def train_model_loop(model: KinematicsNetworkBase, optimizer, problem_generator, problems_per_epoch, batch_size, device,
                logger, epoch_num):
     """
     The training loop for the kinematics network. This function trains the model on random parameters and goals and
