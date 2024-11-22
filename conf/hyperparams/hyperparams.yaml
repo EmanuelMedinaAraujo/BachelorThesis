@@ -18,12 +18,13 @@ analytical:
         # "NormalDistrGroundTruthLossNetwork": Network outputs normal distribution with ground truth distance used as loss
         # "NormalDistrManualReparameterizationNetwork": Network outputs normal distribution with manual reparameterization trick used as loss
         # "NormalDistrRandomSampleDistNetwork": Network outputs normal distribution with random sampling distance used as loss
+        # "NormalDistrRandomSampleLSTMDistNetwork": Equal to "NormalDistrRandomSampleDistNetwork" but with LSTM
       # "BetaDistrRSampleMeanNetwork": Network outputs beta distribution with mean of 1000 samples distance used as loss
     # Two Peak Distributions
       # "TwoPeakNormalDistrNetwork": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
       # "TwoPeakNormalLstmDistrNetwork": Network outputs two normal distributions and weights for each joint. LSTM is used
       # "TwoPeakNormalLstmVariantDistrNetwork" LSTM where an angle is extracted each lstm cycle
-  output_type: "TwoPeakNormalDistrNetwork"
+  output_type: "NormalDistrRandomSampleLSTMDistNetwork"
 
 stb3:
   testing_interval: 1000000 # Number of steps after which to test the model
