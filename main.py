@@ -2,12 +2,12 @@ from typing import Callable, Union
 
 import hydra
 import torch
+from conf.conf_dataclasses.config import TrainConfig
 from hydra.core.config_store import ConfigStore
 from stable_baselines3.common.utils import set_random_seed
 
 import optuna
 from analyticalRL.analytical_training_and_tests import do_analytical_learning
-from conf.conf_dataclasses.config import TrainConfig
 from custom_logging.custom_loggger import GeneralLogger
 from data_generation.parameter_dataset import CustomParameterDataset
 from optuna import Study, TrialPruned
@@ -54,7 +54,7 @@ def main(train_config: TrainConfig):
     print_optuna_results(study)
 
 
-def _optimize(study: Study, train_config:TrainConfig, num_trials_per_process: int):
+def _optimize(study: Study, train_config: TrainConfig, num_trials_per_process: int):
     study.optimize(lambda trial: _objective(train_config, trial), n_trials=num_trials_per_process,
                    catch=[ValueError, ZeroDivisionError, RuntimeError, TrialPruned])
 

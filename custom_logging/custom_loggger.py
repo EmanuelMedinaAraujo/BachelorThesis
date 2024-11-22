@@ -12,10 +12,11 @@ def init_wandb(cfg: TrainConfig):
         # set the wandb project where this run will be logged
         project=cfg.logging.wandb.project_name,
         reinit=True,
-        mode="online" if cfg.logging.wandb.log_in_wandb else "offline",
+        mode="online" if cfg.logging.wandb.log_in_wandb else "disabled",
         dir="./outputs",
         settings=wandb.Settings(_disable_stats=True),
         # track hyperparameters and run metadata
+        notes=cfg.hyperparams.analytical.output_type if not cfg.use_stb3 else "PPO",
         config=cfg.__dict__
     )
 

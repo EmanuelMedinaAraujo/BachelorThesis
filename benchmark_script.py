@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 
+
 def execute_main_script():
     # Get the path to main.py in the same folder as this script
     script_folder = os.path.dirname(os.path.abspath(__file__))
@@ -29,7 +30,7 @@ def execute_main_script():
     for i, runtime in enumerate(runtimes, 1):
         print(f"Run {i}: {runtime:.4f} seconds")
     print(f"Mean Runtime: {mean_runtime:.4f} seconds")
-    print(f"\nExecuted File: {os.path.basename(main_file)}")
+    print(f"Executed File: {os.path.basename(main_file)}")
 
 
 if __name__ == "__main__":
