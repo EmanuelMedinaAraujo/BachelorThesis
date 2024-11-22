@@ -182,6 +182,10 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     end_effector_list = np.array(end_effector_list)
     d = {'x': end_effector_list[:, 0], 'y': end_effector_list[:, 1]}
     df = pd.DataFrame(data=d)
+
+    # Sort the data by 'x' and 'y' to ensure contour levels are increasing
+    df = df.sort_values(by=['x', 'y'])
+
     sns.set_theme(style="darkgrid")
     sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True, thresh=0)
 
