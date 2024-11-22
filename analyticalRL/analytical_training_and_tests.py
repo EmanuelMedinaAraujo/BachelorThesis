@@ -203,7 +203,7 @@ def visualize_analytical_model(cfg, device, epoch_num, logger, model, visualizat
                                visualization_history, visualization_params):
     with torch.no_grad():
         for i in range(cfg.vis.num_problems_to_visualize):
-            if cfg.hyperparams.analytical.output_type == "Normal":
+            if cfg.hyperparams.analytical.output_type == "SimpleKinematicsNetwork":
                 visualize_analytical_problem(
                     model=model,
                     param=visualization_params[i],
