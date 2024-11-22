@@ -183,6 +183,9 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     d = {'x': end_effector_list[:, 0], 'y': end_effector_list[:, 1]}
     df = pd.DataFrame(data=d)
 
+    # Remove any rows with NaN or infinite values
+    df = df.replace([np.inf, -np.inf], np.nan).dropna()
+
     # Sort the data by 'x' and 'y' to ensure contour levels are increasing
     df = df.sort_values(by=['x', 'y'])
 
