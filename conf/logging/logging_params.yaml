@@ -1,7 +1,7 @@
 wandb:
   log_in_wandb: false
   log_visualization_plots: true
-  project_name: thesis-analytical-dist-norm
+  project_name: thesis-test-runs
 
 log_in_console: false
 log_architecture: false
