@@ -135,15 +135,10 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
                                                               i in
                                                               range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
         cfg_copy.hyperparams.analytical.problems_per_epoch = batch_size * trial.suggest_int('problems_per_epoch', 1, 20)
-        cfg_copy.hyperparams.analytical.testing_interval = trial.suggest_int('testing_interval', 1,
-                                                                             cfg_copy.hyperparams.analytical.epochs)
+
         # noinspection SpellCheckingInspection
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
-        cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type', ['NormDistMuDist',
-                                                                                                'NormDistGroundTruth',
-                                                                                                'ReparameterizationDist',
-                                                                                                'RandomSampleDist',
-                                                                                                'BetaDist'])
+
     return train_and_test_model(cfg_copy, trial)
 
 
