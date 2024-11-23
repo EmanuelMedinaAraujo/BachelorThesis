@@ -159,7 +159,7 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
     )
 
     tensor_type = torch.float32
-
+    set_random_seed(0) # Have a unique test set for every trial
     test_dataset = CustomParameterDataset(
         length=train_config.number_of_test_problems,
         device_to_use=device,
@@ -177,6 +177,8 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
         visualization_params.append(param)
         visualization_goals.append(goal)
         visualization_ground_truth.append(ground_truth)
+
+    set_random_seed(train_config.random_seed)
 
     visualization_history = []
     logger = None
