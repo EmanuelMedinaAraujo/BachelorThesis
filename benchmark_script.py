@@ -2,6 +2,8 @@ import os
 import subprocess
 import time
 
+number_of_repeats = 2
+
 
 def execute_main_script():
     # Get the path to main.py in the same folder as this script
@@ -13,7 +15,7 @@ def execute_main_script():
         return
 
     runtimes = []
-    for i in range(5):
+    for i in range(number_of_repeats):
         start_time = time.perf_counter()
         try:
             subprocess.run(["python3", main_file], check=True)
@@ -23,14 +25,12 @@ def execute_main_script():
 
         runtime = end_time - start_time
         runtimes.append(runtime)
-        print(f"Run {i + 1}: {runtime:.4f} seconds")
 
     mean_runtime = sum(runtimes) / len(runtimes) if runtimes else 0
     print("\nExecution Summary:")
     for i, runtime in enumerate(runtimes, 1):
         print(f"Run {i}: {runtime:.4f} seconds")
     print(f"Mean Runtime: {mean_runtime:.4f} seconds")
-    print(f"Executed File: {os.path.basename(main_file)}")
 
 
 if __name__ == "__main__":
