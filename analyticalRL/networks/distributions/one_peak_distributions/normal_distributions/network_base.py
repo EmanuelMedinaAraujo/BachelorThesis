@@ -1,11 +1,34 @@
+import torch
 from abc import ABC, abstractmethod
 
-import numpy as np
 from torch import nn
 
 from analyticalRL.networks.distributions.one_peak_distributions.two_param_dist_network_base import \
     TwoParameterDistrNetworkBase
 
+
+class NormalizeSigmaLayer(nn.Module):
+    def __init__(self, num_joints, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.num_joints = num_joints
+
+    def forward(self, x):
+        is_single_parameter = True if x.dim() == 1 else False
+
+        if is_single_parameter:
+            mask = torch.zeros_like(x, dtype=torch.bool)
+            mask[2::3] = True
+            # Apply sigmoid to every third entry
+            x[mask] = torch.sigmoid(x[mask])
+            return x
+        else:
+            # Create a mask to select every third entry in each batch
+            mask = torch.zeros_like(x, dtype=torch.bool)
+            mask[:, 2::3] = True
+
+            # Apply sigmoid to every third entry
+            x[mask] = torch.sigmoid(x[mask])
+            return x
 
 class NormalDistrNetworkBase(TwoParameterDistrNetworkBase, ABC):
     """
@@ -21,16 +44,17 @@ class NormalDistrNetworkBase(TwoParameterDistrNetworkBase, ABC):
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
         super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
 
-    def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
-        stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
-        stack_list.append(nn.Sigmoid())
+    def create_layer_stack_list(self, layer_sizes, num_joints, num_layer, output_per_joint):
+        stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer, output_per_joint)
+        # Only apply sigmoid on parameter3 (sigma)
+        stack_list.append(NormalizeSigmaLayer(num_joints))
         return stack_list
 
     @staticmethod
-    def map_two_parameters(parameter1, parameter2):
-        # Map mu from [0,1] to [-pi,pi]
-        mu = ((parameter1 * 2) - 1) * np.pi
-        # Map sigma to positive values from [0,1] to [1,2]
-        sigma = parameter2 + 1
+    def map_three_parameters(parameter1, parameter2, parameter3):
+        # Use atan2 to calculate angle
+        mu = torch.atan2(parameter1, parameter2)
+        # Map sigma to positive values from [0,1] to [0,2]
+        sigma = parameter3 * 2
         sigma = sigma.clamp(min=1e-6)
         return mu, sigma

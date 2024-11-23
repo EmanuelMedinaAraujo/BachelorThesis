@@ -161,10 +161,10 @@ class GeneralLogger:
             case 0:
                 pass
             case 1:
-                if wandb.run is not None:
+                if wandb.run is not None and wandb.run.tags is not None:
                     wandb.run.tags += ("Pruned",)
                 exit_code = 0
             case _:
-                if wandb.run is not None:
+                if wandb.run is not None and wandb.run.tags is not None:
                     wandb.run.tags += ("Error ",)
         wandb.finish(exit_code=exit_code)
