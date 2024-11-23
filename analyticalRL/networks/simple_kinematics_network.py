@@ -14,7 +14,7 @@ class SimpleKinematicsNetwork(KinematicsNetworkBase):
     """
 
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
-        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance,2)
 
     def forward(self, model_input):
         network_output = super().forward(model_input)

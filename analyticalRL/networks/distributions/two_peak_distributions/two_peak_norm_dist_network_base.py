@@ -31,7 +31,7 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
 
     @abstractmethod
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
-        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance, output_per_joint=6)
 
     @staticmethod
     def extract_six_dist_parameters(is_single_parameter, joint_number, pred):

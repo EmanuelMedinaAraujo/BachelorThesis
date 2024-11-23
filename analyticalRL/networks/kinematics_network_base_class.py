@@ -10,7 +10,7 @@ from util.forward_kinematics import calculate_parameter_goal_distances, update_t
 class KinematicsNetworkBase(nn.Module, ABC):
 
     @abstractmethod
-    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger, error_tolerance):
+    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger, error_tolerance, output_per_joint):
         """
         Initializes the KinematicsNetwork.
 
@@ -22,18 +22,18 @@ class KinematicsNetworkBase(nn.Module, ABC):
         super().__init__()
         self.num_joints = num_joints
         self.flatten = nn.Flatten()
-        stack_list = self.create_layer_stack_list(layer_sizes, num_joints, num_layer)
+        stack_list = self.create_layer_stack_list(layer_sizes, num_joints, num_layer, output_per_joint)
         self.linear_relu_stack = nn.Sequential(*stack_list)
         logger.log_network_architecture(self.linear_relu_stack)
         self.error_tolerance = error_tolerance
 
     @staticmethod
-    def create_layer_stack_list(layer_sizes, num_joints, num_layer):
+    def create_layer_stack_list(layer_sizes, num_joints, num_layer, output_per_joint):
         stack_list = [nn.Linear(num_joints * 3 + 2, layer_sizes[0]), nn.ReLU()]
         for i in range(num_layer - 1):
             stack_list.append(nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
             stack_list.append(nn.ReLU())
-        stack_list.append(nn.Linear(layer_sizes[-1], num_joints * 2))
+        stack_list.append(nn.Linear(layer_sizes[-1], num_joints * output_per_joint))
         return stack_list
 
     @staticmethod

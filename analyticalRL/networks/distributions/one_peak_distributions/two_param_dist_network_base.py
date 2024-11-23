@@ -10,7 +10,7 @@ class TwoParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
 
     @abstractmethod
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
-        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance, output_per_joint=3)
 
     @staticmethod
     def extract_two_dist_parameters(is_single_parameter, joint_number, pred):
@@ -26,7 +26,7 @@ class TwoParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
 
     @staticmethod
     @abstractmethod
-    def map_two_parameters(parameter1, parameter2):
+    def map_three_parameters(parameter1, parameter2, parameter3):
         pass
 
     @staticmethod
@@ -68,11 +68,13 @@ class TwoParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
             if is_single_parameter:
                 parameter1 = network_output[index]
                 parameter2 = network_output[index + 1]
+                parameter3 = network_output[index + 2]
             else:
                 parameter1 = network_output[:, index]
                 parameter2 = network_output[:, index + 1]
+                parameter3 = network_output[:, index + 2]
 
-            parameter1, parameter2 = self.map_two_parameters(parameter1, parameter2)
+            parameter1, parameter2 = self.map_three_parameters(parameter1, parameter2, parameter3)
 
             # Ensure the parameters have to correct shape
             parameter1 = parameter1.unsqueeze(-1) if parameter1.dim() == 1 else parameter1

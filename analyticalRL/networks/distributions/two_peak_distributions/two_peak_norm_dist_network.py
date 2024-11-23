@@ -9,10 +9,8 @@ class TwoPeakNormalDistrNetwork(TwoPeakNormalDistrNetworkBase):
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
         super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
 
-    def create_layer_stack_list(self, layer_sizes, num_joints, num_layer):
-        stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer)
-        stack_list.pop()
-        stack_list.append(nn.Linear(layer_sizes[-1], num_joints * 8))
+    def create_layer_stack_list(self, layer_sizes, num_joints, num_layer, output_per_joint):
+        stack_list = super().create_layer_stack_list(layer_sizes, num_joints, num_layer, output_per_joint)
         stack_list.append(NormalizeWeightsLayer(num_joints))
         return stack_list
 
