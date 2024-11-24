@@ -20,18 +20,29 @@ from data_generation.goal_generator import generate_achievable_goal
 from data_generation.parameter_generator import ParameterGeneratorForPlanarRobot
 from vis.model_type_vis.analytical_vis import visualize_analytical_problem, visualize_analytical_distribution
 
-
 def create_model(device, cfg: TrainConfig, logger):
     model_name = cfg.hyperparams.analytical.output_type
     model_class = globals().get(model_name)
     if model_class:
-        return model_class(
-            num_joints=cfg.number_of_joints,
-            num_layer=cfg.hyperparams.analytical.num_hidden_layer,
-            layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
-            logger=logger,
-            error_tolerance=cfg.tolerable_accuracy_error,
-        ).to(device)
+        # Check if model name contains 'lstm' and create the model with the correct parameters
+        if 'lstm' in model_name.lower():
+            return model_class(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
+                hidden_size=cfg.hyperparams.analytical.lstm_hidden_size,
+                lstm_layers=cfg.hyperparams.analytical.lstm_num_layers
+            ).to(device)
+        else :
+            return model_class(
+                num_joints=cfg.number_of_joints,
+                num_layer=cfg.hyperparams.analytical.num_hidden_layer,
+                layer_sizes=cfg.hyperparams.analytical.hidden_layer_sizes,
+                logger=logger,
+                error_tolerance=cfg.tolerable_accuracy_error,
+            ).to(device)
     else:
         raise ValueError(
             f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the hyperparams config."

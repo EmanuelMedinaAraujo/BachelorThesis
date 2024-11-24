@@ -32,6 +32,8 @@ class StB3Hyperparams:
 @dataclass
 class AnalyticalHyperparams:
     num_hidden_layer: int
+    lstm_hidden_size: int
+    lstm_num_layers: int
     hidden_layer_sizes: list
     problems_per_epoch: int
     learning_rate: float

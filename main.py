@@ -1,16 +1,16 @@
 from typing import Callable, Union
 
 import hydra
+import optuna
 import torch
-from conf.conf_dataclasses.config import TrainConfig
 from hydra.core.config_store import ConfigStore
+from optuna import Study, TrialPruned
 from stable_baselines3.common.utils import set_random_seed
 
-import optuna
 from analyticalRL.analytical_training_and_tests import do_analytical_learning
+from conf.conf_dataclasses.config import TrainConfig
 from custom_logging.custom_loggger import GeneralLogger
 from data_generation.parameter_dataset import CustomParameterDataset
-from optuna import Study, TrialPruned
 from stb3.stb3_training import do_stable_baselines3_learning
 
 cs = ConfigStore.instance()
@@ -33,7 +33,8 @@ def main(train_config: TrainConfig):
     num_processes = train_config.optuna.num_processes
     num_trials_per_process = train_config.optuna.trials_per_process
     try:
-        optuna.delete_study(study_name='distribution_optuna_1p_lstm', storage=f'sqlite:///distribution_optuna_1p_lstm.db')
+        optuna.delete_study(study_name='distribution_optuna_1p_lstm',
+                            storage=f'sqlite:///distribution_optuna_1p_lstm.db')
     except KeyError:
         pass
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
@@ -129,21 +130,33 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
     else:
         cfg_copy.hyperparams.analytical.learning_rate = lr
         cfg_copy.hyperparams.analytical.batch_size = batch_size
-        cfg_copy.hyperparams.analytical.num_hidden_layer = trial.suggest_int('num_hidden_layer', 1, 20)
-        cfg_copy.hyperparams.analytical.hidden_layer_sizes = [2 ** trial.suggest_int(f'hidden_layer_sizes_{i}', 1, 11)
-                                                              for
-                                                              i in
-                                                              range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
         cfg_copy.hyperparams.analytical.problems_per_epoch = batch_size * trial.suggest_int('problems_per_epoch', 1, 20)
 
         # noinspection SpellCheckingInspection
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
         # cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type',
-        #                                                                         ['NormalDistrMuDistanceNetworkBase',
-        #                                                                          'NormalDistrGroundTruthLossNetwork',
+        #                                                                         ['NormalDistrGroundTruthLossNetwork',
         #                                                                          'NormalDistrManualReparameterizationNetwork',
-        #                                                                          'NormalDistrRandomSampleDistNetwork',
-        #                                                                          'BetaDistrRSampleMeanNetwork'])
+        #                                                                          'NormalDistrRandomSampleDistNetwork'])
+
+        # lstm hyperparameters
+        if 'lstm' in cfg_copy.hyperparams.analytical.output_type.lower():
+            cfg_copy.hyperparams.analytical.lstm_hidden_size = 2 ** trial.suggest_int('hidden_size', 5, 11)
+            cfg_copy.hyperparams.analytical.lstm_num_layers = trial.suggest_int('lstm_layers', 1, 5)
+            if cfg_copy.hyperparams.analytical.output_type == 'TwoPeakNormalLstmVariantDistrNetwork':
+                cfg_copy.hyperparams.analytical.num_hidden_layer = trial.suggest_int('num_hidden_layer', 1, 5)
+                cfg_copy.hyperparams.analytical.hidden_layer_sizes = [
+                    2 ** trial.suggest_int(f'hidden_layer_sizes_{i}', 3, 9)
+                    for
+                    i in
+                    range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
+        else:
+            cfg_copy.hyperparams.analytical.num_hidden_layer = trial.suggest_int('num_hidden_layer', 1, 20)
+            cfg_copy.hyperparams.analytical.hidden_layer_sizes = [
+                2 ** trial.suggest_int(f'hidden_layer_sizes_{i}', 1, 11)
+                for
+                i in
+                range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
 
     return train_and_test_model(cfg_copy, trial)
 
