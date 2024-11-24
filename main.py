@@ -138,7 +138,12 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
 
         # noinspection SpellCheckingInspection
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
-        cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type', ['NormalDistrMuDistanceNetworkBase', 'NormalDistrGroundTruthLossNetwork', 'NormalDistrManualReparameterizationNetwork', 'NormalDistrRandomSampleDistNetwork', 'BetaDistrRSampleMeanNetwork'])
+        cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type',
+                                                                                ['NormalDistrMuDistanceNetworkBase',
+                                                                                 'NormalDistrGroundTruthLossNetwork',
+                                                                                 'NormalDistrManualReparameterizationNetwork',
+                                                                                 'NormalDistrRandomSampleDistNetwork',
+                                                                                 'BetaDistrRSampleMeanNetwork'])
 
     return train_and_test_model(cfg_copy, trial)
 
@@ -155,7 +160,7 @@ def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
     )
 
     tensor_type = torch.float32
-    set_random_seed(0) # Have a unique test set for every trial
+    set_random_seed(0)  # Have a unique test set for every trial
     test_dataset = CustomParameterDataset(
         length=train_config.number_of_test_problems,
         device_to_use=device,

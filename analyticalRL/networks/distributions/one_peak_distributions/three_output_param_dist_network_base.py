@@ -6,7 +6,7 @@ from torch import Tensor
 from analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
 
 
-class TwoParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
+class ThreeOutputParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
 
     @abstractmethod
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):

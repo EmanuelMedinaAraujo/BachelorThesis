@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 
 from torch import nn
 
-from analyticalRL.networks.distributions.one_peak_distributions.two_param_dist_network_base import \
-    TwoParameterDistrNetworkBase
+from analyticalRL.networks.distributions.one_peak_distributions.three_output_param_dist_network_base import \
+    ThreeOutputParameterDistrNetworkBase
 
 
 class NormalizeSigmaLayer(nn.Module):
@@ -30,7 +30,7 @@ class NormalizeSigmaLayer(nn.Module):
             x[mask] = torch.sigmoid(x[mask])
             return x
 
-class NormalDistrNetworkBase(TwoParameterDistrNetworkBase, ABC):
+class NormalDistrNetworkBase(ThreeOutputParameterDistrNetworkBase, ABC):
     """
     This class is used to create a neural network that predicts the angles of the joints of a planar robotic arm.
     The network takes two inputs, the parameters (DH or MDH) of the arm and the goal position.
