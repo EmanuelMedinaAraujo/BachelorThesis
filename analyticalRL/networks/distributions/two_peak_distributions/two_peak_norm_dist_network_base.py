@@ -31,27 +31,7 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
 
     @abstractmethod
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
-        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance, output_per_joint=6)
-
-    @staticmethod
-    def extract_six_dist_parameters(is_single_parameter, joint_number, pred):
-        if is_single_parameter:
-            distribution_params = pred[joint_number]
-            parameter1 = torch.tensor([distribution_params[0]]).to(pred.device)
-            parameter2 = torch.tensor([distribution_params[1]]).to(pred.device)
-            parameter3 = torch.tensor([distribution_params[2]]).to(pred.device)
-            parameter4 = torch.tensor([distribution_params[3]]).to(pred.device)
-            parameter5 = torch.tensor([distribution_params[4]]).to(pred.device)
-            parameter6 = torch.tensor([distribution_params[5]]).to(pred.device)
-        else:
-            distribution_params = pred[:, joint_number]
-            parameter1 = distribution_params[:, 0]
-            parameter2 = distribution_params[:, 1]
-            parameter3 = distribution_params[:, 2]
-            parameter4 = distribution_params[:, 3]
-            parameter5 = distribution_params[:, 4]
-            parameter6 = distribution_params[:, 5]
-        return parameter1, parameter2, parameter3, parameter4, parameter5, parameter6
+        super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance, output_per_joint=8)
 
     @staticmethod
     def map_eight_parameters_ranges(parameter1, parameter2, parameter3, parameter4, parameter5, parameter6, parameter7,
@@ -122,6 +102,26 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
                 else:
                     all_loss_variables = torch.cat([all_loss_variables, loss_variable], dim=1).to(param.device)
         return self.calculate_batch_loss(all_loss_variables, goal, param)
+
+    @staticmethod
+    def extract_six_dist_parameters(is_single_parameter, joint_number, pred):
+        if is_single_parameter:
+            distribution_params = pred[joint_number]
+            parameter1 = torch.tensor([distribution_params[0]]).to(pred.device)
+            parameter2 = torch.tensor([distribution_params[1]]).to(pred.device)
+            parameter3 = torch.tensor([distribution_params[2]]).to(pred.device)
+            parameter4 = torch.tensor([distribution_params[3]]).to(pred.device)
+            parameter5 = torch.tensor([distribution_params[4]]).to(pred.device)
+            parameter6 = torch.tensor([distribution_params[5]]).to(pred.device)
+        else:
+            distribution_params = pred[:, joint_number]
+            parameter1 = distribution_params[:, 0]
+            parameter2 = distribution_params[:, 1]
+            parameter3 = distribution_params[:, 2]
+            parameter4 = distribution_params[:, 3]
+            parameter5 = distribution_params[:, 4]
+            parameter6 = distribution_params[:, 5]
+        return parameter1, parameter2, parameter3, parameter4, parameter5, parameter6
 
     def collect_distributions(self, is_single_parameter, network_output):
         all_distributions = None
