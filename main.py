@@ -4,12 +4,12 @@ from hydra.core.config_store import ConfigStore
 from stable_baselines3.common.utils import set_random_seed
 
 import optuna
-from analyticalRL.analytical_training_and_tests import do_analytical_learning
+from networks.analyticalRL.analytical_training_and_tests import do_analytical_learning
 from conf.conf_dataclasses.config import TrainConfig
 from custom_logging.custom_loggger import GeneralLogger
 from data_generation.parameter_dataset import CustomParameterDataset
 from optuna import TrialPruned
-from optuna.optuna import run_optuna
+from hyperparameter_optimization.optuna_utils import run_optuna
 from stb3.stb3_training import do_stable_baselines3_learning
 
 cs = ConfigStore.instance()
