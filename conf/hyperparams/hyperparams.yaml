@@ -5,6 +5,10 @@ analytical:
   learning_rate: 0.001492270739565321
   batch_size: 512
 
+  # lstm hyperparameters
+  lstm_hidden_size: 512 # number of features in hidden state (only used with lstm)
+  lstm_num_layers: 1 # number of stacked lstm layers (only used with lstm)
+
   problems_per_epoch: 7168
   epochs: 10000
   testing_interval: 20000 # Number of epochs after which to test the model

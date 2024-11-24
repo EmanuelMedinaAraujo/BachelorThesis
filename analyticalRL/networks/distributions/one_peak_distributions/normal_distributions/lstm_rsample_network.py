@@ -16,11 +16,12 @@ class NormalDistrRandomSampleLSTMDistNetwork(NormalDistrNetworkBase):
     The loss function is the mean of the distances between the end effector positions of the parameters and the goal.
     """
 
-    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger, error_tolerance):
+    def __init__(self, num_joints, num_layer, layer_sizes, logger: GeneralLogger, error_tolerance, hidden_size, lstm_layers):
         super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
-        self.hidden_size = 512  # number of features in hidden state
+        self.hidden_size = hidden_size  # number of features in hidden state
+        self.num_layers = lstm_layers  # number of stacked LSTM layers
+
         self.input_size = num_joints * 3 + 2
-        self.num_layers = 1  # number of stacked LSTM layers
         self.lstm_output_size = num_joints * 3
         self.lstm = nn.LSTM(input_size=self.input_size, hidden_size=self.hidden_size,
                             num_layers=self.num_layers, proj_size=self.lstm_output_size, batch_first=True)
