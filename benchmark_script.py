@@ -2,7 +2,7 @@ import os
 import subprocess
 import time
 
-number_of_repeats = 2
+number_of_repeats = 5
 
 
 def execute_main_script():

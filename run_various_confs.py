@@ -6,17 +6,9 @@ from tqdm import tqdm
 
 # List of output types to iterate over
 output_types = [
-    "SimpleKinematicsNetwork",
-    "NormalDistrMuDistanceNetworkBase",
-    "NormalDistrGroundTruthLossNetwork",
-    "NormalDistrManualReparameterizationNetwork",
-    "NormalDistrRandomSampleDistNetwork",
-    "NormalDistrRandomSampleLSTMDistNetwork",
-    "BetaDistrRSampleMeanNetwork",
-    "TwoPeakNormalDistrNetwork",
-    "TwoPeakNormalLstmDistrNetwork",
-    "TwoPeakNormalLstmVariantDistrNetwork"
+    "SimpleKinematicsNetwork"
 ]
+new_number_of_joints = 3
 
 # Path to the configuration file
 hyperparameters_config_file_path = 'conf/hyperparams/hyperparams.yaml'
@@ -55,13 +47,7 @@ def run_benchmark_script():
 
     try:
         with open(log_file_path, 'a') as log_file:
-            process = subprocess.Popen(["python3", benchmark_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            for line in process.stdout:
-                sys.stdout.write(line.decode())
-                log_file.write(line.decode())
-            for line in process.stderr:
-                sys.stderr.write(line.decode())
-                log_file.write(line.decode())
+            process = subprocess.Popen(["python3", benchmark_script], stdout=sys.stdout, stderr=sys.stderr)
             process.wait()
     except subprocess.CalledProcessError as e:
         print(f"Execution failed: {e}")
@@ -74,7 +60,7 @@ def main():
         run_benchmark_script()
 
     print("\nUpdating number_of_joints to 3 and restarting benchmarks...")
-    update_number_of_joints(3)
+    update_number_of_joints(new_number_of_joints)
 
     for output_type in tqdm(output_types, desc="Processing output types with 3 joints"):
         print(f"\nRunning benchmark for output type: {output_type}")
