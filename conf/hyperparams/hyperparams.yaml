@@ -1,5 +1,5 @@
 analytical:
-  num_hidden_layer: 3 # 3-5 layers mit lstm
+  num_hidden_layer: 3
   hidden_layer_sizes: [ 2048, 256, 2048 ]
 
   learning_rate: 0.001492270739565321
@@ -10,11 +10,11 @@ analytical:
   lstm_num_layers: 1 # number of stacked lstm layers (only used with lstm)
 
   problems_per_epoch: 7168
-  epochs: 10000
+  epochs: 5000
   testing_interval: 20000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
-  # Supported Output Types:
+  # Supported Output Types (Note lstm types mus contain "LSTM" in the name, to obtain the additional lstm hyperparameters):
     # "SimpleKinematicsNetwork": Network outputs angle for each joint
     # One Peak Distributions
       # Normal distributions
@@ -28,7 +28,7 @@ analytical:
       # "TwoPeakNormalDistrNetwork": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
       # "TwoPeakNormalLstmDistrNetwork": Network outputs two normal distributions and weights for each joint. LSTM is used
       # "TwoPeakNormalLstmVariantDistrNetwork" LSTM where an angle is extracted each lstm cycle
-  output_type: "SimpleKinematicsNetwork"
+  output_type: "NormalDistrRandomSampleLSTMDistNetwork"
 
 stb3:
   testing_interval: 1000000 # Number of steps after which to test the model

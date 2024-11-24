@@ -1,7 +1,7 @@
 wandb:
-  log_in_wandb: false
+  log_in_wandb: true
   log_visualization_plots: false
-  project_name: thesis-performance-direct
+  project_name: thesis-optuna-1PDist-lstm
 
 log_in_console: false
 log_architecture: false
