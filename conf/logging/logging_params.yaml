@@ -1,7 +1,7 @@
 wandb:
-  log_in_wandb: true
+  log_in_wandb: false
   log_visualization_plots: true
-  project_name: thesis-optuna-direct
+  project_name: thesis-optuna-dist-analytical
 
 log_in_console: false
 log_architecture: false
