@@ -9,13 +9,13 @@ random_seed: 42
 
 use_stb3: false
 do_vis: false
-use_optuna: false
+use_optuna: true
 
 server_postfix: "" # :1 for the first server, "" for local execution
 torch_num_threads: 1
 
-save_trained_model: true
-model_save_dir: "model_saves_files_perf_direct" # Directory the models are saved to
+save_trained_model: false
+model_save_dir: "model_saves_files" # Directory the models are saved to
 
 # Problem Generation Parameter
 number_of_joints: 2
