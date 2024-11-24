@@ -138,6 +138,7 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
 
         # noinspection SpellCheckingInspection
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
+        cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type', ['NormalDistrMuDistanceNetworkBase', 'NormalDistrGroundTruthLossNetwork', 'NormalDistrManualReparameterizationNetwork', 'NormalDistrRandomSampleDistNetwork', 'BetaDistrRSampleMeanNetwork'])
 
     return train_and_test_model(cfg_copy, trial)
 
