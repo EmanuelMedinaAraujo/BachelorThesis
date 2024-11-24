@@ -1,11 +1,11 @@
 import numpy as np
 import torch
 
-from analyticalRL.networks.distributions.one_peak_distributions.three_output_param_dist_network_base import \
+from networks.analyticalRL.networks.distributions.one_peak_distributions.three_output_param_dist_network_base import \
     ThreeOutputParameterDistrNetworkBase
-from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
+from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
     TwoPeakNormalDistrNetworkBase
-from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
+from networks.analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
 from conf.conf_dataclasses.config import TrainConfig
 from vis.planar_robot_vis import plot_planar_robot, create_eef_heatmap
 from vis.vis_utils import set_plot_settings, plot_distribution_single_link, finish_and_close_plot
