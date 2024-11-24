@@ -33,14 +33,14 @@ def main(train_config: TrainConfig):
     num_processes = train_config.optuna.num_processes
     num_trials_per_process = train_config.optuna.trials_per_process
     try:
-        optuna.delete_study(study_name='distribution_optuna', storage=f'sqlite:///distribution_optuna.db')
+        optuna.delete_study(study_name='distribution_optuna_2p', storage=f'sqlite:///distribution_optuna_2p.db')
     except KeyError:
         pass
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
                                 pruner=optuna.pruners.MedianPruner(n_warmup_steps=minimal_steps),
                                 direction='maximize' if train_config.use_stb3 else 'minimize',
-                                study_name='distribution_optuna',
-                                storage=f'sqlite:///distribution_optuna.db',
+                                study_name='distribution_optuna_2p',
+                                storage=f'sqlite:///distribution_optuna_2p.db',
                                 )
 
     arguments = [(study, copy_cfg(train_config), num_trials_per_process) for _ in range(num_processes)]
@@ -138,12 +138,12 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
 
         # noinspection SpellCheckingInspection
         cfg_copy.hyperparams.analytical.optimizer = trial.suggest_categorical('optimizer', ['Adam', 'SGD', 'RMSprop'])
-        cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type',
-                                                                                ['NormalDistrMuDistanceNetworkBase',
-                                                                                 'NormalDistrGroundTruthLossNetwork',
-                                                                                 'NormalDistrManualReparameterizationNetwork',
-                                                                                 'NormalDistrRandomSampleDistNetwork',
-                                                                                 'BetaDistrRSampleMeanNetwork'])
+        # cfg_copy.hyperparams.analytical.output_type = trial.suggest_categorical('output_type',
+        #                                                                         ['NormalDistrMuDistanceNetworkBase',
+        #                                                                          'NormalDistrGroundTruthLossNetwork',
+        #                                                                          'NormalDistrManualReparameterizationNetwork',
+        #                                                                          'NormalDistrRandomSampleDistNetwork',
+        #                                                                          'BetaDistrRSampleMeanNetwork'])
 
     return train_and_test_model(cfg_copy, trial)
 
