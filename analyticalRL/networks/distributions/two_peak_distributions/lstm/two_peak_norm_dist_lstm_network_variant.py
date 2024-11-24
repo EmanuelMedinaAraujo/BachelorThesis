@@ -33,7 +33,6 @@ class TwoPeakNormalLstmVariantDistrNetwork(TwoPeakNormalLstmDistrNetworkBase):
         is_single_parameter = True if param.dim() == 2 else False
         output = super().forward_in_lstm(flatten_input, is_single_parameter)  # lstm with input, hidden, and internal state
         out = output.squeeze(1)  # reshaping the data for Dense layer next
-        out = self.relu(out)
         out = self.linear_relu_stack(out)
         network_output = NormalizeWeightsLayer(self.num_joints)(out)
 
