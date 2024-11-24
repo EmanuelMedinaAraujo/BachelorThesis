@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 
-from analyticalRL.networks.distributions.one_peak_distributions.two_param_dist_network_base import \
-    TwoParameterDistrNetworkBase
+from analyticalRL.networks.distributions.one_peak_distributions.three_output_param_dist_network_base import \
+    ThreeOutputParameterDistrNetworkBase
 from analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
     TwoPeakNormalDistrNetworkBase
 from analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
@@ -94,7 +94,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
                            chart_index)
 
 
-def visualize_analytical_distribution(model: TwoParameterDistrNetworkBase, param, ground_truth, goal, cfg: TrainConfig,
+def visualize_analytical_distribution(model: ThreeOutputParameterDistrNetworkBase, param, ground_truth, goal, cfg: TrainConfig,
                                       device,
                                       logger=None,
                                       current_step=None, chart_index=1):

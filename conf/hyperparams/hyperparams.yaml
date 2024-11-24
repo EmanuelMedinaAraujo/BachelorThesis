@@ -24,7 +24,7 @@ analytical:
       # "TwoPeakNormalDistrNetwork": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
       # "TwoPeakNormalLstmDistrNetwork": Network outputs two normal distributions and weights for each joint. LSTM is used
       # "TwoPeakNormalLstmVariantDistrNetwork" LSTM where an angle is extracted each lstm cycle
-  output_type: "NormalDistrRandomSampleDistNetwork"
+  output_type: "NormalDistrManualReparameterizationNetwork"
 
 stb3:
   testing_interval: 1000000 # Number of steps after which to test the model
