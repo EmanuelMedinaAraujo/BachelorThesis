@@ -46,9 +46,8 @@ def run_benchmark_script():
         return
 
     try:
-        with open(log_file_path, 'a') as log_file:
-            process = subprocess.Popen(["python3", benchmark_script], stdout=sys.stdout, stderr=sys.stderr)
-            process.wait()
+        process = subprocess.Popen(["python3", benchmark_script], stdout=sys.stdout, stderr=sys.stderr)
+        process.wait()
     except subprocess.CalledProcessError as e:
         print(f"Execution failed: {e}")
 
