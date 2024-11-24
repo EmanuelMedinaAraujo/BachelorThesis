@@ -28,3 +28,26 @@ class TrainConfig:
     min_link_length: float
     max_link_length: float
     number_of_test_problems: int
+
+
+def copy_cfg(cfg: TrainConfig) -> TrainConfig:
+    return TrainConfig(
+        hyperparams=cfg.hyperparams,
+        logging=cfg.logging,
+        vis=cfg.vis,
+        optuna=cfg.optuna,
+        random_seed=cfg.random_seed,
+        use_stb3=cfg.use_stb3,
+        do_vis=cfg.do_vis,
+        use_optuna=cfg.use_optuna,
+        server_postfix=cfg.server_postfix,
+        torch_num_threads=cfg.torch_num_threads,
+        number_of_joints=cfg.number_of_joints,
+        tolerable_accuracy_error=cfg.tolerable_accuracy_error,
+        parameter_convention=cfg.parameter_convention,
+        min_link_length=cfg.min_link_length,
+        max_link_length=cfg.max_link_length,
+        number_of_test_problems=cfg.number_of_test_problems,
+        model_save_dir=cfg.model_save_dir,
+        save_trained_model=cfg.save_trained_model
+    )

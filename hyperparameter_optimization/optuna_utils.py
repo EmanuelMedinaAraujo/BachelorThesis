@@ -5,8 +5,8 @@ import torch
 from optuna import Study
 from optuna import TrialPruned
 
-from conf.conf_dataclasses.config import TrainConfig
-from main import copy_cfg, train_and_test_model
+from conf.conf_dataclasses.config import TrainConfig, copy_cfg
+from networks.train_and_test_models import train_and_test_model
 
 
 def run_optuna(train_config):
