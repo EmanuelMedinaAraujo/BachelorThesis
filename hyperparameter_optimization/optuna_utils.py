@@ -1,12 +1,37 @@
 from typing import Callable, Union
 
-import torch
-from optuna.exceptions import TrialPruned
-from optuna.study import Study
-
 import optuna
+import torch
+from optuna import Study
+from optuna import TrialPruned
+
 from conf.conf_dataclasses.config import TrainConfig
 from main import copy_cfg, train_and_test_model
+
+
+def run_optuna(train_config):
+    minimal_steps = train_config.optuna.min_num_steps
+    num_processes = train_config.optuna.num_processes
+    num_trials_per_process = train_config.optuna.trials_per_process
+    try:
+        optuna.delete_study(study_name='distribution_optuna_2p_lstm',
+                            storage=f'sqlite:///distribution_optuna_2p_lstm.db')
+    except KeyError:
+        pass
+    study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
+                                pruner=optuna.pruners.MedianPruner(n_warmup_steps=minimal_steps),
+                                direction='maximize' if train_config.use_stb3 else 'minimize',
+                                study_name='distribution_optuna_2p_lstm',
+                                storage=f'sqlite:///distribution_optuna_2p_lstm.db',
+                                )
+    arguments = [(study, copy_cfg(train_config), num_trials_per_process) for _ in range(num_processes)]
+    if num_processes == 1:
+        _optimize(study, train_config, num_trials_per_process)
+    else:
+        torch.multiprocessing.set_start_method('spawn')
+        with torch.multiprocessing.Pool(processes=num_processes) as p:
+            p.starmap(_optimize, arguments)
+    print_optuna_results(study)
 
 
 def print_optuna_results(study):
@@ -127,28 +152,3 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
                 range(cfg_copy.hyperparams.analytical.num_hidden_layer)]
 
     return train_and_test_model(cfg_copy, trial)
-
-
-def run_optuna(train_config):
-    minimal_steps = train_config.optuna.min_num_steps
-    num_processes = train_config.optuna.num_processes
-    num_trials_per_process = train_config.optuna.trials_per_process
-    try:
-        optuna.delete_study(study_name='distribution_optuna_2p_lstm',
-                            storage=f'sqlite:///distribution_optuna_2p_lstm.db')
-    except KeyError:
-        pass
-    study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
-                                pruner=optuna.pruners.MedianPruner(n_warmup_steps=minimal_steps),
-                                direction='maximize' if train_config.use_stb3 else 'minimize',
-                                study_name='distribution_optuna_2p_lstm',
-                                storage=f'sqlite:///distribution_optuna_2p_lstm.db',
-                                )
-    arguments = [(study, copy_cfg(train_config), num_trials_per_process) for _ in range(num_processes)]
-    if num_processes == 1:
-        _optimize(study, train_config, num_trials_per_process)
-    else:
-        torch.multiprocessing.set_start_method('spawn')
-        with torch.multiprocessing.Pool(processes=num_processes) as p:
-            p.starmap(_optimize, arguments)
-    print_optuna_results(study)
