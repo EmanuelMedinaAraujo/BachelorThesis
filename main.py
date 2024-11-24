@@ -33,7 +33,7 @@ def main(train_config: TrainConfig):
     num_processes = train_config.optuna.num_processes
     num_trials_per_process = train_config.optuna.trials_per_process
     try:
-        optuna.delete_study(study_name='analytical', storage=f'sqlite:///distribution_optuna.db')
+        optuna.delete_study(study_name='distribution_optuna', storage=f'sqlite:///distribution_optuna.db')
     except KeyError:
         pass
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
