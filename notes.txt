@@ -1,23 +1,11 @@
 Frage:
 -------------------------------------------------------------------------------------
 DONE:
-- Move mixed gaussian run from ppo to analytical project in wandb
-    - https://wandb.ai/medina-tum/thesis-optuna/runs/jecczbko/overview
-- Accuracy von MLP implementieren
-- bestes PPO mit 2M steps laufen lassen
-    - mti 60m steps laufen lassen wegen potentiellen performance
-    - https://wandb.ai/medina-tum/thesis-best-ppo/runs/htwrmi01
-- MLP Deterministic mit 3dof laufen lassen
-    - https://wandb.ai/medina-tum/thesis-analytical/runs/adl153d2
-- Anaylytical optuna hyper parameter search
-- LSTM Mixed Gaussian implementieren
 
 In Progress:
 
 
 TODO:
-- Alle Stochastischen Modelle mit 3dof laufen lassen
-- (LSTM Gaussian implementieren (falls Zeit ist))
 - Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
     - Colorbar werte mit Anzahl an Samples teilen um distribution anzugeben
     - Markieren was der wahrscheinlichste Punkt ist. (Wo ist jeweil der MEAN)
@@ -31,7 +19,7 @@ TODO:
 - Training Time aufzeichnen lassen
 - Jeden Lauf jeweils 5 mal laufen lassen um Ungenauigkeiten zu berechnen
 - Bachelorarbeit Tabellen in mm Zeichnen lassen
-- Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slackk)
+- Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slack)
 - Tabellen zeichnen (siehe slack)
 - Bachelorarbeit fertigstellen
 --------------------------------------------------------------------------------------

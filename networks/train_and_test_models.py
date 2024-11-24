@@ -3,11 +3,11 @@ import torch
 from optuna import TrialPruned
 from stable_baselines3.common.utils import set_random_seed
 
-from analyticalRL.analytical_training_and_tests import do_analytical_learning
+from networks.analyticalRL.analytical_training_and_tests import do_analytical_learning
 from conf.conf_dataclasses.config import TrainConfig
 from custom_logging.custom_loggger import GeneralLogger
 from data_generation.parameter_dataset import CustomParameterDataset
-from stb3.stb3_training import do_stable_baselines3_learning
+from networks.stb3.stb3_training import do_stable_baselines3_learning
 
 
 def train_and_test_model(train_config: TrainConfig, trial: optuna.Trial = None):
