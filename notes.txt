@@ -1,14 +1,15 @@
 Frage:
--------------------------------------------------------------------------------------
-DONE:
-
-In Progress:
-
 
 TODO:
 - Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
     - Colorbar werte mit Anzahl an Samples teilen um distribution anzugeben
-    - Markieren was der wahrscheinlichste Punkt ist. (Wo ist jeweil der MEAN)
+    - Markieren was der wahrscheinlichste Punkt ist. (Wo ist jeweils der MEAN)
+- Training Time aufzeichnen lassen
+- Jeden Lauf jeweils 5 mal laufen lassen um Ungenauigkeiten zu berechnen
+- Bachelorarbeit Tabellen in mm Zeichnen lassen
+- Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slack)
+- Tabellen zeichnen (siehe slack)
+- Bachelorarbeit fertigstellen
 - Gymnasium für analytical erstellen
     - https://gymnasium.farama.org/introduction/train_agent/ - Gymnasium für analytical erstellen
 	wrapper
@@ -16,12 +17,6 @@ TODO:
 			alle return sind torch.tensoren
 		stable baselines environment erbt
 			gibt numpy arrays zurück
-- Training Time aufzeichnen lassen
-- Jeden Lauf jeweils 5 mal laufen lassen um Ungenauigkeiten zu berechnen
-- Bachelorarbeit Tabellen in mm Zeichnen lassen
-- Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slack)
-- Tabellen zeichnen (siehe slack)
-- Bachelorarbeit fertigstellen
 --------------------------------------------------------------------------------------
 Distributions Discussion:
 - custom Periodic PDF (sinus, cosinus)
