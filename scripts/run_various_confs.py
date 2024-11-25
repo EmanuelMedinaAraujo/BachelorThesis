@@ -4,8 +4,8 @@ import sys
 import yaml
 from tqdm import tqdm
 
-from scripts.benchmark_script import execute_main_script
-from scripts.test_model_file import test_models_in_folder
+from benchmark_script import execute_main_script
+from test_model_file import test_models_in_folder
 
 # List of output types to iterate over
 analytical_direct = {
@@ -17,34 +17,31 @@ analytical_direct = {
     "optimizer": "Adam",
     "output_type": "SimpleKinematicsNetwork"
 }
-
 # One peak distribution
 one_peak_dist = {
     "num_hidden_layer": 3,
     "hidden_layer_sizes": [128, 512, 2048],
     "learning_rate": 0.00043306334967391496,
     "batch_size": 16,
-    "problems_per_epoch": 128,
+    "problems_per_epoch": 112,
     "optimizer": "RMSprop",
     "output_type": "NormalDistrManualReparameterizationNetwork"
 }
-
 # Beta
 beta = {
     "num_hidden_layer": 4,
     "hidden_layer_sizes": [16, 16, 1024, 128],
     "learning_rate": 0.0004133444288382607,
     "batch_size": 32,
-    "problems_per_epoch": 512,
+    "problems_per_epoch": 288,
     "optimizer": "Adam",
     "output_type": "BetaDistrRSampleMeanNetwork"
 }
-
 # One peak lstm
 one_peak_lstm = {
     "learning_rate": 0.004623192404444301,
     "batch_size": 256,
-    "problems_per_epoch": 262144,
+    "problems_per_epoch": 4608,
     "optimizer": "Adam",
     "lstm_hidden_size": 1024,
     "lstm_num_layers": 4,
@@ -54,23 +51,21 @@ one_peak_lstm = {
     "num_hidden_layer": 0,
     "hidden_layer_sizes": []
 }
-
 # Two peak distribution
 two_peak = {
     "num_hidden_layer": 2,
     "hidden_layer_sizes": [2048, 32],
     "learning_rate": 0.008179331918920956,
     "batch_size": 256,
-    "problems_per_epoch": 8192,
+    "problems_per_epoch": 3328,
     "optimizer": "Adam",
     "output_type": "TwoPeakNormalDistrNetwork"
 }
-
 # Two peak LSTM variant distribution
 two_peak_lstm = {
     "learning_rate": 0.0027334146724357724,
     "batch_size": 512,
-    "problems_per_epoch": 8,
+    "problems_per_epoch": 1536,
     "lstm_hidden_size": 256,
     "lstm_num_layers": 3,
     "num_hidden_layer": 4,
@@ -78,15 +73,14 @@ two_peak_lstm = {
     "optimizer": "Adam",
     "output_type": "TwoPeakNormalLstmVariantDistrNetwork"
 }
-
 # List to store all configurations
 configurations = [
     # analytical_direct,
-    one_peak_dist,
+    #one_peak_dist,
     one_peak_lstm,
-    # beta,
-    # two_peak,
-    # two_peak_lstm
+    #beta,
+    #two_peak,
+    #two_peak_lstm
 ]
 
 num_joints_to_test = [2,3]
