@@ -76,8 +76,8 @@ two_peak_lstm = {
 # List to store all configurations
 configurations = [
     # analytical_direct,
-    one_peak_dist,
-    one_peak_lstm,
+    #one_peak_dist,
+    #one_peak_lstm,
     beta,
     two_peak,
     two_peak_lstm
@@ -134,6 +134,7 @@ def run_various_configurations():
             print(f"\tLoss: {loss:.4f}, Accuracy: {acc:.4f}, Runtime: {runtime:.4f} seconds, Model File: {model_file}")
         print(f"\tLosses: {[loss for _, loss, _, _ in results]}, Mean Loss: {sum([loss for _, loss, _, _ in results]) / len(results):.4f}")
         print(f"\tAccuracies: {[acc for _, _, acc, _ in results]}, Mean Accuracy: {sum([acc for _, _, acc, _ in results]) / len(results):.4f}")
+        results = results[::-1]
         print(f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
 
 def update_conf_file(run_configuration, folder_path):
