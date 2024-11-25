@@ -210,10 +210,11 @@ def train_model_loop(model: KinematicsNetworkBase, optimizer, problem_generator,
         optimizer.step()
 
     accuracy = num_correct * 100 / problems_per_epoch
+    loss = (loss_sum / num_problems) if num_problems != 0 else (loss_sum / problems_per_epoch)
     logger.log_training(
-        loss=loss_sum / num_problems, epoch_num=epoch_num, accuracy=accuracy
+        loss=loss, epoch_num=epoch_num, accuracy=accuracy
     )
-    return loss_sum / num_problems
+    return loss
 
 
 def eval_model(goal, ground_truth, loss_sum, model, num_correct, param):
