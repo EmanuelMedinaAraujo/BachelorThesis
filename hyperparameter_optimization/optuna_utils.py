@@ -13,16 +13,17 @@ def run_optuna(train_config):
     minimal_steps = train_config.optuna.min_num_steps
     num_processes = train_config.optuna.num_processes
     num_trials_per_process = train_config.optuna.trials_per_process
+    optuna_name = 'performance'
     try:
-        optuna.delete_study(study_name='distribution_optuna_2p_lstm',
-                            storage=f'sqlite:///distribution_optuna_2p_lstm.db')
+        optuna.delete_study(study_name=optuna_name,
+                            storage=f'sqlite:///{optuna_name}.db')
     except KeyError:
         pass
     study = optuna.create_study(sampler=optuna.samplers.TPESampler(),
                                 pruner=optuna.pruners.MedianPruner(n_warmup_steps=minimal_steps),
                                 direction='maximize' if train_config.use_stb3 else 'minimize',
-                                study_name='distribution_optuna_2p_lstm',
-                                storage=f'sqlite:///distribution_optuna_2p_lstm.db',
+                                study_name=optuna_name,
+                                storage=f'sqlite:///{optuna_name}.db',
                                 )
     arguments = [(study, copy_cfg(train_config), num_trials_per_process) for _ in range(num_processes)]
     if num_processes == 1:
