@@ -1,4 +1,7 @@
+import os
+
 from stable_baselines3.common.utils import set_random_seed
+from tqdm import tqdm
 
 from data_generation.parameter_dataset import CustomParameterDataset
 from networks.analyticalRL.analytical_training_and_tests import test_model
@@ -11,21 +14,19 @@ from networks.analyticalRL.networks.distributions.one_peak_distributions.normal_
 from networks.analyticalRL.networks.distributions.two_peak_distributions.lstm.two_peak_norm_dist_lstm_network import *  # noqa
 from networks.analyticalRL.networks.distributions.two_peak_distributions.lstm.two_peak_norm_dist_lstm_network_variant import *  # noqa
 from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import *  # noqa
-from networks.analyticalRL.networks.simple_kinematics_network import *  # noqa
+from networks.analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork  # noqa
 
-model_file_path = "model_saves_files_perf_direct/dof2/SimpleKinematicsNetwork_2024-11-24_15-36-09_model.pth"
-modelclass = SimpleKinematicsNetwork
+model_folder_path = "model_saves_files_perf_direct/dof2/"
+num_of_joints = 2
+
 test_set_length = 10000
 device = "cuda" if torch.cuda.is_available() else "cpu"
-num_of_joints = 2
 parameter_convention = "DH"
 min_link_len = 0.3
 max_link_len = 0.5
 
-problems_to_visualize = 2
 
-
-def test_model_from_file():
+def test_models_in_folder():
     set_random_seed(0)  # Have a unique test set for every trial
     # Create Test Set
     test_dataset = CustomParameterDataset(
@@ -37,17 +38,24 @@ def test_model_from_file():
         max_link_len=max_link_len,
     )
 
-    # Load model with modelclass
-    loadedModel = torch.load(model_file_path, weights_only=False)
-    loadedModel.eval()
-    # Create cfg for logger
+    # List all model files in the folder
+    model_files = [f for f in os.listdir(model_folder_path) if f.endswith(".pth")]
 
-    test_model(
-        test_dataset=test_dataset,
-        model=loadedModel,
-        logger=GeneralLogger(None, False, True, True),
-        num_epoch=0,
-    )
+    # Test each model file and show progress bar
+    for model_file in tqdm(model_files, desc="Testing models"):
+        model_file_path = os.path.join(model_folder_path, model_file)
+
+        # Load model with modelclass
+        loaded_model = torch.load(model_file_path, weights_only=False)
+        loaded_model.eval()
+
+        test_model(
+            test_dataset=test_dataset,
+            model=loaded_model,
+            logger=GeneralLogger(None, False, True, True),
+            num_epoch=0,
+        )
+
 
 if __name__ == "__main__":
-    test_model_from_file()
+    test_models_in_folder()
