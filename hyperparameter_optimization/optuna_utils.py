@@ -135,8 +135,8 @@ def _objective(defaults: TrainConfig, trial: optuna.Trial):
 
         # lstm hyperparameters
         if 'lstm' in cfg_copy.hyperparams.analytical.output_type.lower():
-            cfg_copy.hyperparams.analytical.lstm_hidden_size = 2 ** trial.suggest_int('hidden_size', 5, 11)
-            cfg_copy.hyperparams.analytical.lstm_num_layers = trial.suggest_int('lstm_layers', 1, 5)
+            cfg_copy.hyperparams.analytical.lstm_hidden_size = 2 ** trial.suggest_int('lstm_hidden_size', 5, 11)
+            cfg_copy.hyperparams.analytical.lstm_num_layers = trial.suggest_int('lstm_num_layers', 1, 5)
             if cfg_copy.hyperparams.analytical.output_type == 'TwoPeakNormalLstmVariantDistrNetwork':
                 cfg_copy.hyperparams.analytical.num_hidden_layer = trial.suggest_int('num_hidden_layer', 1, 5)
                 cfg_copy.hyperparams.analytical.hidden_layer_sizes = [

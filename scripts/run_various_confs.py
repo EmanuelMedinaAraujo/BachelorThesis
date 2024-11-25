@@ -7,9 +7,81 @@ from scripts.benchmark_script import execute_main_script
 from scripts.test_model_file import test_models_in_folder
 
 # List of output types to iterate over
-output_types = [
-    "SimpleKinematicsNetwork",
-    "BetaDistrRSampleMeanNetwork",
+analytical_direct = {
+    "num_hidden_layer": 3,
+    "hidden_layer_sizes": [2048, 256, 2048],
+    "learning_rate": 0.001492270739565321,
+    "batch_size": 512,
+    "problems_per_epoch": 7168,
+    "optimizer": "Adam",
+    "output_type": "SimpleKinematicsNetwork"
+}
+
+# One peak distribution
+one_peak_dist = {
+    "num_hidden_layer": 3,
+    "hidden_layer_sizes": [128, 512, 2048],
+    "learning_rate": 0.00043306334967391496,
+    "batch_size": 16,
+    "problems_per_epoch": 128,
+    "optimizer": "RMSprop",
+    "output_type": "NormalDistrManualReparameterizationNetwork"
+}
+
+# Beta
+beta = {
+    "num_hidden_layer": 4,
+    "hidden_layer_sizes": [16, 16, 1024, 128],
+    "learning_rate": 0.0004133444288382607,
+    "batch_size": 32,
+    "problems_per_epoch": 512,
+    "optimizer": "Adam",
+    "output_type": "BetaDistrRSampleMeanNetwork"
+}
+
+# One peak lstm
+one_peak_lstm = {
+    "learning_rate": 0.004623192404444301,
+    "batch_size": 256,
+    "problems_per_epoch": 262144,
+    "optimizer": "Adam",
+    "lstm_hidden_size": 1024,
+    "lstm_num_layers": 4,
+    "output_type": "NormalDistrRandomSampleLSTMDistNetwork"
+}
+
+# Two peak distribution
+two_peak = {
+    "num_hidden_layer": 2,
+    "hidden_layer_sizes": [2048, 32],
+    "learning_rate": 0.008179331918920956,
+    "batch_size": 256,
+    "problems_per_epoch": 8192,
+    "optimizer": "Adam",
+    "output_type": "TwoPeakNormalDistrNetwork"
+}
+
+# Two peak LSTM variant distribution
+two_peak_lstm = {
+    "learning_rate": 0.0027334146724357724,
+    "batch_size": 512,
+    "problems_per_epoch": 8,
+    "lstm_hidden_size": 256,
+    "lstm_num_layers": 3,
+    "num_hidden_layer": 4,
+    "hidden_layer_sizes": [4, 128, 8, 128],
+    "optimizer": "Adam",
+    "output_type": "TwoPeakNormalLstmVariantDistrNetwork"
+}
+
+# List to store all configurations
+configurations = [
+    analytical_direct,
+    one_peak_dist,
+    one_peak_lstm,
+    beta,
+    two_peak,
+    two_peak_lstm
 ]
 
 num_joints_to_test = [2,3]
@@ -61,16 +133,16 @@ def run_various_configurations():
         print(f"\nOutput Type: {output_type}, Number of Joints: {num_joint}")
         for i, (model_file, loss, acc, runtime) in enumerate(results, 1):
             print(f"\tLoss: {loss:.4f}, Accuracy: {acc:.4f}, Runtime: {runtime:.4f} seconds, Model File: {model_file}")
-        # Print only loss from results as a list
         print(f"\tLosses: {[loss for _, loss, _, _ in results]}, Mean Loss: {sum([loss for _, loss, _, _ in results]) / len(results):.4f}")
-        # Print only runtimes from results as a list
-        print(f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
-        # Print only accuracies from results as a list
         print(f"\tAccuracies: {[acc for _, _, acc, _ in results]}, Mean Accuracy: {sum([acc for _, _, acc, _ in results]) / len(results):.4f}")
+        print(f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
 
 def update_conf_file(run_configuration, folder_path):
     with open(hyperparameters_config_file_path, 'r') as file:
         config = yaml.safe_load(file)
+    config['analytical'] = {}
+    config['analytical']['epochs'] = 10000
+    config['analytical']['testing_interval'] = 20000
     for key, value in run_configuration.items():
         config['analytical'][key] = value
     with open(hyperparameters_config_file_path, 'w') as file:
