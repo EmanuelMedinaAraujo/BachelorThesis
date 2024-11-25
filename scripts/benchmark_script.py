@@ -2,7 +2,7 @@ import os
 import subprocess
 import time
 
-number_of_repeats = 5
+number_of_repeats = 3
 
 
 def execute_main_script():
@@ -31,6 +31,7 @@ def execute_main_script():
     for i, runtime in enumerate(runtimes, 1):
         print(f"Run {i}: {runtime:.4f} seconds")
     print(f"Mean Runtime: {mean_runtime:.4f} seconds")
+    return runtimes
 
 
 if __name__ == "__main__":
