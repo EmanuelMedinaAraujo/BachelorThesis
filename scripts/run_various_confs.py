@@ -58,11 +58,14 @@ def run_various_configurations():
 def update_conf_file(output_type, folder_path):
     with open(hyperparameters_config_file_path, 'r') as file:
         config = yaml.safe_load(file)
-
     config['analytical']['output_type'] = output_type
-    config['model_save_dir']= folder_path
-
     with open(hyperparameters_config_file_path, 'w') as file:
+        yaml.safe_dump(config, file)
+
+    with open(config_file_path, 'r') as file:
+        config = yaml.safe_load(file)
+    config['model_save_dir'] = folder_path
+    with open(config_file_path, 'w') as file:
         yaml.safe_dump(config, file)
 
 
