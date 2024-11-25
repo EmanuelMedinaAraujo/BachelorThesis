@@ -1,0 +1,98 @@
+Best Hyperparameter:
+epochs 10000
+testing_interval 20000
+number_of_test_problem 10000
+analytical-direct:
+	num_hidden_layer: 3
+	hidden_layer_sizes: [ 2048, 256, 2048 ]
+	learning_rate: 0.001492270739565321
+	batch_size: 512
+	problems_per_epoch: 7168
+	optimizer: "Adam"
+	output_type: "SimpleKinematicsNetwork"
+---------------------------------------------------------------------------
+one peak dist:
+	num_hidden_layer 3
+	hidden_layer_sizes [128, 512, 2048]
+	learning_rate 0.00043306334967391496
+	batch_size 16
+	problems_per_epoch 128
+	optimizer RMSprop
+	output_type NormalDistrManualReparameterizationNetwork
+---------------------------------------------------------------------------
+beta
+	num_hidden_layer 4
+	hidden_layer_sizes [16,16, 1024, 128]
+	learning_rate 0.0004133444288382607
+	batch_size 32
+	problems_per_epoch 512
+	optimizer Adam
+	output_type BetaDistrRSampleMeanNetwork
+---------------------------------------------------------------------------
+one peak lstm
+	learning_rate 0.004623192404444301
+	batch_size 256
+	problems_per_epoch 262144
+	optimizer Adam
+	hidden_size 1024
+	lstm_layers 4
+	output_type NormalDistrRandomSampleLSTMDistNetwork
+---------------------------------------------------------------------------
+two peak
+	num_hidden_layer 2
+	hidden_layer_sizes [2048, 32]
+	learning_rate 0.008179331918920956
+	batch_size 256
+	problems_per_epoch 8192
+	optimizer Adam
+	output_type TwoPeakNormalDistrNetwork
+---------------------------------------------------------------------------
+two peak lstm
+	learning_rate 0.0027334146724357724
+	batch_size 512
+	problems_per_epoch 8
+	hidden_size 256
+	lstm_layers 3
+	num_hidden_layer 4
+	hidden_layer_sizes [4, 128, 8, 128]
+	optimizer Adam
+	output_type TwoPeakNormalLstmVariantDistrNetwork
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Alternatives:
+	one peak dist:
+		(mudistance)
+		num_hidden_layer 4
+		hidden_layer_sizes [1024, 128, 64, 256]
+		learning_rate 0.0002920265071713353
+		batch_size 64
+		problems_per_epoch 1024
+		optimizer Adam
+		output_type NormalDistrMuDistanceNetworkBase
+
+		(torch reparam)
+		num_hidden_layer 4
+		hidden_layer_sizes [1042, 64]
+		problems_per_epoch 8
+		learning_rate 0.00012210729721590343
+		batch_size 256
+		optimizer RMSprop
+		output_type NormalDistrRandomSampleDistNetwork
+
+		(Ground Truth)
+		num_hidden_layer 20
+		hidden_layer_sizes [16, 32, 512, 2048, 256, 2048, 8, 256, 8, 1024, 2, 2, 16, 256, 512, 16, 4, 256, 2048, 65535]
+		learning_rate 0.0004062026352168701
+		batch_size 128
+		optimizer RMSprop
+		output_type NormalDistrGroundTruthLossNetwork
+---------------------------------------------------------------------------
+	two peak lstm:
+		(Non-Variant)
+		learning_rate 0.0009395146226113611
+		batch_size 128
+		problems_per_epoch 16384
+		optimizer SGD
+		output_type TwoPeakNormalLstmDistrNetwork
+		hidden_size 256
+		lstm_layers 1

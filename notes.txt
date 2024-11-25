@@ -30,7 +30,7 @@ Distributions Discussion:
 
 --------------------------------------------------------------------------------------
 Server:
-    @tars.cps.in.tum.de
+    ssh medinaar@tars.cps.in.tum.de
         watch -n 0.5 nvidia-smi
 
     Create tmux session:
