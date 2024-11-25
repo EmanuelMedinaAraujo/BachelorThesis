@@ -1,0 +1,109 @@
+SimpleKinematicsNetwork Execution Summary 2 DOF:
+    Run 1: 591.7201 s Accuracy: 100.00%, Avg loss: 0.001245
+    Run 2: 573.0510 s Accuracy: 100.00%, Avg loss: 0.001245
+    Run 3: 577.9547 s Accuracy: 100.00%, Avg loss: 0.001245
+    Run 4: 574.1355 s Accuracy: 100.00%, Avg loss: 0.001245
+    Run 5: 577.5656 s Accuracy: 100.00%, Avg loss: 0.001245
+Mean Runtime: 578.8854 s
+SimpleKinematicsNetwork Execution Summary 3 DOF:
+    Run 1: 633.4401 s Accuracy: 100.00%, Avg loss: 0.001211
+    Run 2: 649.4225 s Accuracy: 100.00%, Avg loss: 0.001211
+    Run 3: 652.4670 s Accuracy: 100.00%, Avg loss: 0.001211
+    Run 4: 660.1398 s Accuracy: 100.00%, Avg loss: 0.001211
+    Run 5: 694.8909 s Accuracy: 100.00%, Avg loss: 0.001211
+    Mean Runtime: 658.0721 s
+--------------------------------------------------------
+NormalDistrManualReparameterizationNetwork, Number of Joints: 2 (runtime not reversed)
+	Loss: 0.0298, Accuracy: 12.1500, Runtime: 279.8738 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_13-18-24_model.pth
+	Loss: 0.0300, Accuracy: 11.9600, Runtime: 279.2801 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_13-13-44_model.pth
+	Loss: 0.0300, Accuracy: 12.0200, Runtime: 279.7086 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_13-27-43_model.pth
+	Loss: 0.0302, Accuracy: 11.9500, Runtime: 282.4643 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_13-23-03_model.pth
+	Loss: 0.0299, Accuracy: 12.0200, Runtime: 284.1055 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_13-09-02_model.pth
+	Losses: [0.029839370904289536, 0.030014442803974088, 0.02997650831984356, 0.030193354917794932, 0.029919238160675012], Mean Loss: 0.0300
+	Accuracies: [12.15, 11.96, 12.02, 11.95, 12.02], Mean Accuracy: 12.0200
+	Runtimes: [279.87379989099986, 279.280106081, 279.70857453099995, 282.46427925499995, 284.10545791600003], Mean Runtime: 281.0864 seconds (runtime not reversed)
+NormalDistrManualReparameterizationNetwork, Number of Joints: 3
+	Loss: 0.0586, Accuracy: 11.8200, Runtime: 336.9418 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_14-59-26_model.pth
+	Loss: 0.0588, Accuracy: 11.8300, Runtime: 336.9320 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_15-21-50_model.pth
+	Loss: 0.0587, Accuracy: 11.7100, Runtime: 336.4128 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_15-16-13_model.pth
+	Loss: 0.0587, Accuracy: 11.8500, Runtime: 333.1980 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_15-04-59_model.pth
+	Loss: 0.0588, Accuracy: 11.8500, Runtime: 336.4063 seconds, Model File: NormalDistrManualReparameterizationNetwork_2024-11-25_15-10-36_model.pth
+	Losses: [0.05864030462488881, 0.05876863716301159, 0.05871017330318718, 0.05870814963627781, 0.058792224038966376], Mean Loss: 0.0587
+	Accuracies: [11.82, 11.83, 11.71, 11.85, 11.85], Mean Accuracy: 11.8120
+	Runtimes: [336.9418363040004, 336.9320162029999, 336.4127845129997, 333.1979619040003, 336.4062928530002], Mean Runtime: 335.9782 seconds (runtime not reversed)
+--------------------------------------------------------
+Output Type: NormalDistrRandomSampleLSTMDistNetwork, Number of Joints: 2 (runtime not reversed)
+	Loss: 0.0021, Accuracy: 99.9600, Runtime: 1016.6642 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_14-02-24_model.pth
+	Loss: 0.0021, Accuracy: 99.9600, Runtime: 1013.2463 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_13-45-30_model.pth
+	Loss: 0.0021, Accuracy: 99.9600, Runtime: 1013.3524 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_14-19-17_model.pth
+	Loss: 0.0021, Accuracy: 99.9600, Runtime: 1013.9245 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_14-36-10_model.pth
+	Loss: 0.0021, Accuracy: 99.9600, Runtime: 1023.9424 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_14-53-07_model.pth
+	Losses: [0.002128918492668254, 0.0021289133153381042, 0.0021289226820897056, 0.0021289145856052526, 0.0021289144674875387], Mean Loss: 0.0021
+	Accuracies: [99.96, 99.96, 99.96, 99.96, 99.96], Mean Accuracy: 99.9600
+	Runtimes: [1016.6642471539999, 1013.2463030790004, 1013.3524014669997, 1013.9244873810003, 1023.9424049500001], Mean Runtime: 1016.2260 seconds (runtime not reversed)
+Output Type: NormalDistrRandomSampleLSTMDistNetwork, Number of Joints: 3
+	Loss: 0.0054, Accuracy: 93.2400, Runtime: 1162.1233 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_16-01-16_model.pth
+	Loss: 0.0054, Accuracy: 93.2600, Runtime: 1150.4150 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_15-42-02_model.pth
+	Loss: 0.0054, Accuracy: 93.2600, Runtime: 1151.8407 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_16-59-00_model.pth
+	Loss: 0.0054, Accuracy: 93.2500, Runtime: 1153.9817 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_16-39-38_model.pth
+	Loss: 0.0054, Accuracy: 93.2400, Runtime: 1159.7184 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-25_16-20-28_model.pth
+	Losses: [0.005443277715871227, 0.0054432776853253016, 0.005443285942882357, 0.005443294865796634, 0.005443277948841569], Mean Loss: 0.0054
+	Accuracies: [93.24, 93.26, 93.26, 93.25, 93.24], Mean Accuracy: 93.2500
+	Runtimes: [1162.1232679000004, 1150.414963860001, 1151.8407029080008, 1153.9816749260008, 1159.7183631449989], Mean Runtime: 1155.6158 seconds (runtime not reversed)
+--------------------------------------------------------
+Output Type: BetaDistrRSampleMeanNetwork, Number of Joints: 2
+	Loss: 0.0589, Accuracy: 5.0600, Runtime: 346.0601 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_18-02-19_model.pth
+	Loss: 0.0590, Accuracy: 5.5300, Runtime: 345.9534 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_17-56-33_model.pth
+	Loss: 0.0586, Accuracy: 5.1400, Runtime: 335.3640 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_17-50-58_model.pth
+	Loss: 0.0585, Accuracy: 5.0900, Runtime: 345.2292 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_18-08-05_model.pth
+	Loss: 0.0581, Accuracy: 5.1300, Runtime: 349.6957 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_17-45-12_model.pth
+	Losses: [0.058866189694573405, 0.05903354568235227, 0.05857040632002172, 0.05853795325591636, 0.05808906818545074], Mean Loss: 0.0586
+	Accuracies: [5.06, 5.53, 5.14, 5.09, 5.13], Mean Accuracy: 5.1900
+	Runtimes: [349.695748205, 345.22922177500004, 335.363979247, 345.95335324300004, 346.06007639100017], Mean Runtime: 344.4605 seconds
+Output Type: BetaDistrRSampleMeanNetwork, Number of Joints: 3
+	Loss: 0.0698, Accuracy: 8.8700, Runtime: 425.0488 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_20-02-06_model.pth
+	Loss: 0.0691, Accuracy: 8.6800, Runtime: 426.8910 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_19-33-42_model.pth
+	Loss: 0.0691, Accuracy: 8.5700, Runtime: 428.1701 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_19-47-54_model.pth
+	Loss: 0.0700, Accuracy: 8.5300, Runtime: 423.5327 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_19-40-46_model.pth
+	Loss: 0.0695, Accuracy: 7.7500, Runtime: 427.4080 seconds, Model File: BetaDistrRSampleMeanNetwork_2024-11-25_19-55-01_model.pth
+	Losses: [0.0697985447076644, 0.06912142605058616, 0.06913971522016508, 0.0699940312143066, 0.06952191703652207], Mean Loss: 0.0695
+	Accuracies: [8.87, 8.68, 8.57, 8.53, 7.75], Mean Accuracy: 8.4800
+	Runtimes: [427.4079998949992, 423.53269734900005, 428.17008592099955, 426.8910319689994, 425.04878552899936], Mean Runtime: 426.2101 seconds
+--------------------------------------------------------
+Output Type: TwoPeakNormalDistrNetwork, Number of Joints: 2
+	Loss: 0.0019, Accuracy: 99.9200, Runtime: 640.3445 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_19-03-02_model.pth
+	Loss: 0.0019, Accuracy: 99.9300, Runtime: 652.1209 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_18-19-49_model.pth
+	Loss: 0.0019, Accuracy: 99.9400, Runtime: 651.3620 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_18-41-29_model.pth
+	Loss: 0.0019, Accuracy: 99.9500, Runtime: 648.9969 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_18-30-38_model.pth
+	Loss: 0.0019, Accuracy: 99.9400, Runtime: 655.5414 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_18-52-21_model.pth
+	Losses: [0.0019493139189877184, 0.0019472662523092367, 0.0019475492423645846, 0.001947645766027017, 0.0019455355329469058], Mean Loss: 0.0019
+	Accuracies: [99.92, 99.93, 99.94, 99.95, 99.94], Mean Accuracy: 99.9360
+	Runtimes: [655.5413692900001, 648.9969060829999, 651.362003968, 652.120931769, 640.3444763630005], Mean Runtime: 649.6731 seconds
+Output Type: TwoPeakNormalDistrNetwork, Number of Joints: 3
+	Loss: 0.0030, Accuracy: 99.6900, Runtime: 853.5990 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_21-14-12_model.pth
+	Loss: 0.0030, Accuracy: 99.7200, Runtime: 860.9377 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_20-59-58_model.pth
+	Loss: 0.0030, Accuracy: 99.7300, Runtime: 846.5318 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_20-31-31_model.pth
+	Loss: 0.0030, Accuracy: 99.7200, Runtime: 855.8297 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_20-17-15_model.pth
+	Loss: 0.0030, Accuracy: 99.7300, Runtime: 845.9778 seconds, Model File: TwoPeakNormalDistrNetwork_2024-11-25_20-45-37_model.pth
+	Losses: [0.0030033373242201377, 0.003002370603273084, 0.0030020681385922216, 0.0030051274343761178, 0.002999870718756938], Mean Loss: 0.0030
+	Accuracies: [99.69, 99.72, 99.73, 99.72, 99.73], Mean Accuracy: 99.7180
+	Runtimes: [845.977763588, 855.8297355840004, 846.5317974380014, 860.9376972110003, 853.5989626989995], Mean Runtime: 852.5752 seconds
+--------------------------------------------------------
+Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 2
+	Loss: 0.0121, Accuracy: 46.2800, Runtime: 247.0882 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_19-12-42_model.pth
+	Loss: 0.0121, Accuracy: 46.2800, Runtime: 246.1103 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_19-20-55_model.pth
+	Loss: 0.0121, Accuracy: 46.4200, Runtime: 247.2687 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_19-25-03_model.pth
+	Loss: 0.0121, Accuracy: 46.6000, Runtime: 248.4810 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_19-08-34_model.pth
+	Loss: 0.0121, Accuracy: 46.3400, Runtime: 252.3368 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_19-16-49_model.pth
+	Losses: [0.012120698657458706, 0.012109289352946508, 0.01208666185123293, 0.012091975383381942, 0.012110781074671832], Mean Loss: 0.0121
+	Accuracies: [46.28, 46.28, 46.42, 46.6, 46.34], Mean Accuracy: 46.3840
+	Runtimes: [252.3367774319995, 248.48100662900015, 247.26871795999978, 246.11029099900043, 247.08818190199963], Mean Runtime: 248.2570 seconds
+Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 3
+	Loss: 0.0104, Accuracy: 60.9700, Runtime: 300.0565 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_21-21-07_model.pth
+	Loss: 0.0104, Accuracy: 60.7400, Runtime: 302.0463 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_21-26-09_model.pth
+	Loss: 0.0104, Accuracy: 60.9900, Runtime: 305.8172 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_21-41-17_model.pth
+	Loss: 0.0104, Accuracy: 61.1100, Runtime: 302.0208 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_21-36-17_model.pth
+	Loss: 0.0104, Accuracy: 61.1100, Runtime: 304.3452 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-25_21-31-15_model.pth
+	Losses: [0.010375037568945845, 0.010363861933567387, 0.010357808310736436, 0.01037748655596588, 0.010352261379240007], Mean Loss: 0.0104
+	Accuracies: [60.97, 60.74, 60.99, 61.11, 61.11], Mean Accuracy: 60.9840
+	Runtimes: [304.34515529499913, 302.02081129399994, 305.8172302900002, 302.0463187739988, 300.0565301379993], Mean Runtime: 302.8572 seconds
