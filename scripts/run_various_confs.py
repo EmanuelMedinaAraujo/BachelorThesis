@@ -76,11 +76,11 @@ two_peak_lstm = {
 # List to store all configurations
 configurations = [
     # analytical_direct,
-    #one_peak_dist,
+    one_peak_dist,
     one_peak_lstm,
-    #beta,
-    #two_peak,
-    #two_peak_lstm
+    beta,
+    two_peak,
+    two_peak_lstm
 ]
 
 num_joints_to_test = [2,3]
