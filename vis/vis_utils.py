@@ -21,6 +21,13 @@ def set_plot_settings(parameter):
     # Set the limits of the plot
     ax.set_xlim(-max_length, max_length)
     ax.set_ylim(-max_length, max_length)
+    # Set the aspect ratio of the plot to be equal
+    ax.set_aspect("equal")
+
+    # set x and y labels to x and y with unit m
+    ax.set_xlabel("x [m]")
+    ax.set_ylabel("y [m]")
+
     return ax, multiple_robots
 
 
@@ -37,8 +44,8 @@ def plot_goal_and_configure_legend(ax, goal, max_legend_length, show_legend):
         ax.legend(
             handles,
             labels,
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
+            #loc="upper right",
+            #bbox_to_anchor=(0.5, 1.25),
         )
     plt.tight_layout()
 
@@ -49,10 +56,10 @@ def compute_max_robot_length(parameter):
     multiple_robots = len(parameter.size()) == 3
     if multiple_robots:
         for i in range(parameter.shape[1]):
-            max_length += parameter[0, i, 1].item()
+            max_length += 0.5
     else:
         for i in range(parameter.shape[0]):
-            max_length += parameter[i, 1].item()
+            max_length += 0.5
     return max_length, multiple_robots
 
 
@@ -118,6 +125,9 @@ def plot_distribution_single_link(
 
 def finish_and_close_plot(ax, chart_index, current_step, goal, logger, max_legend_length, save_to_file, show_legend,
                           show_plot):
+    # Mark origin
+    ax.plot(0, 0, "o", markersize=5, color="black")
+
     plot_goal_and_configure_legend(ax, goal, max_legend_length, show_legend)
 
     if logger is not None:
