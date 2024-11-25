@@ -163,6 +163,7 @@ def test_model(test_dataset, model: KinematicsNetworkBase, logger, num_epoch):
     accuracy = num_correct * 100 / dataset_size
     logger.log_test(accuracy=accuracy, loss=loss_sum, current_step=num_epoch)
     model.train()
+    return loss_sum, accuracy
 
 
 def train_model_loop(model: KinematicsNetworkBase, optimizer, problem_generator, problems_per_epoch, batch_size, device,

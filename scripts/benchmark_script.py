@@ -2,10 +2,7 @@ import os
 import subprocess
 import time
 
-number_of_repeats = 3
-
-
-def execute_main_script():
+def execute_main_script(num_repeats=5):
     # Get the path to main.py in the same folder as this script
     script_folder = os.path.dirname(os.path.abspath(__file__))
     main_file = os.path.join(script_folder, "main.py")
@@ -15,7 +12,7 @@ def execute_main_script():
         return
 
     runtimes = []
-    for i in range(number_of_repeats):
+    for i in range(num_repeats):
         start_time = time.perf_counter()
         try:
             subprocess.run(["python3", main_file], check=True)
