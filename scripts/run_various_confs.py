@@ -13,6 +13,7 @@ output_types = [
 ]
 
 num_joints_to_test = [2,3]
+test_length = 2
 save_folder_path_prefix = 'outputs/model_save_files/benchmark'
 
 # Path to the configuration file
@@ -37,22 +38,22 @@ def run_various_configurations():
     for num_joint in num_joints_to_test:
         print(f"\nUpdating number_of_joints to {num_joint} and starting benchmarks...")
         update_number_of_joints(num_joint)
-        for output_type in tqdm(output_types, desc="Processing output types"):
-            print(f"Running benchmark for output type: {output_type} and number of joints: {num_joint}")
-            folder_path = save_folder_path_prefix + '/' + output_type + '/dof' + str(num_joint)
+        for run_configuration in tqdm(configurations, desc="Processing output types"):
+            print(f"Running benchmark for output type: {run_configuration['output_type']} and number of joints: {num_joint}")
+            folder_path = save_folder_path_prefix + '/' + run_configuration['output_type'] + '/dof' + str(num_joint)
             if os.path.exists(folder_path):
                 # Remove existing contents of the folder
                 for file in os.listdir(folder_path):
                     os.remove(os.path.join(folder_path, file))
-            update_conf_file(output_type, folder_path)
+            update_conf_file(run_configuration, folder_path)
             
             runtimes = run_benchmark_script()
             # Reverse runtimes list
             runtimes = runtimes[::-1]
 
-            loss_acc_file_list = test_models_in_folder(model_folder_path=folder_path, num_of_joints=num_joint)
+            loss_acc_file_list = test_models_in_folder(model_folder_path=folder_path, num_of_joints=num_joint, test_set_length=test_length)
             # Combine entries of loss_acc_file_list with runtimes since both have the same length
-            summary_map[(output_type, num_joint)] = [(a, b, c, d) for (a, b, c), d in zip(loss_acc_file_list, runtimes)]
+            summary_map[(run_configuration['output_type'], num_joint)] = [(a, b, c, d) for (a, b, c), d in zip(loss_acc_file_list, runtimes)]
             
     # Print summary of results
     print("\nSummary of Results:")
@@ -63,14 +64,15 @@ def run_various_configurations():
         # Print only loss from results as a list
         print(f"\tLosses: {[loss for _, loss, _, _ in results]}, Mean Loss: {sum([loss for _, loss, _, _ in results]) / len(results):.4f}")
         # Print only runtimes from results as a list
-        print(f"\tRuntimes: {results[-1][3]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
+        print(f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
         # Print only accuracies from results as a list
         print(f"\tAccuracies: {[acc for _, _, acc, _ in results]}, Mean Accuracy: {sum([acc for _, _, acc, _ in results]) / len(results):.4f}")
 
-def update_conf_file(output_type, folder_path):
+def update_conf_file(run_configuration, folder_path):
     with open(hyperparameters_config_file_path, 'r') as file:
         config = yaml.safe_load(file)
-    config['analytical']['output_type'] = output_type
+    for key, value in run_configuration.items():
+        config['analytical'][key] = value
     with open(hyperparameters_config_file_path, 'w') as file:
         yaml.safe_dump(config, file)
 
