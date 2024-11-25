@@ -1,4 +1,5 @@
 import os
+import sys
 
 import yaml
 from tqdm import tqdm
@@ -47,7 +48,11 @@ one_peak_lstm = {
     "optimizer": "Adam",
     "lstm_hidden_size": 1024,
     "lstm_num_layers": 4,
-    "output_type": "NormalDistrRandomSampleLSTMDistNetwork"
+    "output_type": "NormalDistrRandomSampleLSTMDistNetwork",
+
+    # dummy parameter needed for initialization
+    "num_hidden_layer": 0,
+    "hidden_layer_sizes": []
 }
 
 # Two peak distribution
@@ -76,23 +81,23 @@ two_peak_lstm = {
 
 # List to store all configurations
 configurations = [
-    analytical_direct,
+    # analytical_direct,
     one_peak_dist,
     one_peak_lstm,
-    beta,
-    two_peak,
-    two_peak_lstm
+    # beta,
+    # two_peak,
+    # two_peak_lstm
 ]
 
 num_joints_to_test = [2,3]
-test_length = 2
+test_length = 10000
 save_folder_path_prefix = 'outputs/model_save_files/benchmark'
 
 # Path to the configuration file
 hyperparameters_config_file_path = 'conf/hyperparams/hyperparams.yaml'
 config_file_path = 'conf/config.yaml'
 
-number_of_repeats = 2
+number_of_repeats = 5
 
 def run_benchmark_script():
     script_folder = os.path.dirname(os.path.abspath(__file__))
@@ -108,9 +113,9 @@ def run_benchmark_script():
 def run_various_configurations():
     summary_map = {}
     for num_joint in num_joints_to_test:
-        print(f"\nUpdating number_of_joints to {num_joint} and starting benchmarks...")
+        print(f"Updating number_of_joints to {num_joint} and starting benchmarks...")
         update_number_of_joints(num_joint)
-        for run_configuration in tqdm(configurations, desc="Processing output types"):
+        for run_configuration in tqdm(configurations, desc="Processing output types",file=sys.stdout):
             print(f"Running benchmark for output type: {run_configuration['output_type']} and number of joints: {num_joint}")
             folder_path = save_folder_path_prefix + '/' + run_configuration['output_type'] + '/dof' + str(num_joint)
             if os.path.exists(folder_path):
@@ -140,9 +145,6 @@ def run_various_configurations():
 def update_conf_file(run_configuration, folder_path):
     with open(hyperparameters_config_file_path, 'r') as file:
         config = yaml.safe_load(file)
-    config['analytical'] = {}
-    config['analytical']['epochs'] = 10000
-    config['analytical']['testing_interval'] = 20000
     for key, value in run_configuration.items():
         config['analytical'][key] = value
     with open(hyperparameters_config_file_path, 'w') as file:
