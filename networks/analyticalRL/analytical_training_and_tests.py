@@ -45,7 +45,7 @@ def create_model(device, cfg: TrainConfig, logger):
             ).to(device)
     else:
         raise ValueError(
-            f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the hyperparams config."
+            f"Unknown output type: {cfg.hyperparams.analytical.output_type}. Please adjust the hyperparams config because this class could not be found."
         )
 
 
