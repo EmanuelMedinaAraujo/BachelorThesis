@@ -73,14 +73,66 @@ two_peak_lstm = {
     "optimizer": "Adam",
     "output_type": "TwoPeakNormalLstmVariantDistrNetwork"
 }
+
+##########Alternatives############
+# One peak distribution (mudistance)
+one_peak_dist_mudistance = {
+    "num_hidden_layer": 4,
+    "hidden_layer_sizes": [1024, 128, 64, 256],
+    "learning_rate": 0.0002920265071713353,
+    "batch_size": 64,
+    "problems_per_epoch": 1024,
+    "optimizer": "Adam",
+    "output_type": "NormalDistrMuDistanceNetworkBase"
+}
+# One peak distribution (torch reparam)
+one_peak_dist_torch_reparam = {
+    "num_hidden_layer": 4,
+    "hidden_layer_sizes": [1042, 64],
+    "learning_rate": 0.00012210729721590343,
+    "batch_size": 256,
+    "problems_per_epoch": 8,
+    "optimizer": "RMSprop",
+    "output_type": "NormalDistrRandomSampleDistNetwork"
+}
+# One peak distribution (Ground Truth)
+one_peak_dist_ground_truth = {
+    "num_hidden_layer": 20,
+    "hidden_layer_sizes": [16, 32, 512, 2048, 256, 2048, 8, 256, 8, 1024, 2, 2, 16, 256, 512, 16, 4, 256, 2048, 65535],
+    "learning_rate": 0.0004062026352168701,
+    "batch_size": 128,
+    "optimizer": "RMSprop",
+    "output_type": "NormalDistrGroundTruthLossNetwork"
+}
+# Two peak LSTM (Non-Variant)
+two_peak_lstm_non_variant = {
+    "learning_rate": 0.0009395146226113611,
+    "batch_size": 128,
+    "problems_per_epoch": 16384,
+    "optimizer": "SGD",
+    "output_type": "TwoPeakNormalLstmDistrNetwork",
+    "lstm_hidden_size": 256,
+    "lstm_num_layers": 1,
+
+    # dummy parameter needed for initialization
+    "num_hidden_layer": 0,
+    "hidden_layer_sizes": []
+}
+##################################
+
 # List to store all configurations
 configurations = [
-    # analytical_direct,
+    analytical_direct,
     #one_peak_dist,
     #one_peak_lstm,
-    beta,
-    two_peak,
-    two_peak_lstm
+    # beta,
+    # two_peak,
+    # two_peak_lstm,
+    # Alternatives
+    one_peak_dist_mudistance,
+    one_peak_dist_torch_reparam,
+    one_peak_dist_ground_truth,
+    two_peak_lstm_non_variant
 ]
 
 num_joints_to_test = [2,3]
