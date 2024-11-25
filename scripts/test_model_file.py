@@ -1,4 +1,5 @@
 import os
+import sys
 
 from stable_baselines3.common.utils import set_random_seed
 from tqdm import tqdm
@@ -45,7 +46,7 @@ def test_models_in_folder(num_of_joints=number_of_joints,
 
     loss_and_acc_list = []
     # Test each model file and show progress bar
-    for model_file in tqdm(model_files, desc="Testing models"):
+    for model_file in tqdm(model_files, desc="Testing models", file=sys.stdout):
         model_file_path = os.path.join(model_folder_path, model_file)
 
         # Load model with modelclass

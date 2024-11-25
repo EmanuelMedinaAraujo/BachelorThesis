@@ -29,6 +29,8 @@ class KinematicsNetworkBase(nn.Module, ABC):
 
     @staticmethod
     def create_layer_stack_list(layer_sizes, num_joints, num_layer, output_per_joint):
+        if num_layer == 0:
+            return [nn.Linear(num_joints * 3 + 2, num_joints * output_per_joint)]
         stack_list = [nn.Linear(num_joints * 3 + 2, layer_sizes[0]), nn.ReLU()]
         for i in range(num_layer - 1):
             stack_list.append(nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
