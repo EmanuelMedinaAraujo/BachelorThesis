@@ -41,7 +41,7 @@ stb3:
   n_steps: 512
   total_timesteps: 65000000
 
-  learning_rate: 0.000022568175267734592 # default value: 0.0003
+  learning_rate: 2.2568175267734592e-05 # default value: 0.0003
   batch_size: 64 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
   epochs: 10
 

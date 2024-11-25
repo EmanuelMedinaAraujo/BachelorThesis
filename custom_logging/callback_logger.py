@@ -1,14 +1,16 @@
+from datetime import datetime
 from typing import Dict, Any
 
 import numpy as np
 import optuna
 import torch
+from conf.conf_dataclasses.config import TrainConfig
 from stable_baselines3.common.callbacks import BaseCallback
 
-from conf.conf_dataclasses.config import TrainConfig
 from util.forward_kinematics import calculate_parameter_goal_distances, calculate_angles_from_network_output
 from vis.model_type_vis.stb3_vis import visualize_stb3_problem
 from vis.planar_robot_vis import visualize_model_value_loss
+
 
 class LoggerCallback(BaseCallback):
     # Used with stb3
@@ -56,7 +58,7 @@ class LoggerCallback(BaseCallback):
             reward = self.locals.get("rewards")[0]
             self.rew_buf += reward
             if reward >= -self.tolerable_accuracy_error:
-                self.success_buf+=1.0
+                self.success_buf += 1.0
             self.rollout_counter += 1
 
             if self.cfg.do_vis:
@@ -94,6 +96,13 @@ class LoggerCallback(BaseCallback):
                 self.custom_logger.log_test(
                     accuracy, mean_reward, self.num_timesteps
                 )
+                if accuracy >= 0.6 and self.num_timesteps % 5000000 == 0:
+                    # Save Model
+                    date_time_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                    recurrent_string = "Recurrent_" if self.cfg.hyperparams.stb3.use_recurrent_policy else ""
+                    path = self.cfg.model_save_dir + "/" + "PPO_" + recurrent_string + date_time_string
+                    self.model.save(path=path)
+                    self.custom_logger.upload_model(path=path)
             return True
 
     def _on_rollout_end(self) -> None:
@@ -198,7 +207,6 @@ class LoggerCallback(BaseCallback):
         self.model.policy.set_training_mode(True)
         return accuracy, mean_reward
 
-
     def visualize_value_loss(self):
         param_value_loss = self.params_to_vis[0]
 
@@ -206,7 +214,6 @@ class LoggerCallback(BaseCallback):
                                                                   self.cfg.hyperparams.stb3.use_recurrent_policy)
         visualize_model_value_loss(lambda_value_loss, param_value_loss, self.custom_logger,
                                    self.num_timesteps, self.cfg.vis.show_plot, self.cfg.vis.save_to_file, 0)
-
 
 
 def calculate_advantage_loss(x, y, device, parameter, model, use_recurrent_policy):
