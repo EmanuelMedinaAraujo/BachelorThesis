@@ -19,7 +19,7 @@ from networks.analyticalRL.networks.simple_kinematics_network import SimpleKinem
 model_save_folder_path = "model_saves_files_perf_direct/dof2/"
 number_of_joints = 2
 
-test_set_length = 10
+test_length = 10000
 device = "cuda" if torch.cuda.is_available() else "cpu"
 parameter_convention = "DH"
 min_link_len = 0.3
@@ -27,7 +27,8 @@ max_link_len = 0.5
 
 
 def test_models_in_folder(num_of_joints=number_of_joints,
-                          model_folder_path=model_save_folder_path) -> list[tuple[str, int, float]]:
+                          model_folder_path=model_save_folder_path,
+                          test_set_length=test_length) -> list[tuple[str, int, float]]:
     set_random_seed(0)  # Have a unique test set for every trial
     # Create Test Set
     test_dataset = CustomParameterDataset(
