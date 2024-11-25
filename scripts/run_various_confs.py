@@ -60,6 +60,12 @@ def run_various_configurations():
         print(f"\nOutput Type: {output_type}, Number of Joints: {num_joint}")
         for i, (model_file, loss, acc, runtime) in enumerate(results, 1):
             print(f"\tLoss: {loss:.4f}, Accuracy: {acc:.4f}, Runtime: {runtime:.4f} seconds, Model File: {model_file}")
+        # Print only loss from results as a list
+        print(f"\tLosses: {[loss for _, loss, _, _ in results]}, Mean Loss: {sum([loss for _, loss, _, _ in results]) / len(results):.4f}")
+        # Print only runtimes from results as a list
+        print(f"\tRuntimes: {results[-1][3]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
+        # Print only accuracies from results as a list
+        print(f"\tAccuracies: {[acc for _, _, acc, _ in results]}, Mean Accuracy: {sum([acc for _, _, acc, _ in results]) / len(results):.4f}")
 
 def update_conf_file(output_type, folder_path):
     with open(hyperparameters_config_file_path, 'r') as file:
