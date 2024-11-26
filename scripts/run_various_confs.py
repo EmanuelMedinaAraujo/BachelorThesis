@@ -108,7 +108,7 @@ one_peak_dist_ground_truth = {
 two_peak_lstm_non_variant = {
     "learning_rate": 0.0009395146226113611,
     "batch_size": 128,
-    "problems_per_epoch": 16384,
+    "problems_per_epoch": 1792,
     "optimizer": "SGD",
     "output_type": "TwoPeakNormalLstmDistrNetwork",
     "lstm_hidden_size": 256,

@@ -91,7 +91,7 @@ Alternatives:
 		(Non-Variant)
 		learning_rate 0.0009395146226113611
 		batch_size 128
-		problems_per_epoch 16384
+		problems_per_epoch 1792
 		optimizer SGD
 		output_type TwoPeakNormalLstmDistrNetwork
 		hidden_size 256
