@@ -87,7 +87,7 @@ one_peak_dist_mudistance = {
 }
 # One peak distribution (torch reparam)
 one_peak_dist_torch_reparam = {
-    "num_hidden_layer": 4,
+    "num_hidden_layer": 2,
     "hidden_layer_sizes": [1042, 64],
     "learning_rate": 0.00012210729721590343,
     "batch_size": 256,
