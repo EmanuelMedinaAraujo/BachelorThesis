@@ -1,9 +1,13 @@
 Frage:
+- Ich brauche Lehrstuhl Logo (cover.tex & title.tex)
+- Kurzzusammenfassung nicht im Template aber hinzugefügt
+    https://www.cit.tum.de/cit/studium/studierende/abschlussarbeit-abschluss/informatik/
 
 TODO:
 - Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
     - Colorbar werte mit Anzahl an Samples teilen um distribution anzugeben
     - Markieren was der wahrscheinlichste Punkt ist. (Wo ist jeweils der MEAN)
+    - Nullpunkt markieren
 - Bachelorarbeit Tabellen in mm Zeichnen lassen
 - Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slack)
 - Tabellen zeichnen (siehe slack)

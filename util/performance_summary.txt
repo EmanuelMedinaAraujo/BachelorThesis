@@ -1,16 +1,20 @@
+Seed 42, 10000 epochs, 10000 test problems
+
 SimpleKinematicsNetwork Execution Summary 2 DOF:
     Run 1: 591.7201 s Accuracy: 100.00%, Avg loss: 0.001245
     Run 2: 573.0510 s Accuracy: 100.00%, Avg loss: 0.001245
     Run 3: 577.9547 s Accuracy: 100.00%, Avg loss: 0.001245
     Run 4: 574.1355 s Accuracy: 100.00%, Avg loss: 0.001245
     Run 5: 577.5656 s Accuracy: 100.00%, Avg loss: 0.001245
-Mean Runtime: 578.8854 s
+    runtimes: [591.7201, 573.051, 577.9547, 574.1355, 577.5656]
+    Mean Runtime: 578.8854 s
 SimpleKinematicsNetwork Execution Summary 3 DOF:
     Run 1: 633.4401 s Accuracy: 100.00%, Avg loss: 0.001211
     Run 2: 649.4225 s Accuracy: 100.00%, Avg loss: 0.001211
     Run 3: 652.4670 s Accuracy: 100.00%, Avg loss: 0.001211
     Run 4: 660.1398 s Accuracy: 100.00%, Avg loss: 0.001211
     Run 5: 694.8909 s Accuracy: 100.00%, Avg loss: 0.001211
+    runtimes: [633.4401, 649.4225, 652.467, 660.1398, 694.8909]
     Mean Runtime: 658.0721 s
 --------------------------------------------------------
 NormalDistrManualReparameterizationNetwork, Number of Joints: 2 (runtime not reversed)
