@@ -1,0 +1,25 @@
+analytical_direct 3 DOF (Direct)
+    Execution Summary:
+    Run list (seconds): [659.6065, 656.7523, 659.0589, 655.2325, 656.7997]
+    Accuracy_list: [100.0, 100.0, 100.0, 100.0, 100.0]
+    Loss_list: [0.001211, 0.001211, 0.001211, 0.001211, 0.001211]
+
+NormalDistrMuDistanceNetworkBase 3DOF (1P Dist)
+    Execution Summary:
+        Run list (seconds): [659.6065, 656.7523, 659.0589, 655.2325, 656.7997]
+        Accuracy_list: [94.05, 94.05, 94.05, 94.05, 94.05]
+        Loss_list: [0.007561, 0.007561, 0.007561, 0.007561, 0.007561]
+
+NormalDistrRandomSampleDistNetwork 3DOF (1P Dist)
+    Execution Summary:
+        Run list (seconds): [23.9475, 23.8402, 24.0090, 23.9851, 23.7947]
+        Accuracy_list: [0.00, 0.02, 0.00, 0.01, 0.00]
+        Loss_list: [1.061093, 1.062331, 1.059326, 1.061406, 1.057249]
+
+NormalDistrGroundTruthLossNetwork 3DOF (1P Dist)
+    Execution Summary:
+        Run List (seconds): [95.0353, 95.9007, 98.2856, 97.9151, 97.8365]
+        Accuracy_list: [1.66, 1.66, 1.66, 1.66, 1.66]
+        Loss_list: [24907.173608, 24907.173608, 24907.173608, 24907.173608, 24907.173608]
+
+
