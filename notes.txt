@@ -2,6 +2,7 @@ Frage:
 - Ich brauche Lehrstuhl Logo (cover.tex & title.tex)
 - Kurzzusammenfassung nicht im Template aber hinzugefügt
     https://www.cit.tum.de/cit/studium/studierende/abschlussarbeit-abschluss/informatik/
+- Was genau meintest du mit "modes" in der Tabelle? Könntest du da näher eingehen?
 
 TODO:
 - Heatmap erstellen bei dem 2 Roboter gleichzeitig geprintet werden
