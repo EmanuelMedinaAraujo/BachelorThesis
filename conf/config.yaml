@@ -15,7 +15,7 @@ server_postfix: "" # :1 for the first server, "" for local execution
 torch_num_threads: 1
 
 save_trained_model: true
-model_save_dir: "outputs/model_saves_files/stb3" # Directory the models are saved to
+model_save_dir: "outputs/model_saves_files/" # Directory the models are saved to
 
 # Problem Generation Parameter
 number_of_joints: 2

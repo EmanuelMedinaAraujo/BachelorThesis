@@ -24,7 +24,7 @@ one_peak_dist = {
     "learning_rate": 0.00043306334967391496,
     "batch_size": 16,
     "problems_per_epoch": 112,
-    "optimizer": "RMSprop",
+    "optimizer": "Adam",
     "output_type": "NormalDistrManualReparameterizationNetwork"
 }
 # Beta
@@ -92,7 +92,7 @@ one_peak_dist_torch_reparam = {
     "learning_rate": 0.00012210729721590343,
     "batch_size": 256,
     "problems_per_epoch": 8,
-    "optimizer": "RMSprop",
+    "optimizer": "Adam",
     "output_type": "NormalDistrRandomSampleDistNetwork"
 }
 # One peak distribution (Ground Truth)
@@ -101,7 +101,7 @@ one_peak_dist_ground_truth = {
     "hidden_layer_sizes": [16, 32, 512, 2048, 256, 2048, 8, 256, 8, 1024, 2, 2, 16, 256, 512, 16, 4, 256, 2048, 65535],
     "learning_rate": 0.0004062026352168701,
     "batch_size": 128,
-    "optimizer": "RMSprop",
+    "optimizer": "Adam",
     "output_type": "NormalDistrGroundTruthLossNetwork"
 }
 # Two peak LSTM (Non-Variant)
@@ -109,7 +109,7 @@ two_peak_lstm_non_variant = {
     "learning_rate": 0.0009395146226113611,
     "batch_size": 128,
     "problems_per_epoch": 1792,
-    "optimizer": "SGD",
+    "optimizer": "Adam",
     "output_type": "TwoPeakNormalLstmDistrNetwork",
     "lstm_hidden_size": 256,
     "lstm_num_layers": 1,
@@ -123,16 +123,17 @@ two_peak_lstm_non_variant = {
 # List to store all configurations
 configurations = [
     # analytical_direct,
-    # one_peak_dist,
+    one_peak_dist,
     # one_peak_lstm,
     # beta,
     # two_peak,
-    # two_peak_lstm,
+    two_peak_lstm,
+
     # Alternatives
-    one_peak_dist_mudistance,
-    one_peak_dist_torch_reparam,
-    one_peak_dist_ground_truth,
-    two_peak_lstm_non_variant
+    # one_peak_dist_mudistance,
+    # one_peak_dist_torch_reparam,
+    # one_peak_dist_ground_truth,
+    # two_peak_lstm_non_variant
 ]
 
 num_joints_to_test = [2,3]

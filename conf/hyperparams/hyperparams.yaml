@@ -12,7 +12,7 @@ analytical:
   problems_per_epoch: 112
   epochs: 10000
   testing_interval: 20000 # Number of epochs after which to test the model
-  optimizer: "RMSprop"
+  optimizer: "Adam"
 
   # Supported Output Types (Note lstm types mus contain "LSTM" in the name, to obtain the additional lstm hyperparameters):
     # "SimpleKinematicsNetwork": Network outputs angle for each joint

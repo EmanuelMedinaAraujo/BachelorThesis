@@ -50,7 +50,7 @@ two peak
 two peak lstm
 	learning_rate 0.0027334146724357724
 	batch_size 512
-	problems_per_epoch 8
+	problems_per_epoch 1536
 	hidden_size 256
 	lstm_layers 3
 	num_hidden_layer 4
