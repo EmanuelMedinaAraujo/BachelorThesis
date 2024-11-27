@@ -50,7 +50,7 @@ class TwoPeakNormalLstmDistrNetwork(TwoPeakNormalLstmDistrNetworkBase):
 
         if is_single_parameter:
             network_output = network_output.squeeze(0)
-        return super().collect_distributions(is_single_parameter, network_output)
+        return self.collect_distributions(is_single_parameter, network_output)
 
     # noinspection DuplicatedCode
     @staticmethod
