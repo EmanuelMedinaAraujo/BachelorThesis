@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import torch
+from PIL.ImageColor import colormap
 
 from util.forward_kinematics import calculate_euclidean_distances
 
@@ -34,7 +35,7 @@ def set_plot_settings(parameter):
 def plot_goal_and_configure_legend(ax, goal, max_legend_length, show_legend):
     if goal is not None:
         x, y = goal[0].item(), goal[1].item()
-        ax.plot(x, y, "-x", label=f"Goal [{x:>0.1f},{y:>0.1f}]")
+        ax.plot(x, y, "-x", label=f"Goal [{x:>0.1f},{y:>0.1f}]", color='r')
     if show_legend:
         # Only show first max_legend_length entries
         handles, labels = ax.get_legend_handles_labels()
@@ -126,8 +127,6 @@ def plot_distribution_single_link(
 
 def finish_and_close_plot(ax, chart_index, current_step, goal, logger, max_legend_length, save_to_file, show_legend,
                           show_plot):
-    # Mark origin
-    ax.plot(0, 0, "o", markersize=5, color="black")
 
     plot_goal_and_configure_legend(ax, goal, max_legend_length, show_legend)
 

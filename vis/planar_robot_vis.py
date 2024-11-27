@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib as mpl
 
 from util.forward_kinematics import calculate_parameter_goal_distances
 from vis.vis_utils import set_plot_settings, compute_max_robot_length, plot_line, \
@@ -190,17 +191,31 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     df = df.sort_values(by=['x', 'y'])
 
     sns.set_theme(style="darkgrid")
-    sns.displot(data=df, x="x", y="y", cbar=True, kind="kde", fill=True, thresh=0)
+    # Create the KDE plot using seaborn
+    plt.figure(figsize=(6, 6))
+    ax = plt.gca()
 
+    # Plot the kernel density estimate
+    sns.kdeplot(x=df['x'], y=df['y'], fill=True, ax=ax, cmap="Blues", thresh=0, cbar=True, cbar_kws={
+        'shrink': .7,  # Shrink the colorbar to fit the plot size (1 means full size)
+    })
     max_length, _ = compute_max_robot_length(parameter)
 
     plt.xlim(-max_length, max_length)
     plt.ylim(-max_length, max_length)
 
+    # Plot zero point in the background
+    plt.plot(0, 0, "x", color="black")
+    # set aspect ratio to be equal
+    plt.gca().set_aspect('equal')
+
     # Plot the goal of the robot
     if goal is not None:
         x, y = goal[0].item(), goal[1].item()
         plt.plot(x, y, "-x", label=f"Goal [{x:>0.1f},{y:>0.1f}]", color='r')
+
+
+    plt.tight_layout()
 
     if logger is not None:
         path = "heatmap" + str(chart_index)

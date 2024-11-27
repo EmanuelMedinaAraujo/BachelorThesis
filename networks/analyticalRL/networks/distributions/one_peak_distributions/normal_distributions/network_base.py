@@ -1,6 +1,6 @@
-import torch
 from abc import ABC, abstractmethod
 
+import torch
 from torch import nn
 
 from networks.analyticalRL.networks.distributions.one_peak_distributions.three_output_param_dist_network_base import \
@@ -13,7 +13,7 @@ class NormalizeSigmaLayer(nn.Module):
         self.num_joints = num_joints
 
     def forward(self, x):
-        self.num_joints =1
+        self.num_joints = 1
         is_single_parameter = True if x.dim() == 1 else False
 
         if is_single_parameter:
@@ -30,6 +30,7 @@ class NormalizeSigmaLayer(nn.Module):
             # Apply sigmoid to every third entry
             x[mask] = torch.sigmoid(x[mask])
             return x
+
 
 class NormalDistrNetworkBase(ThreeOutputParameterDistrNetworkBase, ABC):
     """
@@ -55,7 +56,7 @@ class NormalDistrNetworkBase(ThreeOutputParameterDistrNetworkBase, ABC):
     def map_three_parameters(parameter1, parameter2, parameter3):
         # Use atan2 to calculate angle
         mu = torch.atan2(parameter1, parameter2)
-        # Map sigma to positive values from [0,1] to [0,0.5]
-        sigma = parameter3*0.25
+        # Map sigma to positive values from [0,1] to [0,1]
+        sigma = parameter3 * 0.5
         sigma = sigma.clamp(min=1e-6)
         return mu, sigma

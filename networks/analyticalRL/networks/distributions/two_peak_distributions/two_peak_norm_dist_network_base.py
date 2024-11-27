@@ -1,7 +1,7 @@
+import random
 from abc import ABC, abstractmethod
 
 import torch
-import random
 from torch import Tensor, nn
 
 from networks.analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase, \
@@ -41,12 +41,12 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
                                     parameter8):
         # Use atan2 to calculate angle
         mu1 = torch.atan2(parameter1, parameter2)
-        # Map sigma to positive values from [0,1] to [0,0.5]
-        sigma1 = parameter3 * 0.25
+        # Map sigma to positive values from [0,1] to [0,1]
+        sigma1 = parameter3 * 0.5
         sigma1 = sigma1.clamp(min=1e-6)
 
         mu2 = torch.atan2(parameter5, parameter6)
-        sigma2 = parameter7 * 0.25
+        sigma2 = parameter7 * 0.5
         sigma2 = sigma2.clamp(min=1e-6)
 
         # Keep weights unchanged
@@ -70,10 +70,9 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
         # Generate a random number either 0 or 1
         random_bool = random.choice([True, False])
 
-
         # Use the chosen component to select mu and sigma
-        #mu = mu1 * (component == 0).float() + mu2 * (component == 1).float()
-        #sigma = sigma1 * (component == 0).float() + sigma2 * (component == 1).float()
+        # mu = mu1 * (component == 0).float() + mu2 * (component == 1).float()
+        # sigma = sigma1 * (component == 0).float() + sigma2 * (component == 1).float()
         mu = mu1 if random_bool else mu2
         sigma = sigma1 if random_bool else sigma2
         return mu.squeeze(), sigma.squeeze()
