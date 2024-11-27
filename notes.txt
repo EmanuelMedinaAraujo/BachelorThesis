@@ -3,11 +3,12 @@ Frage:
 - Kurzzusammenfassung nicht im Template aber hinzugefügt
     https://www.cit.tum.de/cit/studium/studierende/abschlussarbeit-abschluss/informatik/
 - Was genau meintest du mit "modes" in der Tabelle? Könntest du da näher eingehen?
-
+- Tabelle zeile erstellen, Run time solving?
 Runs TODO:
-- 1P performance
-- 2p LSTM
+- 2p LSTM performance
+- 2p LSTM+MLP performance results
 Later:
+    - programm automatic bootstrapping when performance running
     - 1P Optuna?
     - alternatives perforamance run
 

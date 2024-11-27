@@ -38,4 +38,21 @@ TwoPeakNormalLstmDistrNetwork 2DOF (2P LSTM)
 
 TwoPeakNormalLstmDistrNetwork 3DOF (2P LSTM)
     TODO
+--------------------------------------------------------
+--------------------------------------------------------
+
+Direct with the small network of 1P Dist
+Output Type: SimpleKinematicsNetwork, Number of Joints: 2
+        Loss: 0.0063, Accuracy: 89.0600, Runtime: 568.3130 seconds, Model File: SimpleKinematicsNetwork_2024-11-27_16-32-37_model.pth
+        Losses: [0.006269370649885604], Mean Loss: 0.0063
+        Accuracies: [89.06], Mean Accuracy: 89.0600
+        Runtimes: [568.3129868890001], Mean Runtime: 568.3130 seconds
+
+Output Type: SimpleKinematicsNetwork, Number of Joints: 3
+        Loss: 0.0091, Accuracy: 69.3800, Runtime: 553.4039 seconds, Model File: SimpleKinematicsNetwork_2024-11-27_16-42-04_model.pth
+        Losses: [0.009074032277500373], Mean Loss: 0.0091
+        Accuracies: [69.38], Mean Accuracy: 69.3800
+        Runtimes: [553.4038882060004], Mean Runtime: 553.4039 seconds
+--------------------------------------------------------
+1P Distribution with the direct network size
 
