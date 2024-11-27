@@ -10,7 +10,7 @@ analytical:
   lstm_num_layers: 3 # number of stacked lstm layers (only used with lstm)
 
   problems_per_epoch: 1536
-  epochs: 10000
+  epochs: 10001
   testing_interval: 1000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
