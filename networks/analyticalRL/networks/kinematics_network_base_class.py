@@ -74,3 +74,26 @@ class KinematicsNetworkBase(nn.Module, ABC):
     @abstractmethod
     def loss_fn(self, param, pred, goal, ground_truth):
         pass
+
+def create_and_concatenate_distributions(all_distributions, is_single_parameter, parameter1, parameter2):
+    # Ensure the parameters have to correct shape
+    parameter1 = parameter1.unsqueeze(-1) if parameter1.dim() == 1 else parameter1
+    parameter2 = parameter2.unsqueeze(-1) if parameter2.dim() == 1 else parameter2
+    if is_single_parameter:
+        distribution = torch.cat([parameter1.unsqueeze(-1), parameter2.unsqueeze(-1)])
+    else:
+        distribution = torch.cat([parameter1, parameter2], dim=-1)
+
+    return concatenate_distributions(all_distributions, distribution, is_single_parameter)
+
+
+def concatenate_distributions(all_distributions, distribution, is_single_parameter):
+    if all_distributions is None:
+        all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
+    else:
+        if is_single_parameter:
+            all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(distribution.device)
+        else:
+            all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(
+                distribution.device)
+    return all_distributions

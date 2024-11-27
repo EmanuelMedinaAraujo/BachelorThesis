@@ -3,7 +3,8 @@ from abc import ABC, abstractmethod
 import torch
 from torch import Tensor
 
-from networks.analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from networks.analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase, \
+    create_and_concatenate_distributions
 
 
 class ThreeOutputParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
@@ -61,9 +62,12 @@ class ThreeOutputParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
         param, goal = model_input
         is_single_parameter = True if param.dim() == 2 else False
 
+        return self.collect_distribution(is_single_parameter, network_output)
+
+    def collect_distribution(self, is_single_parameter, network_output):
         all_distributions = None
         for joint_number in range(self.num_joints):
-            index = 2 * joint_number
+            index = 3 * joint_number
 
             if is_single_parameter:
                 parameter1 = network_output[index]
@@ -76,21 +80,6 @@ class ThreeOutputParameterDistrNetworkBase(KinematicsNetworkBase, ABC):
 
             parameter1, parameter2 = self.map_three_parameters(parameter1, parameter2, parameter3)
 
-            # Ensure the parameters have to correct shape
-            parameter1 = parameter1.unsqueeze(-1) if parameter1.dim() == 1 else parameter1
-            parameter2 = parameter2.unsqueeze(-1) if parameter2.dim() == 1 else parameter2
-
-            if is_single_parameter:
-                distribution = torch.cat([parameter1.unsqueeze(-1), parameter2.unsqueeze(-1)])
-            else:
-                distribution = torch.cat([parameter1, parameter2], dim=-1)
-            if all_distributions is None:
-                all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
-            else:
-                if is_single_parameter:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(param.device)
-                else:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(
-                        param.device)
-
+            all_distributions = create_and_concatenate_distributions(all_distributions, is_single_parameter,
+                                                                     parameter1, parameter2)
         return all_distributions
