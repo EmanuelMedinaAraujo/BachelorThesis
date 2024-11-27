@@ -17,7 +17,7 @@ from networks.analyticalRL.networks.distributions.two_peak_distributions.lstm.tw
 from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import *  # noqa
 from networks.analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork  # noqa
 
-model_save_folder_path = "model_saves_files_perf_direct/dof2/"
+model_save_folder_path = "model_save_files/benchmark/NormalDistrGroundTruthLossNetwork/dof2"
 number_of_joints = 2
 
 test_length = 10000

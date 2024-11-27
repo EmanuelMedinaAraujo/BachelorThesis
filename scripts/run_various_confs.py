@@ -122,9 +122,9 @@ two_peak_lstm_non_variant = {
 
 # List to store all configurations
 configurations = [
-    analytical_direct,
-    #one_peak_dist,
-    #one_peak_lstm,
+    # analytical_direct,
+    # one_peak_dist,
+    # one_peak_lstm,
     # beta,
     # two_peak,
     # two_peak_lstm,
@@ -157,17 +157,32 @@ def run_benchmark_script():
 
 
 def run_various_configurations():
+    # Check if folders might already exist and ask for deletion confirmation
+    for num_joint in num_joints_to_test:
+        for run_configuration in configurations:
+            folder_path = save_folder_path_prefix + '/' + run_configuration['output_type'] + '/dof' + str(num_joint)
+            if os.path.exists(folder_path):
+                print(f"Folder {folder_path} already exists. Do you want to delete it? (y/n[abort])")
+                answer = input()
+                if answer == 'y':
+                    for file in os.listdir(folder_path):
+                        os.remove(os.path.join(folder_path, file))
+                else:
+                    print("Exiting...")
+                    return
+
     summary_map = {}
     for num_joint in num_joints_to_test:
         print(f"Updating number_of_joints to {num_joint} and starting benchmarks...")
         update_number_of_joints(num_joint)
         for run_configuration in tqdm(configurations, desc="Processing output types",file=sys.stdout):
+            # skip if run_configuration['output_type'] is NormalDistrMuDistanceNetworkBase, NormalDistrRandomSampleDistNetwork or NormalDistrGroundTruthLossNetwork
+            if num_joint == 3 and run_configuration['output_type'] in ['NormalDistrMuDistanceNetworkBase', 'NormalDistrRandomSampleDistNetwork', 'NormalDistrGroundTruthLossNetwork']:
+                # TODO remove this if statement when the models are trained
+                print(f"Skipping {run_configuration['output_type']} for 3 joints as it is already recorded.")
+                continue
             print(f"Running benchmark for output type: {run_configuration['output_type']} and number of joints: {num_joint}")
             folder_path = save_folder_path_prefix + '/' + run_configuration['output_type'] + '/dof' + str(num_joint)
-            if os.path.exists(folder_path):
-                # Remove existing contents of the folder
-                for file in os.listdir(folder_path):
-                    os.remove(os.path.join(folder_path, file))
             update_conf_file(run_configuration, folder_path)
             
             runtimes = run_benchmark_script()
@@ -178,7 +193,7 @@ def run_various_configurations():
             # Combine entries of loss_acc_file_list with runtimes since both have the same length
             summary_map[(run_configuration['output_type'], num_joint)] = [(a, b, c, d) for (a, b, c), d in zip(loss_acc_file_list, runtimes)]
             
-    # Print summary of results
+    # Print summary of comparison_results
     print("\nSummary of Results:")
     for (output_type, num_joint), results in summary_map.items():
         print(f"\nOutput Type: {output_type}, Number of Joints: {num_joint}")
