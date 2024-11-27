@@ -1,15 +1,15 @@
 analytical:
-  num_hidden_layer: 2
-  hidden_layer_sizes: [2048, 32]
+  num_hidden_layer: 4
+  hidden_layer_sizes: [4, 128, 8, 128]
 
-  learning_rate: 0.008179331918920956
-  batch_size: 256
+  learning_rate: 0.0027334146724357724
+  batch_size: 512
 
   # lstm hyperparameters
-  lstm_hidden_size: 512 # number of features in hidden state (only used with lstm)
-  lstm_num_layers: 1 # number of stacked lstm layers (only used with lstm)
+  lstm_hidden_size: 256 # number of features in hidden state (only used with lstm)
+  lstm_num_layers: 3 # number of stacked lstm layers (only used with lstm)
 
-  problems_per_epoch: 3328
+  problems_per_epoch: 1536
   epochs: 10000
   testing_interval: 1000 # Number of epochs after which to test the model
   optimizer: "Adam"
@@ -28,7 +28,7 @@ analytical:
       # "TwoPeakNormalDistrNetwork": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
       # "TwoPeakNormalLstmDistrNetwork": Network outputs two normal distributions and weights for each joint. LSTM is used
       # "TwoPeakNormalLstmVariantDistrNetwork" LSTM where an angle is extracted each lstm cycle
-  output_type: "TwoPeakNormalDistrNetwork"
+  output_type: "TwoPeakNormalLstmVariantDistrNetwork"
 
 stb3:
   testing_interval: 1000000 # Number of steps after which to test the model
