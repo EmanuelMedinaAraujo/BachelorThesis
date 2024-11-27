@@ -123,11 +123,11 @@ two_peak_lstm_non_variant = {
 # List to store all configurations
 configurations = [
     # analytical_direct,
-    #one_peak_dist,
+    # one_peak_dist,
     # one_peak_lstm,
     # beta,
     two_peak,
-    #two_peak_lstm,
+    # two_peak_lstm,
 
     # Alternatives
     # one_peak_dist_mudistance,
@@ -136,7 +136,7 @@ configurations = [
     # two_peak_lstm_non_variant
 ]
 
-num_joints_to_test = [2,3]
+num_joints_to_test = [2, 3]
 test_length = 10000
 save_folder_path_prefix = 'outputs/model_save_files/benchmark'
 
@@ -145,6 +145,7 @@ hyperparameters_config_file_path = 'conf/hyperparams/hyperparams.yaml'
 config_file_path = 'conf/config.yaml'
 
 number_of_repeats = 1
+
 
 def run_benchmark_script():
     script_folder = os.path.dirname(os.path.abspath(__file__))
@@ -176,34 +177,43 @@ def run_various_configurations():
     for num_joint in num_joints_to_test:
         print(f"Updating number_of_joints to {num_joint} and starting benchmarks...")
         update_number_of_joints(num_joint)
-        for run_configuration in tqdm(configurations, desc="Processing output types",file=sys.stdout):
+        for run_configuration in tqdm(configurations, desc="Processing output types", file=sys.stdout):
             # skip if run_configuration['output_type'] is NormalDistrMuDistanceNetworkBase, NormalDistrRandomSampleDistNetwork or NormalDistrGroundTruthLossNetwork
-            if num_joint == 3 and run_configuration['output_type'] in ['NormalDistrMuDistanceNetworkBase', 'NormalDistrRandomSampleDistNetwork', 'NormalDistrGroundTruthLossNetwork']:
+            if num_joint == 3 and run_configuration['output_type'] in ['NormalDistrMuDistanceNetworkBase',
+                                                                       'NormalDistrRandomSampleDistNetwork',
+                                                                       'NormalDistrGroundTruthLossNetwork']:
                 # TODO remove this if statement when the models are trained
                 print(f"Skipping {run_configuration['output_type']} for 3 joints as it is already recorded.")
                 continue
-            print(f"Running benchmark for output type: {run_configuration['output_type']} and number of joints: {num_joint}")
+            print(
+                f"Running benchmark for output type: {run_configuration['output_type']} and number of joints: {num_joint}")
             folder_path = save_folder_path_prefix + '/' + run_configuration['output_type'] + '/dof' + str(num_joint)
             update_conf_file(run_configuration, folder_path)
-            
+
             runtimes = run_benchmark_script()
             # Reverse runtimes list
             runtimes = runtimes[::-1]
 
-            loss_acc_file_list = test_models_in_folder(model_folder_path=folder_path, num_of_joints=num_joint, test_set_length=test_length)
+            loss_acc_file_list = test_models_in_folder(model_folder_path=folder_path, num_of_joints=num_joint,
+                                                       test_set_length=test_length)
             # Combine entries of loss_acc_file_list with runtimes since both have the same length
-            summary_map[(run_configuration['output_type'], num_joint)] = [(a, b, c, d) for (a, b, c), d in zip(loss_acc_file_list, runtimes)]
-            
+            summary_map[(run_configuration['output_type'], num_joint)] = [(a, b, c, d) for (a, b, c), d in
+                                                                          zip(loss_acc_file_list, runtimes)]
+
     # Print summary of comparison_results
     print("\nSummary of Results:")
     for (output_type, num_joint), results in summary_map.items():
         print(f"\nOutput Type: {output_type}, Number of Joints: {num_joint}")
         for i, (model_file, loss, acc, runtime) in enumerate(results, 1):
             print(f"\tLoss: {loss:.4f}, Accuracy: {acc:.4f}, Runtime: {runtime:.4f} seconds, Model File: {model_file}")
-        print(f"\tLosses: {[loss for _, loss, _, _ in results]}, Mean Loss: {sum([loss for _, loss, _, _ in results]) / len(results):.4f}")
-        print(f"\tAccuracies: {[acc for _, _, acc, _ in results]}, Mean Accuracy: {sum([acc for _, _, acc, _ in results]) / len(results):.4f}")
+        print(
+            f"\tLosses: {[loss for _, loss, _, _ in results]}, Mean Loss: {sum([loss for _, loss, _, _ in results]) / len(results):.4f}")
+        print(
+            f"\tAccuracies: {[acc for _, _, acc, _ in results]}, Mean Accuracy: {sum([acc for _, _, acc, _ in results]) / len(results):.4f}")
         results = results[::-1]
-        print(f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
+        print(
+            f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
+
 
 def update_conf_file(run_configuration, folder_path):
     with open(hyperparameters_config_file_path, 'r') as file:
