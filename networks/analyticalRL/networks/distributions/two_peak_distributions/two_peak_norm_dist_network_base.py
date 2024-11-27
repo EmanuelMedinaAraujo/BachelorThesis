@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 import torch
+import random
 from torch import Tensor, nn
 
 from networks.analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase, \
@@ -62,13 +63,19 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
     @staticmethod
     def sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2, batch_size=1):
         # Sample from categorical distribution to choose the component
-        weights = torch.cat([weight1.unsqueeze(dim=-1), weight2.unsqueeze(dim=-1)], dim=1)
-        cat_dist = torch.distributions.Categorical(probs=weights)
-        component = cat_dist.sample(torch.Size([batch_size]))  # Sample which component to use
+        # weights = torch.cat([weight1.unsqueeze(dim=-1), weight2.unsqueeze(dim=-1)], dim=1)
+        # cat_dist = torch.distributions.Categorical(probs=weights)
+        # component = cat_dist.sample(torch.Size([batch_size]))  # Sample which component to use
+
+        # Generate a random number either 0 or 1
+        random_bool = random.choice([True, False])
+
 
         # Use the chosen component to select mu and sigma
-        mu = mu1 * (component == 0).float() + mu2 * (component == 1).float()
-        sigma = sigma1 * (component == 0).float() + sigma2 * (component == 1).float()
+        #mu = mu1 * (component == 0).float() + mu2 * (component == 1).float()
+        #sigma = sigma1 * (component == 0).float() + sigma2 * (component == 1).float()
+        mu = mu1 if random_bool else mu2
+        sigma = sigma1 if random_bool else sigma2
         return mu.squeeze(), sigma.squeeze()
 
     @staticmethod
