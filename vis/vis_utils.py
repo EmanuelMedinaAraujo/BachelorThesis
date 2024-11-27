@@ -34,7 +34,7 @@ def set_plot_settings(parameter):
 def plot_goal_and_configure_legend(ax, goal, max_legend_length, show_legend):
     if goal is not None:
         x, y = goal[0].item(), goal[1].item()
-        ax.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]")
+        ax.plot(x, y, "-x", label=f"Goal [{x:>0.1f},{y:>0.1f}]")
     if show_legend:
         # Only show first max_legend_length entries
         handles, labels = ax.get_legend_handles_labels()
@@ -106,9 +106,10 @@ def plot_distribution_single_link(
             goal = goal.clone().detach().to(device)
             distance = calculate_euclidean_distances(end_coordinates, goal)
             distance_label = f"({distance:.2f})"
-        probability_label = f"[{transparency:.1f}]"
+        #probability_label = f"[{transparency:.1f}]"
         link_line.set_label(
-            f"Robot Arm" + distance_label + probability_label
+            #f"Arm" + distance_label + probability_label
+            f"Arm" + distance_label
         )
 
     if mark_as_best_end_effector:
