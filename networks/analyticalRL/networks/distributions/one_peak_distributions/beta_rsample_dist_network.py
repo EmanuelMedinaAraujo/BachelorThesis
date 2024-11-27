@@ -3,7 +3,7 @@ import torch
 from torch import nn
 
 from networks.analyticalRL.networks.distributions.one_peak_distributions.three_output_param_dist_network_base import \
-    ThreeOutputParameterDistrNetworkBase
+    ThreeOutputParameterDistrNetworkBase, create_and_concatenate_distributions
 
 
 class BetaDistrRSampleMeanNetwork(ThreeOutputParameterDistrNetworkBase):
@@ -55,21 +55,7 @@ class BetaDistrRSampleMeanNetwork(ThreeOutputParameterDistrNetworkBase):
 
             parameter1, parameter2 = self.map_two_parameters(parameter1, parameter2)
 
-            # Ensure the parameters have to correct shape
-            parameter1 = parameter1.unsqueeze(-1) if parameter1.dim() == 1 else parameter1
-            parameter2 = parameter2.unsqueeze(-1) if parameter2.dim() == 1 else parameter2
-
-            if is_single_parameter:
-                distribution = torch.cat([parameter1.unsqueeze(-1), parameter2.unsqueeze(-1)])
-            else:
-                distribution = torch.cat([parameter1, parameter2], dim=-1)
-            if all_distributions is None:
-                all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
-            else:
-                if is_single_parameter:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(param.device)
-                else:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(
-                        param.device)
+            all_distributions = create_and_concatenate_distributions(all_distributions, is_single_parameter, parameter1,
+                                                                     parameter2)
 
         return all_distributions

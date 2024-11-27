@@ -13,6 +13,7 @@ class NormalizeSigmaLayer(nn.Module):
         self.num_joints = num_joints
 
     def forward(self, x):
+        self.num_joints =1
         is_single_parameter = True if x.dim() == 1 else False
 
         if is_single_parameter:
@@ -55,6 +56,6 @@ class NormalDistrNetworkBase(ThreeOutputParameterDistrNetworkBase, ABC):
         # Use atan2 to calculate angle
         mu = torch.atan2(parameter1, parameter2)
         # Map sigma to positive values from [0,1] to [0,0.5]
-        sigma = parameter3
+        sigma = parameter3*0.25
         sigma = sigma.clamp(min=1e-6)
         return mu, sigma

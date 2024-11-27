@@ -17,7 +17,7 @@ one peak dist:
 	learning_rate 0.00043306334967391496
 	batch_size 16
 	problems_per_epoch 128
-	optimizer RMSprop
+	optimizer Adam
 	output_type NormalDistrManualReparameterizationNetwork
 ---------------------------------------------------------------------------
 beta
@@ -76,7 +76,7 @@ Alternatives:
 		problems_per_epoch 8
 		learning_rate 0.00012210729721590343
 		batch_size 256
-		optimizer RMSprop
+		optimizer Adam
 		output_type NormalDistrRandomSampleDistNetwork
 
 		(Ground Truth)
@@ -84,7 +84,7 @@ Alternatives:
 		hidden_layer_sizes [16, 32, 512, 2048, 256, 2048, 8, 256, 8, 1024, 2, 2, 16, 256, 512, 16, 4, 256, 2048, 65535]
 		learning_rate 0.0004062026352168701
 		batch_size 128
-		optimizer RMSprop
+		optimizer Adam
 		output_type NormalDistrGroundTruthLossNetwork
 ---------------------------------------------------------------------------
 	two peak lstm:
@@ -92,7 +92,7 @@ Alternatives:
 		learning_rate 0.0009395146226113611
 		batch_size 128
 		problems_per_epoch 1792
-		optimizer SGD
+		optimizer Adam
 		output_type TwoPeakNormalLstmDistrNetwork
 		hidden_size 256
 		lstm_layers 1

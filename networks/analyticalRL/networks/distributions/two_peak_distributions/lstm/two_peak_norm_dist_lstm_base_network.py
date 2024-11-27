@@ -13,6 +13,7 @@ class TwoPeakNormalLstmDistrNetworkBase(TwoPeakNormalDistrNetworkBase, ABC):
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
         super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance)
 
+    # noinspection DuplicatedCode
     def forward_in_lstm(self, flatten_input, is_single_parameter):
         if is_single_parameter:
             h_0 = Variable(torch.zeros(self.num_layers, self.lstm_output_size)).to(flatten_input.device)

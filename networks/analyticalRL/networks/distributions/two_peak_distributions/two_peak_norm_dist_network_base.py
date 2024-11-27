@@ -3,7 +3,8 @@ from abc import ABC, abstractmethod
 import torch
 from torch import Tensor, nn
 
-from networks.analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase
+from networks.analyticalRL.networks.kinematics_network_base_class import KinematicsNetworkBase, \
+    concatenate_distributions
 
 
 class NormalizeWeightsLayer(nn.Module):
@@ -33,6 +34,7 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
     def __init__(self, num_joints, num_layer, layer_sizes, logger, error_tolerance):
         super().__init__(num_joints, num_layer, layer_sizes, logger, error_tolerance, output_per_joint=8)
 
+    # noinspection DuplicatedCode
     @staticmethod
     def map_eight_parameters_ranges(parameter1, parameter2, parameter3, parameter4, parameter5, parameter6, parameter7,
                                     parameter8):
@@ -164,12 +166,6 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
                 distribution = torch.cat(
                     [mu1, sigma1, weight1, mu2, sigma2, weight2],
                     dim=-1)
-            if all_distributions is None:
-                all_distributions = distribution.unsqueeze(0 if is_single_parameter else 1)
-            else:
-                if is_single_parameter:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(0)]).to(network_output.device)
-                else:
-                    all_distributions = torch.cat([all_distributions, distribution.unsqueeze(1)], dim=1).to(
-                        network_output.device)
+
+            all_distributions = concatenate_distributions(all_distributions, distribution, is_single_parameter)
         return all_distributions
