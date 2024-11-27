@@ -142,7 +142,7 @@ def plot_planar_robot(
                 distance = calculate_parameter_goal_distances(parameter, goal)
                 distance_label = f"({distance:.2f})"
             link_line.set_label(
-                f"Robot Arm {robot_label_note}" + distance_label
+                f"Arm {robot_label_note}" + distance_label
             )
 
         # Plot joint
@@ -200,7 +200,7 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     # Plot the goal of the robot
     if goal is not None:
         x, y = goal[0].item(), goal[1].item()
-        plt.plot(x, y, "-x", label=f"Robot Goal [{x:>0.1f},{y:>0.1f}]", color='r')
+        plt.plot(x, y, "-x", label=f"Goal [{x:>0.1f},{y:>0.1f}]", color='r')
 
     if logger is not None:
         path = "heatmap" + str(chart_index)
