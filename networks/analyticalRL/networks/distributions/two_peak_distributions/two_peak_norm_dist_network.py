@@ -1,5 +1,5 @@
 from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
-    TwoPeakNormalDistrNetworkBase, NormalizeWeightsLayer
+    TwoPeakNormalDistrNetworkBase
 from torch import nn
 import torch
 
