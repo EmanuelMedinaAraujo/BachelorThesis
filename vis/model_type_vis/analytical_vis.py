@@ -1,12 +1,12 @@
 import numpy as np
 import torch
 
-from networks.analyticalRL.networks.distributions.one_peak_distributions.three_output_param_dist_network_base import \
-    ThreeOutputParameterDistrNetworkBase
+from conf.conf_dataclasses.config import TrainConfig
+from networks.analyticalRL.networks.distributions.two_peak_distributions.lstm.two_peak_norm_dist_lstm_network import \
+    TwoPeakNormalLstmDistrNetwork
 from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
     TwoPeakNormalDistrNetworkBase
 from networks.analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork
-from conf.conf_dataclasses.config import TrainConfig
 from vis.planar_robot_vis import plot_planar_robot, create_eef_heatmap
 from vis.vis_utils import set_plot_settings, plot_distribution_single_link, finish_and_close_plot
 
@@ -129,14 +129,20 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
             parameter_3 = distribution_params[2].unsqueeze(-1)
             parameter_4 = distribution_params[3].unsqueeze(-1)
             parameter_5 = distribution_params[4].unsqueeze(-1)
-            parameter_6 = distribution_params[5].unsqueeze(-1)
 
-            (mu1, sigma1, weight1, mu2, sigma2, weight2) = (parameter_1, parameter_2, parameter_3, parameter_4, parameter_5, parameter_6)
+            if isinstance(model, TwoPeakNormalLstmDistrNetwork):
+                (weight, mu1, sigma1, mu2, sigma2) = (
+                    parameter_1, parameter_2, parameter_3, parameter_4, parameter_5)
+                component_selection = torch.tensor(weight > 0.5).to(param.device)
+                # Get weight and generate which component to use randomly
+                mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, component_selection)
+            else:
+                parameter_6 = distribution_params[5].unsqueeze(-1)
 
-            # create a torch tensor of size [cfg.vis.analytical.distribution_samples] with random values between of 0 and 1
-            random_bool = torch.rand(torch.Size([cfg.vis.analytical.distribution_samples])).to(device) > 0.5
+                (mu1, sigma1, weight1, mu2, sigma2, weight2) = (
+                    parameter_1, parameter_2, parameter_3, parameter_4, parameter_5, parameter_6)
 
-            mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, random_bool, cfg.vis.analytical.distribution_samples)
+                mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2, cfg.vis.num_problems_to_visualize)
 
             # Sample standard normal noise
             noise = torch.randn(torch.Size([cfg.vis.analytical.distribution_samples])).to(device)
@@ -146,9 +152,15 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
 
             link_angles[joint_number].extend(angles.tolist())
 
-            # Calculate probabilities using mixture of normal distributions
-            expected_truth_prob = weight1 * torch.exp(torch.distributions.Normal(mu1, sigma1).log_prob(angles)) + \
-                                  weight2 * torch.exp(torch.distributions.Normal(mu2, sigma2).log_prob(angles))
+            if isinstance(model, TwoPeakNormalLstmDistrNetwork):
+                if weight <= 0.5:
+                    expected_truth_prob = weight *torch.exp(torch.distributions.Normal(mu1, sigma1).log_prob(angles))
+                else:
+                    expected_truth_prob = weight* torch.exp(torch.distributions.Normal(mu2, sigma2).log_prob(angles))
+            else:
+                # Calculate probabilities using mixture of normal distributions
+                expected_truth_prob = weight1 * torch.exp(torch.distributions.Normal(mu1, sigma1).log_prob(angles)) + \
+                                      weight2 * torch.exp(torch.distributions.Normal(mu2, sigma2).log_prob(angles))
 
             link_probabilities[joint_number].extend(expected_truth_prob.squeeze().tolist())
         else:
