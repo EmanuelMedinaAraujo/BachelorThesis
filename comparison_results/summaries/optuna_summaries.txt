@@ -43,7 +43,7 @@ two peak
 	hidden_layer_sizes [2048, 32]
 	learning_rate 0.008179331918920956
 	batch_size 256
-	problems_per_epoch 8192
+	problems_per_epoch 3328
 	optimizer Adam
 	output_type TwoPeakNormalDistrNetwork
 ---------------------------------------------------------------------------
