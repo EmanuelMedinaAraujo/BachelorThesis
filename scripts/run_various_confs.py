@@ -214,6 +214,10 @@ def run_various_configurations():
         print(
             f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
 
+        calc_bootsstrap_losses([loss for _, loss, _, _ in results])
+        calc_bootsstrap_accuracies([acc for _, _, acc, _ in results])
+        calc_bootsstrap_runtimes([runtime for _, _, _, runtime in results])
+
 
 def update_conf_file(run_configuration, folder_path):
     with open(hyperparameters_config_file_path, 'r') as file:
