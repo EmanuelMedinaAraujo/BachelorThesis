@@ -141,7 +141,7 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
                 component_selection = torch.distributions.Bernoulli(weight).sample().to(device)
 
                 # Get weight and generate which component to use randomly
-                mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, component_selection, )
+                mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, component_selection)
             else:
                 parameter_6 = distribution_params[5].unsqueeze(-1)
 
@@ -149,7 +149,7 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
                     parameter_1, parameter_2, parameter_3, parameter_4, parameter_5, parameter_6)
 
                 mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2,
-                                                   cfg.vis.num_problems_to_visualize)
+                                                   cfg.vis.analytical.distribution_samples)
 
             # Sample standard normal noise
             noise = torch.randn(torch.Size([cfg.vis.analytical.distribution_samples])).to(device)
@@ -161,8 +161,8 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
 
             if isinstance(model, TwoPeakNormalLstmDistrNetwork):
                 expected_truth_prob = weight * torch.exp(
-                    torch.distributions.Normal(mu1 if component_selection is 0 else mu2,
-                                               sigma1 if component_selection is 0 else sigma2).log_prob(angles))
+                    torch.distributions.Normal(mu1 if component_selection == 0 else mu2,
+                                               sigma1 if component_selection == 0 else sigma2).log_prob(angles))
             else:
                 # Calculate probabilities using mixture of normal distributions
                 expected_truth_prob = weight1 * torch.exp(torch.distributions.Normal(mu1, sigma1).log_prob(angles)) + \
