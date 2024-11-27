@@ -94,7 +94,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
                            chart_index)
 
 
-def visualize_analytical_distribution(model: ThreeOutputParameterDistrNetworkBase, param, ground_truth, goal, cfg: TrainConfig,
+def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: TrainConfig,
                                       device,
                                       logger=None,
                                       current_step=None, chart_index=1):
@@ -133,7 +133,7 @@ def visualize_analytical_distribution(model: ThreeOutputParameterDistrNetworkBas
 
             (mu1, sigma1, weight1, mu2, sigma2, weight2) = (parameter_1, parameter_2, parameter_3, parameter_4, parameter_5, parameter_6)
 
-            mu, sigma = TwoPeakNormalDistrNetworkBase.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2, cfg.vis.analytical.distribution_samples)
+            mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2, cfg.vis.analytical.distribution_samples)
 
             # Sample standard normal noise
             noise = torch.randn(torch.Size([cfg.vis.analytical.distribution_samples])).to(device)
