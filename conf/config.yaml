@@ -8,7 +8,7 @@ defaults:
 random_seed: 42
 
 use_stb3: false
-do_vis: false
+do_vis: true
 use_optuna: false
 
 server_postfix: "" # :1 for the first server, "" for local execution

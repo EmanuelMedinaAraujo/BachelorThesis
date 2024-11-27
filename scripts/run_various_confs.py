@@ -123,11 +123,11 @@ two_peak_lstm_non_variant = {
 # List to store all configurations
 configurations = [
     # analytical_direct,
-    one_peak_dist,
+    #one_peak_dist,
     # one_peak_lstm,
     # beta,
-    # two_peak,
-    two_peak_lstm,
+    two_peak,
+    #two_peak_lstm,
 
     # Alternatives
     # one_peak_dist_mudistance,
@@ -144,7 +144,7 @@ save_folder_path_prefix = 'outputs/model_save_files/benchmark'
 hyperparameters_config_file_path = 'conf/hyperparams/hyperparams.yaml'
 config_file_path = 'conf/config.yaml'
 
-number_of_repeats = 5
+number_of_repeats = 1
 
 def run_benchmark_script():
     script_folder = os.path.dirname(os.path.abspath(__file__))

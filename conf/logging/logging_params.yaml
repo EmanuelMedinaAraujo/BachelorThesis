@@ -1,7 +1,7 @@
 wandb:
-  log_in_wandb: false
-  log_visualization_plots: false
-  project_name: thesis-performance
+  log_in_wandb: true
+  log_visualization_plots: true
+  project_name: thesis-2PDist
 
 log_in_console: false
 log_architecture: false
