@@ -3,5 +3,5 @@ wandb:
   log_visualization_plots: false
   project_name: thesis-performance
 
-log_in_console: false
+log_in_console: true
 log_architecture: false
