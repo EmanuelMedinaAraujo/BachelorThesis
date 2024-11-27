@@ -133,7 +133,10 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
 
             (mu1, sigma1, weight1, mu2, sigma2, weight2) = (parameter_1, parameter_2, parameter_3, parameter_4, parameter_5, parameter_6)
 
-            mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, weight1, weight2, cfg.vis.analytical.distribution_samples)
+            # create a torch tensor of size [cfg.vis.analytical.distribution_samples] with random values between of 0 and 1
+            random_bool = torch.rand(torch.Size([cfg.vis.analytical.distribution_samples])).to(device) > 0.5
+
+            mu, sigma = model.sample_component(mu1, mu2, sigma1, sigma2, random_bool, cfg.vis.analytical.distribution_samples)
 
             # Sample standard normal noise
             noise = torch.randn(torch.Size([cfg.vis.analytical.distribution_samples])).to(device)

@@ -1,9 +1,7 @@
 from torch import nn
 
 from networks.analyticalRL.networks.distributions.two_peak_distributions.lstm.two_peak_norm_dist_lstm_base_network import \
-    TwoPeakNormalLstmDistrNetworkBase
-from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
-    NormalizeWeightsLayer
+    TwoPeakNormalLstmDistrNetworkBase, NormalizeSelectionWeightsLayer
 
 
 class TwoPeakNormalLstmDistrNetwork(TwoPeakNormalLstmDistrNetworkBase):
@@ -14,7 +12,7 @@ class TwoPeakNormalLstmDistrNetwork(TwoPeakNormalLstmDistrNetworkBase):
         self.num_layers = lstm_layers  # number of stacked LSTM layers
 
         self.input_size = num_joints * 3 + 2
-        self.lstm_output_size = num_joints * 8
+        self.lstm_output_size = (num_joints * 6) + 1
         self.lstm = nn.LSTM(input_size=self.input_size, hidden_size=self.hidden_size,
                             num_layers=self.num_layers, proj_size=self.lstm_output_size, batch_first=True)
 
@@ -27,7 +25,7 @@ class TwoPeakNormalLstmDistrNetwork(TwoPeakNormalLstmDistrNetworkBase):
         output = super().forward_in_lstm(flatten_input,
                                          is_single_parameter)  # lstm with input, hidden, and internal state
         out = output.squeeze(1)  # reshaping the data for Dense layer next
-        network_output = NormalizeWeightsLayer(self.num_joints)(out)
+        network_output = NormalizeSelectionWeightsLayer(self.num_joints)(out)
 
         if is_single_parameter:
             network_output = network_output.squeeze(0)
