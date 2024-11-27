@@ -10,8 +10,8 @@ analytical:
   lstm_num_layers: 3 # number of stacked lstm layers (only used with lstm)
 
   problems_per_epoch: 1536
-  epochs: 10001
-  testing_interval: 1000 # Number of epochs after which to test the model
+  epochs: 10000
+  testing_interval: 20000 # Number of epochs after which to test the model
   optimizer: "Adam"
 
   # Supported Output Types (Note lstm types mus contain "LSTM" in the name, to obtain the additional lstm hyperparameters):
@@ -28,7 +28,7 @@ analytical:
       # "TwoPeakNormalDistrNetwork": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
       # "TwoPeakNormalLstmDistrNetwork": Network outputs two normal distributions and weights for each joint. LSTM is used
       # "TwoPeakNormalLstmVariantDistrNetwork" LSTM where an angle is extracted each lstm cycle
-  output_type: "TwoPeakNormalLstmVariantDistrNetwork"
+  output_type: "TwoPeakNormalLstmDistrNetwork"
 
 stb3:
   testing_interval: 1000000 # Number of steps after which to test the model
