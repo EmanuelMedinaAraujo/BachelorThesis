@@ -1,65 +1,37 @@
 analytical:
-  num_hidden_layer: 3
-  hidden_layer_sizes: [ 2048, 256, 2048 ]
-
-  learning_rate: 0.001492270739565321
-  batch_size: 512
-
-  # lstm hyperparameters
-  lstm_hidden_size: 512 # number of features in hidden state (only used with lstm)
-  lstm_num_layers: 1 # number of stacked lstm layers (only used with lstm)
-
-  problems_per_epoch: 7168
+  batch_size: 128
   epochs: 10000
-  testing_interval: 20000 # Number of epochs after which to test the model
-  optimizer: "Adam"
-
-  # Supported Output Types (Note lstm types mus contain "LSTM" in the name, to obtain the additional lstm hyperparameters):
-    # "SimpleKinematicsNetwork": Network outputs angle for each joint
-    # One Peak Distributions
-      # Normal distributions
-        # "NormalDistrMuDistanceNetworkBase": Network outputs normal distribution with mu distance used as loss
-        # "NormalDistrGroundTruthLossNetwork": Network outputs normal distribution with ground truth distance used as loss
-        # "NormalDistrManualReparameterizationNetwork": Network outputs normal distribution with manual reparameterization trick used as loss
-        # "NormalDistrRandomSampleDistNetwork": Network outputs normal distribution with random sampling distance used as loss
-        # "NormalDistrRandomSampleLSTMDistNetwork": Equal to "NormalDistrRandomSampleDistNetwork" but with LSTM
-      # "BetaDistrRSampleMeanNetwork": Network outputs beta distribution with mean of 1000 samples distance used as loss
-    # Two Peak Distributions
-      # "TwoPeakNormalDistrNetwork": Network outputs two normal distributions and weights for each joint. Random sampling is used for loss
-      # "TwoPeakNormalLstmDistrNetwork": Network outputs two normal distributions and weights for each joint. LSTM is used
-      # "TwoPeakNormalLstmVariantDistrNetwork" LSTM where an angle is extracted each lstm cycle
-  output_type: "SimpleKinematicsNetwork"
-
+  hidden_layer_sizes: []
+  learning_rate: 0.0009395146226113611
+  lstm_hidden_size: 256
+  lstm_num_layers: 1
+  num_hidden_layer: 0
+  optimizer: SGD
+  output_type: TwoPeakNormalLstmDistrNetwork
+  problems_per_epoch: 1792
+  testing_interval: 20000
 stb3:
-  testing_interval: 1000000 # Number of steps after which to test the model
-  use_recurrent_policy: false
-
-  non_recurrent_policy: "MlpPolicy"
-
-  recurrent_policy: "MlpLstmPolicy"
+  activation_fn_name: relu
+  batch_size: 64
+  clip_range: 0.1
+  enable_critic_lstm: true
+  ent_coef: 0.032400016123457165
+  epochs: 10
+  gae_lambda: 0.92
+  gamma: 0.0
+  learning_rate: 2.2568175267734592e-05
+  log_std_init: -0.40918312871720075
+  lr_schedule: constant
+  lstm_hidden_size: 256
+  max_grad_norm: 0.5
   n_envs: 1
   n_steps: 512
+  net_arch_type: medium
+  non_recurrent_policy: MlpPolicy
+  norm_advantages: true
+  ortho_init: true
+  recurrent_policy: MlpLstmPolicy
+  testing_interval: 1000000
   total_timesteps: 65000000
-
-  learning_rate: 2.2568175267734592e-05 # default value: 0.0003
-  batch_size: 64 # When using stable baselines, the batch size should be a factor of `n_steps * n_envs`
-  epochs: 10
-
-  gamma: 0.0
-  ent_coef: 0.032400016123457165 # default value: 0.0, PPO 0.01
-  log_std_init: -0.40918312871720075 # default value: 0.0
-
-  ##################
-  gae_lambda: 0.92      # default value: 0.95
-  clip_range: 0.1       # default value: 0.2
-  norm_advantages: true # default value: true
-  vf_coef: 0.8129608941298637         # default value: 0.5
-  max_grad_norm: 0.5    # default value: 0.5
-  net_arch_type: "medium"      # from "tiny", "small", "medium"
-  ortho_init: true      # default value: true
-  activation_fn_name: "relu" # from "tanh", "relu", "elu", "leaky_relu". Only used for hyperparameter optimization
-  lr_schedule: "constant" # from "linear", "constant" # Not implemented yet
-  # For recurrent_policy
-  enable_critic_lstm: true # default value: true
-  lstm_hidden_size: 256     # default value: 256
-  ####################
+  use_recurrent_policy: false
+  vf_coef: 0.8129608941298637
