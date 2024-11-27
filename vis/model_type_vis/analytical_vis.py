@@ -160,9 +160,14 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
             link_angles[joint_number].extend(angles.tolist())
 
             if isinstance(model, TwoPeakNormalLstmDistrNetwork):
+                # Get the correct mu, sigma for every angle using component selection
+                mu_according_to_component = mu1 * component_selection + mu2 * (1 - component_selection)
+                sigma_according_to_component = sigma1 * component_selection + sigma2 * (1 - component_selection)
+
+                # Calculate probabilities using mixture of normal distributions
                 expected_truth_prob = weight * torch.exp(
-                    torch.distributions.Normal(mu1 if component_selection == 0 else mu2,
-                                               sigma1 if component_selection == 0 else sigma2).log_prob(angles))
+                    torch.distributions.Normal(mu_according_to_component, sigma_according_to_component).log_prob(
+                        angles))
             else:
                 # Calculate probabilities using mixture of normal distributions
                 expected_truth_prob = weight1 * torch.exp(torch.distributions.Normal(mu1, sigma1).log_prob(angles)) + \
