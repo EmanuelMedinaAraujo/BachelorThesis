@@ -96,10 +96,10 @@ class TwoPeakNormalLstmDistrNetwork(TwoPeakNormalLstmDistrNetworkBase):
         # Get weight and generate which component to use randomly
         if is_single_parameter:
             weight = pred[0, 0]
-            component_selection = torch.tensor([weight > 0.5]).to(param.device)
+            component_selection = torch.distributions.Bernoulli(weight).sample().to(param.device)
         else:
             weight = pred[:, 0, 0]
-            component_selection = torch.tensor(weight > 0.5).to(param.device)
+            component_selection = torch.distributions.Bernoulli(weight).sample().to(param.device)
 
         all_loss_variables = None
         for joint_number in range(self.num_joints):
