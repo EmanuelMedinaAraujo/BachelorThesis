@@ -54,7 +54,7 @@ class NormalDistrNetworkBase(ThreeOutputParameterDistrNetworkBase, ABC):
     def map_three_parameters(parameter1, parameter2, parameter3):
         # Use atan2 to calculate angle
         mu = torch.atan2(parameter1, parameter2)
-        # Map sigma to positive values from [0,1] to [0,2]
-        sigma = parameter3 * 2
+        # Map sigma to positive values from [0,1] to [0,0.5]
+        sigma = parameter3
         sigma = sigma.clamp(min=1e-6)
         return mu, sigma

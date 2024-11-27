@@ -1,20 +1,27 @@
 defaults:
-- hyperparams: hyperparams
-- logging: logging_params
-- vis: vis_params
-- optuna: optuna_params
-- _self_
-do_vis: false
-max_link_length: 0.5
-min_link_length: 0.3
-model_save_dir: outputs/model_save_files/benchmark/TwoPeakNormalLstmDistrNetwork/dof3
-number_of_joints: 3
-number_of_test_problems: 10000
-parameter_convention: DH
+  - hyperparams: hyperparams
+  - logging : logging_params
+  - vis : vis_params
+  - optuna : optuna_params
+  - _self_
+
 random_seed: 42
-save_trained_model: true
-server_postfix: ''
-tolerable_accuracy_error: 0.01
-torch_num_threads: 1
+
+use_stb3: true
+do_vis: true
 use_optuna: false
-use_stb3: false
+
+server_postfix: "" # :1 for the first server, "" for local execution
+torch_num_threads: 1
+
+save_trained_model: true
+model_save_dir: "outputs/model_saves_files/stb3" # Directory the models are saved to
+
+# Problem Generation Parameter
+number_of_joints: 2
+tolerable_accuracy_error: 0.01 # The tolerance in accuracy that is still regarded as correct
+parameter_convention: "DH"
+min_link_length: 0.3
+max_link_length: 0.5
+
+number_of_test_problems: 10000 # Number of test problems to generate

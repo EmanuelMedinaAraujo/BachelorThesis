@@ -38,12 +38,12 @@ class TwoPeakNormalDistrNetworkBase(KinematicsNetworkBase, ABC):
                                     parameter8):
         # Use atan2 to calculate angle
         mu1 = torch.atan2(parameter1, parameter2)
-        # Map sigma to positive values from [0,1] to [0,2]
-        sigma1 = parameter3 * 2
+        # Map sigma to positive values from [0,1] to [0,0.5]
+        sigma1 = parameter3 * 0.25
         sigma1 = sigma1.clamp(min=1e-6)
 
         mu2 = torch.atan2(parameter5, parameter6)
-        sigma2 = parameter7 * 2
+        sigma2 = parameter7 * 0.25
         sigma2 = sigma2.clamp(min=1e-6)
 
         # Keep weights unchanged
