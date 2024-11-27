@@ -2,7 +2,7 @@ from torch import nn
 
 from networks.analyticalRL.networks.distributions.two_peak_distributions.lstm.two_peak_norm_dist_lstm_base_network import \
     TwoPeakNormalLstmDistrNetworkBase
-from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import \
+from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network_base import \
     NormalizeWeightsLayer
 
 
