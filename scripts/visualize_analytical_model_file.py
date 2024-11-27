@@ -17,7 +17,7 @@ from networks.analyticalRL.networks.distributions.two_peak_distributions.two_pea
 from networks.analyticalRL.networks.simple_kinematics_network import *  # noqa
 
 # Path from repository root
-model_file_path = "model_saves_files_perf_direct/dof3/SimpleKinematicsNetwork_2024-11-24_16-15-32_model.pth"
+model_file_path = "model_save_files_perf_direct/dof3/SimpleKinematicsNetwork_2024-11-24_16-15-32_model.pth"
 num_of_joints = 3
 num_of_visualizations = 2
 plot_all_in_one = False

@@ -126,14 +126,14 @@ configurations = [
     # one_peak_dist,
     # one_peak_lstm,
     # beta,
-    #two_peak,
-    # two_peak_lstm,
+    # two_peak,
+    two_peak_lstm,
 
     # Alternatives
     # one_peak_dist_mudistance,
     # one_peak_dist_torch_reparam,
     # one_peak_dist_ground_truth,
-    two_peak_lstm_non_variant
+    # two_peak_lstm_non_variant
 ]
 
 num_joints_to_test = [2, 3]
