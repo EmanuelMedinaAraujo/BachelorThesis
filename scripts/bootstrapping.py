@@ -16,7 +16,7 @@ def calc_bootsstrap_runtimes(dof2_list, dof3_list=None):
     ci_interval2 = tuple(map(convert_seconds, result_2dof.confidence_interval))
     print(convert_seconds(runtime_2dof.mean()), f"({ci_interval2[0]}, {ci_interval2[1]})")
 
-    if dof3_list is None:
+    if dof3_list is not None:
         ci_interval3 = tuple(map(convert_seconds, result_3dof.confidence_interval))
         print(convert_seconds(runtime_3dof.mean()), f"({ci_interval3[0]}, {ci_interval3[1]})")
 
