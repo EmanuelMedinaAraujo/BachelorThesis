@@ -1,9 +1,12 @@
 Frage:
 - Ich brauche Lehrstuhl Logo (cover.tex & title.tex)
-- Kurzzusammenfassung nicht im Template aber hinzugefügt
+- Keine bessere Definition für redundant robots gefunden -> umgeschrieben
+- Kurzzusammenfassung auf deutsch nicht im Template aber jetzt hinzugefügt
     https://www.cit.tum.de/cit/studium/studierende/abschlussarbeit-abschluss/informatik/
-- Was genau meintest du mit "modes" in der Tabelle? Könntest du da näher eingehen?
+- Was genau meintest du mit "modes" in der Tabelle? Könntest du da näher eingehen? - Passt es wie ich es gemacht habe?
 - Tabelle zeile erstellen, Run time solving?
+- Ist die Tabelle zu klein?
+
 Runs TODO:
 - 2p LSTM performance
 - 2p LSTM+MLP performance results

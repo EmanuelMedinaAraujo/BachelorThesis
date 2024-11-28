@@ -5,6 +5,7 @@ import yaml
 from tqdm import tqdm
 
 from benchmark_script import execute_main_script
+from scripts.bootstrapping import calc_bootsstrap_losses, calc_bootsstrap_accuracies, calc_bootsstrap_runtimes
 from test_model_file import test_models_in_folder
 
 # List of output types to iterate over
@@ -19,11 +20,17 @@ analytical_direct = {
 }
 # One peak distribution
 one_peak_dist = {
+    # "num_hidden_layer": 3,
+    # "hidden_layer_sizes": [128, 512, 2048],
+    # "learning_rate": 0.00043306334967391496,
+    # "batch_size": 16,
+    # "problems_per_epoch": 112,
+    # "optimizer": "Adam",
     "num_hidden_layer": 3,
-    "hidden_layer_sizes": [128, 512, 2048],
-    "learning_rate": 0.00043306334967391496,
-    "batch_size": 16,
-    "problems_per_epoch": 112,
+    "hidden_layer_sizes": [2048, 256, 2048],
+    "learning_rate": 0.001492270739565321,
+    "batch_size": 512,
+    "problems_per_epoch": 7168,
     "optimizer": "Adam",
     "output_type": "NormalDistrManualReparameterizationNetwork"
 }
@@ -122,8 +129,7 @@ two_peak_lstm_non_variant = {
 
 # List to store all configurations
 configurations = [
-    # analytical_direct,
-    # one_peak_dist,
+    # analytical_direct,    # one_peak_dist,
     # one_peak_lstm,
     # beta,
     # two_peak,
@@ -133,7 +139,7 @@ configurations = [
     # one_peak_dist_mudistance,
     # one_peak_dist_torch_reparam,
     # one_peak_dist_ground_truth,
-    # two_peak_lstm_non_variant
+    two_peak_lstm_non_variant
 ]
 
 num_joints_to_test = [2, 3]
@@ -144,7 +150,7 @@ save_folder_path_prefix = 'outputs/model_save_files/benchmark'
 hyperparameters_config_file_path = 'conf/hyperparams/hyperparams.yaml'
 config_file_path = 'conf/config.yaml'
 
-number_of_repeats = 1
+number_of_repeats = 5
 
 
 def run_benchmark_script():
@@ -204,8 +210,6 @@ def run_various_configurations():
     print("\nSummary of Results:")
     for (output_type, num_joint), results in summary_map.items():
         print(f"\nOutput Type: {output_type}, Number of Joints: {num_joint}")
-        for i, (model_file, loss, acc, runtime) in enumerate(results, 1):
-            print(f"\tLoss: {loss:.4f}, Accuracy: {acc:.4f}, Runtime: {runtime:.4f} seconds, Model File: {model_file}")
         print(
             f"\tLosses: {[loss for _, loss, _, _ in results]}, Mean Loss: {sum([loss for _, loss, _, _ in results]) / len(results):.4f}")
         print(
