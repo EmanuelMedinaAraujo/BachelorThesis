@@ -55,4 +55,27 @@ Output Type: SimpleKinematicsNetwork, Number of Joints: 3
         Runtimes: [553.4038882060004], Mean Runtime: 553.4039 seconds
 --------------------------------------------------------
 1P Distribution with the direct network size
+Output Type: NormalDistrRandomSampleLSTMDistNetwork, Number of Joints: 2
+        Loss: 0.0022, Accuracy: 99.9700, Runtime: 2118.1493 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-27_17-49-55_model.pth
+        Losses: [0.002201261067381347], Mean Loss: 0.0022
+        Accuracies: [99.97], Mean Accuracy: 99.9700
+        Runtimes: [2118.1493100980006], Mean Runtime: 2118.1493 seconds
 
+Output Type: NormalDistrRandomSampleLSTMDistNetwork, Number of Joints: 3
+        Loss: 0.0045, Accuracy: 90.9300, Runtime: 2611.4978 seconds, Model File: NormalDistrRandomSampleLSTMDistNetwork_2024-11-27_18-34-01_model.pth
+        Losses: [0.004533786428062922], Mean Loss: 0.0045
+        Accuracies: [90.93], Mean Accuracy: 90.9300
+        Runtimes: [2611.4977999130006], Mean Runtime: 2611.4978 seconds
+
+--------------------------------------------------------
+Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 2
+        Loss: 0.0079, Accuracy: 75.9000, Runtime: 927.7468 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-27_17-19-10_model.pth
+        Losses: [0.007883751545641098], Mean Loss: 0.0079
+        Accuracies: [75.9], Mean Accuracy: 75.9000
+        Runtimes: [927.7468488663435], Mean Runtime: 927.7468 seconds
+
+Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 3
+        Loss: 0.0200, Accuracy: 30.5100, Runtime: 1174.8331 seconds, Model File: TwoPeakNormalLstmVariantDistrNetwork_2024-11-27_17-41-12_model.pth
+        Losses: [0.019993360235696308], Mean Loss: 0.0200
+        Accuracies: [30.51], Mean Accuracy: 30.5100
+        Runtimes: [1174.8330851905048], Mean Runtime: 1174.8331 seconds
