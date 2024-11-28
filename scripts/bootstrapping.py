@@ -61,5 +61,12 @@ def convert_seconds(seconds):
 
 
 if __name__ == "__main__":
-    calc_bootsstrap_accuracies([97.5, 97.5, 97.5, 97.5, 97.5],[75.6, 75.59, 75.59, 75.59, 75.6])
+    dof2_list= [302.9289, 300.2082, 304.0576, 300.2754, 302.7790]
+    dof3_list = [784.9076, 778.0595, 787.7320, 789.4031, 795.0810]
+
+    # Uncomment when using losses
+    #dof2_list=[loss * 1000 for loss in dof2_list]
+    #dof3_list=[loss * 1000 for loss in dof3_list]
+
+    calc_bootsstrap_runtimes(dof2_list,dof3_list)
 

@@ -49,65 +49,32 @@ Output Type: TwoPeakNormalDistrNetwork, Number of Joints: 3
 	Runtimes: [845.977763588, 855.8297355840004, 846.5317974380014, 860.9376972110003, 853.5989626989995], Mean Runtime: 852.5752 seconds
 --------------------------------------------------------
 Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 2
-	Losses: [0.012120698657458706, 0.012109289352946508, 0.01208666185123293, 0.012091975383381942, 0.012110781074671832], Mean Loss: 0.0121
-	Accuracies: [46.28, 46.28, 46.42, 46.6, 46.34], Mean Accuracy: 46.3840
-	Runtimes: [252.3367774319995, 248.48100662900015, 247.26871795999978, 246.11029099900043, 247.08818190199963], Mean Runtime: 248.2570 seconds
-Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 3
-	Losses: [0.010375037568945845, 0.010363861933567387, 0.010357808310736436, 0.01037748655596588, 0.010352261379240007], Mean Loss: 0.0104
-	Accuracies: [60.97, 60.74, 60.99, 61.11, 61.11], Mean Accuracy: 60.9840
-	Runtimes: [304.34515529499913, 302.02081129399994, 305.8172302900002, 302.0463187739988, 300.0565301379993], Mean Runtime: 302.8572 seconds
-
-
-
----------------------------------------------
----------------------------------------------
-TODO
-Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 2
 	Losses: [0.0055061149312248744, 0.005507702341183176, 0.005505417162043886, 0.005505642243926195, 0.005511279645963986], Mean Loss: 0.0055
+	    5.51 (5.51, 5.51)
 	Accuracies: [91.31, 91.38, 91.3, 91.21, 90.86], Mean Accuracy: 91.2120
+	    91.21 (90.95, 91.32)
 	Runtimes: [250.446453293, 246.94611180700002, 247.620229537, 246.19460730000003, 246.97019577600008], Mean Runtime: 247.6355 seconds
-0.01 (0.01, 0.01)
-91.21 (90.95, 91.32)
-247.64 (246.78, 249.75)
-4m 8s (4m 7s, 4m 10s)
-----------------------------------
+        4m 8s (4m 7s, 4m 10s)
 Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 3
-Execution Summary:
-Run 1: 627.3296 seconds
-Run 2: 623.1703 seconds
-Run 3: 625.1668 seconds
-Run 4: 617.4061 seconds
-Run 5: 626.9802 seconds
-Mean Runtime: 624.0106 seconds
-Test: Accuracy: 67.69%, Avg loss: 0.012131
-: Accuracy: 67.51%, Avg loss: 0.011961
-Test: Accuracy: 67.82%, Avg loss: 0.011862
-Test: Accuracy: 67.44%, Avg loss: 0.011820
-Test: Accuracy: 67.69%, Avg loss: 0.012148
+    loss_list = [0.012131, 0.011961, 0.011862, 0.011820, 0.012148]
+        11.98 (11.87, 12.11)
+    acc_list = [67.69, 67.51, 67.82, 67.44, 67.69]
+        67.63 (67.50, 67.74)
+    runtimes: [627.3296, 623.1703, 625.1668, 617.4061, 626.9802] Mean Runtime: 624.0106 seconds
+        10m 24s (10m 20s, 10m 26s)
 -------------------------------------
-Execution Summary:
-Run 1: 302.9289 seconds
-Run 2: 300.2082 seconds
-Run 3: 304.0576 seconds
-Run 4: 300.2754 seconds
-Run 5: 302.7790 seconds
-Mean Runtime: 302.0498 seconds
-Test: Accuracy: 67.83%, Avg loss: 0.009229
-Test: Accuracy: 67.88%, Avg loss: 0.009259
-Test: Accuracy: 67.44%, Avg loss: 0.009263
-Test: Accuracy: 67.59%, Avg loss: 0.009257
-Test: Accuracy: 67.80%, Avg loss: 0.009244
+Output Type: TwoPeakNormalLstmDistrNetwork, Number of Joints: 2
+    loss_list = [0.009229, 0.009259, 0.009263, 0.009257, 0.009244]
+        9.25 (9.24, 9.26)
+    acc_list = [67.83, 67.88, 67.44, 67.59, 67.80]
+        67.71 (67.54, 67.83)
+    runtimes: [302.9289, 300.2082, 304.0576, 300.2754, 302.7790] Mean Runtime: 302.0498 seconds
+        5m 2s (5m 1s, 5m 3s)
+Output Type: TwoPeakNormalLstmDistrNetwork, Number of Joints: 3
+    loss_list = [0.004037, 0.004064, 0.004020, 0.004040, 0.004081]
+        4.05 (4.03, 4.07)
+    acc_list = [93.15, 92.94, 93.09, 92.91, 92.87]
+        92.99 (92.91, 93.10)
+    runtimes: [784.9076, 778.0595, 787.7320, 789.4031, 795.0810] Mean Runtime: 787.0366 seconds
+        13m 7s (13m 2s, 13m 12s)
 -----------------------------------------------
-3dof
-Execution Summary:
-Run 1: 784.9076 seconds
-Run 2: 778.0595 seconds
-Run 3: 787.7320 seconds
-Run 4: 789.4031 seconds
-Run 5: 795.0810 seconds
-Mean Runtime: 787.0366 seconds
-Test: Accuracy: 93.15%, Avg loss: 0.004037
-Test: Accuracy: 92.94%, Avg loss: 0.004064
-Test: Accuracy: 93.09%, Avg loss: 0.004020
-Test: Accuracy: 92.91%, Avg loss: 0.004040
-Test: Accuracy: 92.87%, Avg loss: 0.004081
