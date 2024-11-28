@@ -6,6 +6,8 @@ Frage:
 - Was genau meintest du mit "modes" in der Tabelle? Könntest du da näher eingehen? - Passt es wie ich es gemacht habe?
 - Tabelle zeile erstellen, Run time solving?
 - Ist die Tabelle zu klein?
+- "+" bei jacobinan Pseudo inverse
+- Mehr Bilder und falls ja,  wo?
 
 Runs TODO:
 - 2p LSTM performance

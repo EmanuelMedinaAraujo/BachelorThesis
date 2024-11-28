@@ -217,10 +217,14 @@ def run_various_configurations():
         results = results[::-1]
         print(
             f"\tRuntimes: {[runtime for _, _, _, runtime in results]}, Mean Runtime: {sum([runtime for _, _, _, runtime in results]) / len(results):.4f} seconds")
-
-        calc_bootsstrap_losses([loss for _, loss, _, _ in results])
-        calc_bootsstrap_accuracies([acc for _, _, acc, _ in results])
-        calc_bootsstrap_runtimes([runtime for _, _, _, runtime in results])
+        try:
+            loss_list = [loss for _, loss, _, _ in results]
+            loss_list = [loss * 1000 for loss in loss_list]
+            calc_bootsstrap_losses(loss_list)
+            calc_bootsstrap_accuracies([acc for _, _, acc, _ in results])
+            calc_bootsstrap_runtimes([runtime for _, _, _, runtime in results])
+        except Exception as e:
+            print(f"Error: {e} when calculating bootstrap values for {output_type} and {num_joint} joints.")
 
 
 def update_conf_file(run_configuration, folder_path):
