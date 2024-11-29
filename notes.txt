@@ -10,10 +10,7 @@ Frage:
 - Mehr Bilder und falls ja,  wo?
 
 Runs TODO:
-- 2p LSTM performance
-- 2p LSTM+MLP performance results
 Later:
-    - programm automatic bootstrapping when performance running
     - 1P Optuna?
     - alternatives perforamance run
 

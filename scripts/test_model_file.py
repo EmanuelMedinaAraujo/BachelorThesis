@@ -17,14 +17,15 @@ from networks.analyticalRL.networks.distributions.two_peak_distributions.lstm.tw
 from networks.analyticalRL.networks.distributions.two_peak_distributions.two_peak_norm_dist_network import *  # noqa
 from networks.analyticalRL.networks.simple_kinematics_network import SimpleKinematicsNetwork  # noqa
 
-model_save_folder_path = "comparison_results/model_save_files/benchmark/TwoPeakNormalLstmVariantDistrNetwork/dof2/"
-number_of_joints = 2
-
-test_length = 10000
 device = "cuda" if torch.cuda.is_available() else "cpu"
 parameter_convention = "DH"
 min_link_len = 0.3
 max_link_len = 0.5
+
+model_save_folder_path = "comparison_results/model_save_files/benchmark/TwoPeakNormalLstmVariantDistrNetwork/dof3/"
+number_of_joints = 3
+
+test_length = 10000
 
 
 def test_models_in_folder(num_of_joints=number_of_joints,
@@ -43,6 +44,7 @@ def test_models_in_folder(num_of_joints=number_of_joints,
 
     # List all model files in the folder
     model_files = [f for f in os.listdir(model_folder_path) if f.endswith(".pth")]
+    set_random_seed(0)
 
     loss_and_acc_list = []
     # Test each model file and show progress bar
@@ -61,6 +63,7 @@ def test_models_in_folder(num_of_joints=number_of_joints,
         )
         loss_and_acc_list.append((model_file, loss, acc))
     return loss_and_acc_list
+
 
 if __name__ == "__main__":
     test_models_in_folder()
