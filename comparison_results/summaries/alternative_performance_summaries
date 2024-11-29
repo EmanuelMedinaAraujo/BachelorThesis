@@ -33,12 +33,6 @@ NormalDistrGroundTruthLossNetwork 3DOF (1P Dist)
         Accuracy_list: [1.66, 1.66, 1.66, 1.66, 1.66]
         Loss_list: [24907.173608, 24907.173608, 24907.173608, 24907.173608, 24907.173608]
 --------------------------------------------------------
-TwoPeakNormalLstmDistrNetwork 2DOF (2P LSTM)
-    TODO
-
-TwoPeakNormalLstmDistrNetwork 3DOF (2P LSTM)
-    TODO
---------------------------------------------------------
 --------------------------------------------------------
 
 Direct with the small network of 1P Dist

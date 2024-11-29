@@ -1,4 +1,5 @@
 import time
+import os
 
 from stable_baselines3.common.utils import set_random_seed
 
@@ -20,8 +21,8 @@ parameter_convention = "DH"
 min_link_len = 0.3
 max_link_len = 0.5
 
-model_save_file_path = "comparison_results/model_save_files/benchmark/TwoPeakNormalLstmVariantDistrNetwork/dof3/TwoPeakNormalLstmVariantDistrNetwork_2024-11-28_06-18-30_model.pth"
-number_of_joints = 3
+model_save_file_path = "comparison_results/model_save_files/benchmark/TwoPeakNormalLstmVariantDistrNetwork/dof2/TwoPeakNormalLstmVariantDistrNetwork_2024-11-28_05-02-27_model.pth"
+number_of_joints = 2
 
 repeats = 1000
 batched_size = 100
@@ -29,7 +30,8 @@ batched_size = 100
 
 def test_models_in_folder(num_of_joints=number_of_joints,
                           num_repeat=repeats,
-                          batch_size=batched_size):
+                          batch_size=batched_size,
+                          model_save_file = model_save_file_path):
     set_random_seed(0)  # Have a unique test set for every trial
 
     generator = ParameterGeneratorForPlanarRobot(
@@ -52,7 +54,7 @@ def test_models_in_folder(num_of_joints=number_of_joints,
     # Test each model file and show progress bar
     with torch.no_grad():
         # Load model with modelclass
-        loaded_model = torch.load(model_save_file_path, weights_only=False)
+        loaded_model = torch.load(model_save_file, weights_only=False)
         loaded_model.eval()
 
         # Load model into memory by running it once in single and batched mode
@@ -74,9 +76,25 @@ def test_models_in_folder(num_of_joints=number_of_joints,
             end_time = time.perf_counter()
             batched_runtimes.append(end_time - start_time)
         # print in microseconds
-        print(f"Single Runtime: {sum(single_runtimes) / len(single_runtimes) * 1e6} µs")
-        print(f"Batched Runtime: {sum(batched_runtimes) / len(batched_runtimes) * 1e6} µs")
+        print(f"Runtimes:")
+        print(f"\tSingle Runtime: {sum(single_runtimes) / len(single_runtimes) * 1e6} µs")
+        print(f"\tBatched Runtime: {sum(batched_runtimes) / len(batched_runtimes) * 1e6} µs")
+
+def iterate_all_files():
+    folders_to_exlude = ["backup", "NormalDistrMuDistanceNetworkBase", "NormalDistrRandomSampleDistNetwork", "NormalDistrGroundTruthLossNetwork"]
+    for root, dirs, files in os.walk("comparison_results/model_save_files/benchmark"):
+        for file in files:
+            if file.endswith(".pth") and not any([folder in root for folder in folders_to_exlude]):
+                model_name = file.split("_")[0]
+                if "2" in root:
+                    print(f"Testing {model_name} with 2 joints")
+                    test_models_in_folder(model_save_file=os.path.join(root, file), num_of_joints=2)
+                else:
+                    print(f"Testing {model_name} with 3 joints")
+                    test_models_in_folder(model_save_file=os.path.join(root, file), num_of_joints=3)
+                print()
+            break
 
 
 if __name__ == "__main__":
-    test_models_in_folder()
+    iterate_all_files()
