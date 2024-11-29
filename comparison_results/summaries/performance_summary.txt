@@ -1,80 +1,132 @@
-Seed 42, 10000 epochs, 10000 test problems
+Seed 42, 10000 epochs, 10000 test problems, runtime-(batchsize=100, 1ßßß repeats, mean)
 --------------------------------------------------------
 SimpleKinematicsNetwork Execution Summary 2 DOF:
-    runtimes: [591.7201, 573.051, 577.9547, 574.1355, 577.5656]Mean Runtime: 578.8854 s
+    training times: [591.7201, 573.051, 577.9547, 574.1355, 577.5656]Mean Runtime: 578.8854 s
     accuracy: [100.0, 100.0, 100.0, 100.0, 100.0]
     loss: [0.001245, 0.001245, 0.001245, 0.001245, 0.001245]
+    Runtimes:
+        Single Runtime: 154.43707600115886 µs
+        Batched Runtime: 165.8656990111922 µs
+
 
 SimpleKinematicsNetwork Execution Summary 3 DOF:
-
-    runtimes: [633.4401, 649.4225, 652.467, 660.1398, 694.8909] Mean Runtime: 658.0721 s
+    training times: [633.4401, 649.4225, 652.467, 660.1398, 694.8909] Mean Runtime: 658.0721 s
     accuracy: [100.0, 100.0, 100.0, 100.0, 100.0]
     loss: [0.001211, 0.001211, 0.001211, 0.001211, 0.001211]
+    Runtimes:
+        Single Runtime: 157.26181701211317 µs
+        Batched Runtime: 172.2017499996582 µs
 --------------------------------------------------------
 Output Type: NormalDistrManualReparameterizationNetwork, Number of Joints: 2
 	Losses: [0.004390149802332598, 0.0043901365686146165, 0.004390156978155937, 0.004390155097571915, 0.004390138595167809], Mean Loss: 0.0044
 	Accuracies: [97.5, 97.5, 97.5, 97.5, 97.5], Mean Accuracy: 97.5000
-	Runtimes: [381.63827980299993, 378.5175722220001, 377.1377383529998, 377.2592813629999, 375.89905818800025], Mean Runtime: 378.0904 seconds
+	training times: [381.63827980299993, 378.5175722220001, 377.1377383529998, 377.2592813629999, 375.89905818800025], Mean Runtime: 378.0904 seconds
+	Runtimes:
+        Single Runtime: 321.3471030312576 µs
+        Batched Runtime: 446.30049799434346 µs
 
 Output Type: NormalDistrManualReparameterizationNetwork, Number of Joints: 3
 	Losses: [0.00848811249920618, 0.008488229663586026, 0.008488159015898783, 0.00848805751567561, 0.00848816524681024], Mean Loss: 0.0085
 	Accuracies: [75.6, 75.59, 75.59, 75.59, 75.6], Mean Accuracy: 75.5940
-	Runtimes: [453.84056038000017, 454.61482982100006, 449.8340852269994, 450.11251080199963, 449.8690109399995], Mean Runtime: 451.6542 seconds
+	training times: [453.84056038000017, 454.61482982100006, 449.8340852269994, 450.11251080199963, 449.8690109399995], Mean Runtime: 451.6542 seconds
+	Runtimes:
+        Single Runtime: 372.48291099513153 µs
+        Batched Runtime: 493.6846259961385 µs
 --------------------------------------------------------
 Output Type: NormalDistrRandomSampleLSTMDistNetwork, Number of Joints: 2 (runtime not reversed)
 	Losses: [0.002128918492668254, 0.0021289133153381042, 0.0021289226820897056, 0.0021289145856052526, 0.0021289144674875387], Mean Loss: 0.0021
 	Accuracies: [99.96, 99.96, 99.96, 99.96, 99.96], Mean Accuracy: 99.9600
-	Runtimes: [1016.6642471539999, 1013.2463030790004, 1013.3524014669997, 1013.9244873810003, 1023.9424049500001], Mean Runtime: 1016.2260 seconds (runtime not reversed)
+	training times: [1016.6642471539999, 1013.2463030790004, 1013.3524014669997, 1013.9244873810003, 1023.9424049500001], Mean Runtime: 1016.2260 seconds (runtime not reversed)
+	Runtimes:
+        Single Runtime: 474.3343959971753 µs
+        Batched Runtime: 839.703013010876 µs
+
 Output Type: NormalDistrRandomSampleLSTMDistNetwork, Number of Joints: 3
 	Losses: [0.005443277715871227, 0.0054432776853253016, 0.005443285942882357, 0.005443294865796634, 0.005443277948841569], Mean Loss: 0.0054
 	Accuracies: [93.24, 93.26, 93.26, 93.25, 93.24], Mean Accuracy: 93.2500
-	Runtimes: [1162.1232679000004, 1150.414963860001, 1151.8407029080008, 1153.9816749260008, 1159.7183631449989], Mean Runtime: 1155.6158 seconds (runtime not reversed)
+	training times: [1162.1232679000004, 1150.414963860001, 1151.8407029080008, 1153.9816749260008, 1159.7183631449989], Mean Runtime: 1155.6158 seconds (runtime not reversed)
+	Runtimes:
+        Single Runtime: 525.6526249904709 µs
+        Batched Runtime: 924.7778549979557 µs
+
 --------------------------------------------------------
 Output Type: BetaDistrRSampleMeanNetwork, Number of Joints: 2
 	Losses: [0.058866189694573405, 0.05903354568235227, 0.05857040632002172, 0.05853795325591636, 0.05808906818545074], Mean Loss: 0.0586
 	Accuracies: [5.06, 5.53, 5.14, 5.09, 5.13], Mean Accuracy: 5.1900
-	Runtimes: [349.695748205, 345.22922177500004, 335.363979247, 345.95335324300004, 346.06007639100017], Mean Runtime: 344.4605 seconds
+	training times: [349.695748205, 345.22922177500004, 335.363979247, 345.95335324300004, 346.06007639100017], Mean Runtime: 344.4605 seconds
+	Runtimes:
+        Single Runtime: 207.0842500015715 µs
+        Batched Runtime: 211.26853798978118 µs
+
 Output Type: BetaDistrRSampleMeanNetwork, Number of Joints: 3
 	Losses: [0.0697985447076644, 0.06912142605058616, 0.06913971522016508, 0.0699940312143066, 0.06952191703652207], Mean Loss: 0.0695
 	Accuracies: [8.87, 8.68, 8.57, 8.53, 7.75], Mean Accuracy: 8.4800
-	Runtimes: [427.4079998949992, 423.53269734900005, 428.17008592099955, 426.8910319689994, 425.04878552899936], Mean Runtime: 426.2101 seconds
+	training times: [427.4079998949992, 423.53269734900005, 428.17008592099955, 426.8910319689994, 425.04878552899936], Mean Runtime: 426.2101 seconds
+	Runtimes:
+        Single Runtime: 256.77150001592963 µs
+        Batched Runtime: 268.62375600376254 µs
 --------------------------------------------------------
 Output Type: TwoPeakNormalDistrNetwork, Number of Joints: 2
 	Losses: [0.0019493139189877184, 0.0019472662523092367, 0.0019475492423645846, 0.001947645766027017, 0.0019455355329469058], Mean Loss: 0.0019
 	Accuracies: [99.92, 99.93, 99.94, 99.95, 99.94], Mean Accuracy: 99.9360
-	Runtimes: [655.5413692900001, 648.9969060829999, 651.362003968, 652.120931769, 640.3444763630005], Mean Runtime: 649.6731 seconds
+	training times: [655.5413692900001, 648.9969060829999, 651.362003968, 652.120931769, 640.3444763630005], Mean Runtime: 649.6731 seconds
+	Runtimes:
+        Single Runtime: 269.4873069967798 µs
+        Batched Runtime: 309.13643399890134 µs
+
 Output Type: TwoPeakNormalDistrNetwork, Number of Joints: 3
 	Losses: [0.0030033373242201377, 0.003002370603273084, 0.0030020681385922216, 0.0030051274343761178, 0.002999870718756938], Mean Loss: 0.0030
 	Accuracies: [99.69, 99.72, 99.73, 99.72, 99.73], Mean Accuracy: 99.7180
-	Runtimes: [845.977763588, 855.8297355840004, 846.5317974380014, 860.9376972110003, 853.5989626989995], Mean Runtime: 852.5752 seconds
+	training times: [845.977763588, 855.8297355840004, 846.5317974380014, 860.9376972110003, 853.5989626989995], Mean Runtime: 852.5752 seconds
+	Runtimes:
+        Single Runtime: 336.66754700152524 µs
+        Batched Runtime: 397.5406690251475 µs
 --------------------------------------------------------
 Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 2
 	Losses: [0.0055061149312248744, 0.005507702341183176, 0.005505417162043886, 0.005505642243926195, 0.005511279645963986], Mean Loss: 0.0055
 	    5.51 (5.51, 5.51)
 	Accuracies: [91.31, 91.38, 91.3, 91.21, 90.86], Mean Accuracy: 91.2120
 	    91.21 (90.95, 91.32)
-	Runtimes: [250.446453293, 246.94611180700002, 247.620229537, 246.19460730000003, 246.97019577600008], Mean Runtime: 247.6355 seconds
+	training times: [250.446453293, 246.94611180700002, 247.620229537, 246.19460730000003, 246.97019577600008], Mean Runtime: 247.6355 seconds
         4m 8s (4m 7s, 4m 10s)
+    Runtimes:
+        Single Runtime: 758.5707410025861 µs
+        Batched Runtime: 1018.7738540062127 µs
+
 Output Type: TwoPeakNormalLstmVariantDistrNetwork, Number of Joints: 3
     loss_list = [0.012131, 0.011961, 0.011862, 0.011820, 0.012148]
         11.98 (11.87, 12.11)
     acc_list = [67.69, 67.51, 67.82, 67.44, 67.69]
         67.63 (67.50, 67.74)
-    runtimes: [627.3296, 623.1703, 625.1668, 617.4061, 626.9802] Mean Runtime: 624.0106 seconds
+    training times: [627.3296, 623.1703, 625.1668, 617.4061, 626.9802] Mean Runtime: 624.0106 seconds
         10m 24s (10m 20s, 10m 26s)
+    Runtimes:
+        Single Runtime: 862.6546609757497 µs
+        Batched Runtime: 1119.3599340203946 µs
 -------------------------------------
 Output Type: TwoPeakNormalLstmDistrNetwork, Number of Joints: 2
     loss_list = [0.009229, 0.009259, 0.009263, 0.009257, 0.009244]
         9.25 (9.24, 9.26)
     acc_list = [67.83, 67.88, 67.44, 67.59, 67.80]
         67.71 (67.54, 67.83)
-    runtimes: [302.9289, 300.2082, 304.0576, 300.2754, 302.7790] Mean Runtime: 302.0498 seconds
+    training times: [302.9289, 300.2082, 304.0576, 300.2754, 302.7790] Mean Runtime: 302.0498 seconds
         5m 2s (5m 1s, 5m 3s)
+    Runtimes:
+        Single Runtime: 366.22862499734765 µs
+        Batched Runtime: 408.1219769814197 µs
+
+
 Output Type: TwoPeakNormalLstmDistrNetwork, Number of Joints: 3
     loss_list = [0.004037, 0.004064, 0.004020, 0.004040, 0.004081]
         4.05 (4.03, 4.07)
     acc_list = [93.15, 92.94, 93.09, 92.91, 92.87]
         92.99 (92.91, 93.10)
-    runtimes: [784.9076, 778.0595, 787.7320, 789.4031, 795.0810] Mean Runtime: 787.0366 seconds
+    training times: [784.9076, 778.0595, 787.7320, 789.4031, 795.0810] Mean Runtime: 787.0366 seconds
         13m 7s (13m 2s, 13m 12s)
+    Testing TwoPeakNormalLstmDistrNetwork with 3 joints
+    Runtimes:
+        Single Runtime: 514.4845550103128 µs
+        Batched Runtime: 585.0315219886397 µs
+
+
 -----------------------------------------------
