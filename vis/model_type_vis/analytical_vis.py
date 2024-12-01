@@ -13,6 +13,88 @@ from vis.vis_utils import set_plot_settings, plot_distribution_single_link, fini
 
 def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, chart_index, goal, default_line_width,
                       save_to_file, show_plot, max_legend_length, logger, current_step, show_legend, device,
+                      do_heat_map, component_selection=None):
+    ax, _ = set_plot_settings(parameter)
+
+    # Plot the ground truth
+    if ground_truth is not None and False:
+        # Update parameter with ground truth
+        updated_param = torch.cat((parameter, ground_truth), dim=-1)
+        plot_planar_robot(
+            ax=ax,
+            parameter=updated_param,
+            default_line_width=default_line_width,
+            transparency=0.5,
+            show_joint_label=True,
+            show_joints=False,
+            show_end_effectors=False,
+            show_distance=False,
+            goal=goal,
+            robot_label_note="Ground Truth"
+        )
+
+    is_last_link = False
+
+    all_start_angles = np.zeros(1)
+    all_start_points = np.zeros((1, 2))
+    all_components = []
+
+    start_angle_max = 0
+    start_point_max = [0, 0]
+
+    for joint_number in range(link_angles.__len__()):
+        if joint_number == link_angles.__len__() - 1:
+            is_last_link = True
+        tmp_all_start_angles = []
+        tmp_all_start_points = []
+        tmp_all_components = []
+        for link_num in range(link_angles[joint_number].__len__()):
+            for i in range(all_start_angles.__len__()):
+                if all_start_angles.__len__() != 1 and  all_components[i] != component_selection[link_num]:
+                    continue
+                current_total_angle = all_start_angles[i] + link_angles[joint_number][link_num]
+                tmp_all_start_angles.append(current_total_angle)
+                current_start_point = all_start_points[i]+ np.array(
+                    [parameter[joint_number, 1].item() * np.cos(current_total_angle),
+                     parameter[joint_number, 1].item() * np.sin(current_total_angle)]
+                )
+                tmp_all_start_points.append(current_start_point)
+                tmp_all_components.append(component_selection[link_num])
+                plot_distribution_single_link(ax=ax,
+                                              link_length=parameter[joint_number, 1].item(),
+                                              angle=link_angles[joint_number][link_num],
+                                              default_line_width=default_line_width,
+                                              transparency=0.1,
+                                              show_distance=is_last_link,
+                                              mark_as_best_end_effector=False,
+                                              goal=goal,
+                                              start_point=all_start_points[i],
+                                              start_angle=all_start_angles[i],
+                                              # color="blue" if is_last_link else 'g',
+                                              color="blue",
+                                              device=device)
+
+
+        # Get index of maximum probability in link_probabilities[joint_number]
+        max_prob_index = link_probabilities[joint_number].index(max(link_probabilities[joint_number]))
+        start_angle_max += link_angles[joint_number][max_prob_index]
+        start_point_max = [start_point_max[0] + parameter[joint_number, 1].item() * np.cos(start_angle_max),
+                           start_point_max[1] + parameter[joint_number, 1].item() * np.sin(start_angle_max)]
+
+        all_start_angles = np.array(tmp_all_start_angles)
+        all_start_points = np.array(tmp_all_start_points)
+        all_components = np.array(tmp_all_components)
+
+    # Plot the goal of the robot, configure the legend, log, save, open and close the plot
+    finish_and_close_plot(ax, chart_index, current_step, goal, logger, max_legend_length, save_to_file, show_legend,
+                          show_plot)
+
+    if do_heat_map:
+        create_eef_heatmap(all_start_points, goal, logger, current_step, show_plot, save_to_file, parameter,
+                           chart_index)
+
+def plot_custom_distribution(parameter, link_angles, ground_truth, link_probabilities, chart_index, goal, default_line_width,
+                      save_to_file, show_plot, max_legend_length, logger, current_step, show_legend, device,
                       do_heat_map):
     ax, _ = set_plot_settings(parameter)
 
@@ -50,24 +132,26 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
             for i in range(all_start_angles.__len__()):
                 current_total_angle = all_start_angles[i] + link_angles[joint_number][link_num]
                 tmp_all_start_angles.append(current_total_angle)
-                tmp_all_start_points.append(all_start_points[i] + np.array(
+                current_start_point = all_start_points[i]+ np.array(
                     [parameter[joint_number, 1].item() * np.cos(current_total_angle),
                      parameter[joint_number, 1].item() * np.sin(current_total_angle)]
-                ))
+                )
+                tmp_all_start_points.append(current_start_point)
+                plot_distribution_single_link(ax=ax,
+                                              link_length=parameter[joint_number, 1].item(),
+                                              angle=link_angles[joint_number][link_num],
+                                              default_line_width=default_line_width,
+                                              transparency=0.1,
+                                              show_distance=is_last_link,
+                                              mark_as_best_end_effector=False,
+                                              goal=goal,
+                                              start_point=all_start_points[i],
+                                              start_angle=all_start_angles[i],
+                                              # color="blue" if is_last_link else 'g',
+                                              color="blue",
+                                              device=device)
 
-            plot_distribution_single_link(ax=ax,
-                                          link_length=parameter[joint_number, 1].item(),
-                                          angle=link_angles[joint_number][link_num],
-                                          default_line_width=default_line_width,
-                                          transparency=0.1,
-                                          show_distance=is_last_link,
-                                          mark_as_best_end_effector=False,
-                                          goal=goal,
-                                          start_point=start_point_max,
-                                          start_angle=start_angle_max,
-                                          # color="blue" if is_last_link else 'g',
-                                          color="blue",
-                                          device=device)
+
         # Get index of maximum probability in link_probabilities[joint_number]
         max_prob_index = link_probabilities[joint_number].index(max(link_probabilities[joint_number]))
         start_angle_max += link_angles[joint_number][max_prob_index]
@@ -84,6 +168,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
     if do_heat_map:
         create_eef_heatmap(all_start_points, goal, logger, current_step, show_plot, save_to_file, parameter,
                            chart_index)
+
 
 
 def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: TrainConfig,
@@ -160,12 +245,14 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
                 expected_truth_prob = weight * torch.exp(
                     torch.distributions.Normal(mu_according_to_component, sigma_according_to_component).log_prob(
                         angles))
+                link_probabilities[joint_number].extend(expected_truth_prob.squeeze().tolist())
+
             else:
                 # Calculate probabilities using mixture of normal distributions
                 expected_truth_prob = weight1 * torch.exp(torch.distributions.Normal(mu1, sigma1).log_prob(angles)) + \
                                       weight2 * torch.exp(torch.distributions.Normal(mu2, sigma2).log_prob(angles))
+                link_probabilities[joint_number].extend(expected_truth_prob.squeeze().tolist())
 
-            link_probabilities[joint_number].extend(expected_truth_prob.squeeze().tolist())
         else:
             dist = torch.distributions.Normal(loc=parameter_1, scale=parameter_2)
 
@@ -191,10 +278,9 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
         current_step=current_step,
         show_legend=vis_params.show_legend,
         device=device,
-        do_heat_map=vis_params.analytical.do_heat_map
+        do_heat_map=vis_params.analytical.do_heat_map,
+        component_selection = component_selection.detach().cpu().numpy() if isinstance(model, TwoPeakNormalLstmDistrNetwork) else None
     )
-
-    model.train()
 
 
 def visualize_analytical_problem(model: SimpleKinematicsNetwork, param, goal, param_history, cfg: TrainConfig,

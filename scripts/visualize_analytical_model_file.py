@@ -1,4 +1,5 @@
 import hydra
+import pyperclip
 from hydra.core.config_store import ConfigStore
 from stable_baselines3.common.utils import set_random_seed
 
@@ -22,9 +23,12 @@ max_link_len = 0.5
 
 # Path from repository root
 # model_file_path = "comparison_results/model_save_files/benchmark/NormalDistrManualReparameterizationNetwork/dof2/NormalDistrManualReparameterizationNetwork_2024-11-27_05-51-12_model.pth"
-# model_file_path = "comparison_results/model_save_files/benchmark/NormalDistrManualReparameterizationNetwork/dof3/NormalDistrManualReparameterizationNetwork_2024-11-27_06-53-31_model.pth"
-# model_file_path = "comparison_results/model_save_files/benchmark/SimpleKinematicsNetwork/dof3/SimpleKinematicsNetwork_2024-11-26_15-21-58_model.pth"
-model_file_path = "comparison_results/model_save_files/benchmark/TwoPeakNormalLstmDistrNetwork/dof2/TwoPeakNormalLstmDistrNetwork_2024-11-28_05-30-53_model.pth"
+
+# Get strin from clipboard
+model_file_path = pyperclip.paste()
+
+if "dof" not in model_file_path:
+    model_file_path = "comparison_results/model_save_files/benchmark/TwoPeakNormalLstmDistrNetwork/dof2/TwoPeakNormalLstmDistrNetwork_2024-11-28_05-30-53_model.pth"
 
 plot_all_in_one = False
 save_plot = False
