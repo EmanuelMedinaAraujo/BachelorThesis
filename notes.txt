@@ -1,13 +1,4 @@
 Frage:
-- Ich brauche Lehrstuhl Logo (cover.tex & title.tex)
-- Keine bessere Definition für redundant robots gefunden -> umgeschrieben
-- Kurzzusammenfassung auf deutsch nicht im Template aber jetzt hinzugefügt
-    https://www.cit.tum.de/cit/studium/studierende/abschlussarbeit-abschluss/informatik/
-- Was genau meintest du mit "modes" in der Tabelle? Könntest du da näher eingehen? - Passt es wie ich es gemacht habe?
-- Tabelle zeile erstellen, Run time solving?
-- Ist die Tabelle zu klein?
-- "+" bei jacobinan Pseudo inverse
-- Mehr Bilder und falls ja,  wo?
 
 Runs TODO:
 Later:
@@ -19,10 +10,6 @@ TODO:
     - Colorbar werte mit Anzahl an Samples teilen um distribution anzugeben
     - Markieren was der wahrscheinlichste Punkt ist. (Wo ist jeweils der MEAN)
     - Nullpunkt markieren
-- Bachelorarbeit Tabellen in mm Zeichnen lassen
-- Bootstrap verwenden um ungenauigkeiten zu berechnen (siehe slack)
-- Tabellen zeichnen (siehe slack)
-- Bachelorarbeit fertigstellen
 - Gymnasium für analytical erstellen
     - https://gymnasium.farama.org/introduction/train_agent/ - Gymnasium für analytical erstellen
 	wrapper
@@ -93,5 +80,4 @@ Bibliography (settings.tex)
 		
 - Sachen die man häufig braucht - Latex Commands anlegen
 	https://github.com/JmlrOrg/tmlr-style-file/blob/main/math_commands.tex
-- Formatting Template benutzen
 - Custom Commands benutzen
