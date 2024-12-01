@@ -13,13 +13,13 @@ analytical:
 
   max_history_length: 10
 
-  default_line_transparency: 1.
-  default_line_width: 1.5
+  default_line_transparency: 0.1
+  default_line_width: 1.
 
-  use_gradual_transparency: true
+  use_gradual_transparency: false
   plot_all_in_one: true
 
-  distribution_samples: 30
+  distribution_samples: 15
   do_heat_map: true # Only applied for distributions
 
 stb3:

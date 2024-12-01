@@ -17,7 +17,7 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
     ax, _ = set_plot_settings(parameter)
 
     # Plot the ground truth
-    if ground_truth is not None:
+    if ground_truth is not None and False:
         # Update parameter with ground truth
         updated_param = torch.cat((parameter, ground_truth), dim=-1)
         plot_planar_robot(
@@ -55,21 +55,13 @@ def plot_distribution(parameter, link_angles, ground_truth, link_probabilities, 
                      parameter[joint_number, 1].item() * np.sin(current_total_angle)]
                 ))
 
-            link_prob = link_probabilities[joint_number][link_num]
-            draw_end_effector = False
-            if is_last_link and link_prob == max(link_probabilities[joint_number]):
-                draw_end_effector = True
-            if link_prob < 0.1:
-                link_prob = 0.1
-            if link_prob > 1.:
-                link_prob = 1.
             plot_distribution_single_link(ax=ax,
                                           link_length=parameter[joint_number, 1].item(),
                                           angle=link_angles[joint_number][link_num],
                                           default_line_width=default_line_width,
-                                          transparency=link_prob,
+                                          transparency=0.1,
                                           show_distance=is_last_link,
-                                          mark_as_best_end_effector=draw_end_effector,
+                                          mark_as_best_end_effector=False,
                                           goal=goal,
                                           start_point=start_point_max,
                                           start_angle=start_angle_max,
@@ -181,10 +173,6 @@ def visualize_analytical_distribution(model, param, ground_truth, goal, cfg: Tra
             link_angles[joint_number].extend(angles.squeeze().tolist())
             expected_truth_prob = torch.exp(dist.log_prob(angles))
             link_probabilities[joint_number].extend(expected_truth_prob.squeeze().tolist())
-
-            # Add mean to visualization with probability of 1 for easier comparison
-            link_probabilities[joint_number].append(1)
-            link_angles[joint_number].append(dist.mean.item())
 
     vis_params = cfg.vis
 

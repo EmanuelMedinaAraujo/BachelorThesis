@@ -5,6 +5,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib as mpl
+import matplotlib.ticker as mticker
+from mpmath import extend
+from scipy import stats
 
 from util.forward_kinematics import calculate_parameter_goal_distances
 from vis.vis_utils import set_plot_settings, compute_max_robot_length, plot_line, \
@@ -127,7 +130,7 @@ def plot_planar_robot(
     total_angle = 0.0
 
     # Plot the robot links
-    color = 'r'
+    color = "blue"
     for i in range(parameter.shape[0]):
         link_length = parameter[i, 1].item()
         link_angle = parameter[i, 3].item()
@@ -164,7 +167,7 @@ def plot_planar_robot(
             )
         start_coordinates = end_coordinates
 
-    if show_end_effectors:
+    if show_end_effectors and False:
         # Plot end effector
         ax.plot(
             end_coordinates[0],
@@ -181,6 +184,7 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     if end_effector_list is None or len(end_effector_list) == 0:
         return
     end_effector_list = np.array(end_effector_list)
+
     d = {'x': end_effector_list[:, 0], 'y': end_effector_list[:, 1]}
     df = pd.DataFrame(data=d)
 
@@ -192,13 +196,20 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
 
     sns.set_theme(style="darkgrid")
     # Create the KDE plot using seaborn
-    plt.figure(figsize=(6, 6))
-    ax = plt.gca()
+    fig, ax = plt.subplots()
 
     # Plot the kernel density estimate
-    sns.kdeplot(x=df['x'], y=df['y'], fill=True, ax=ax, cmap="Blues", thresh=0, cbar=True, cbar_kws={
-        'shrink': .7,  # Shrink the colorbar to fit the plot size (1 means full size)
-    })
+    kde = sns.kdeplot(x=df['x'], y=df['y'], fill=True, ax=ax, cmap="Blues", thresh=0, cbar = False)
+
+    bounds = [0,1, 2,3,4,5,6,7,8,9]
+    norm = mpl.colors.BoundaryNorm(bounds, mpl.cm.Blues.N, extend='both')
+
+    plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="Blues"), ax=ax, norm=norm, extend='max', label= 'Density')
+
+    # Set axis labels
+    ax.set_xlabel("x [m]")
+    ax.set_ylabel("y [m]")
+
     max_length, _ = compute_max_robot_length(parameter)
 
     plt.xlim(-max_length, max_length)
@@ -209,11 +220,11 @@ def create_eef_heatmap(end_effector_list, goal, logger, step, show_plot, save_to
     # set aspect ratio to be equal
     plt.gca().set_aspect('equal')
 
+
     # Plot the goal of the robot
     if goal is not None:
         x, y = goal[0].item(), goal[1].item()
         plt.plot(x, y, "-x", label=f"Goal [{x:>0.1f},{y:>0.1f}]", color='r')
-
 
     plt.tight_layout()
 
