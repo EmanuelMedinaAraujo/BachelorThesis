@@ -40,8 +40,13 @@ def plot_goal_and_configure_legend(ax, goal, max_legend_length, show_legend):
         # Only show first max_legend_length entries
         handles, labels = ax.get_legend_handles_labels()
         if len(labels) > max_legend_length:
-            labels = [labels.pop()] + labels[-max_legend_length - 1:]
-            handles = [handles.pop()] + handles[-max_legend_length - 1:]
+            labels_tmp = [labels.pop()]
+            handles_tmp = [handles.pop()]
+            if max_legend_length > 1:
+                labels_tmp.append(labels[-(max_legend_length - 1):])
+                handles_tmp.append(handles[-(max_legend_length - 1):])
+            labels = labels_tmp
+            handles = handles_tmp
         ax.legend(
             handles,
             labels,
