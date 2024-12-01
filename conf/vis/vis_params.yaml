@@ -4,8 +4,8 @@ show_joints: false
 show_end_effectors: false
 show_legend: true
 show_distance_in_legend: true
-max_legend_length: 3
-save_to_file: false
+max_legend_length: 1
+save_to_file: true
 num_problems_to_visualize: 2 # Must be less than or equal to the number of test problems (because the problems are retrieved from the test dataset).
 
 analytical:
