@@ -1,7 +1,5 @@
 # BachelorThesisRepo
 
-TODO
-
 This is the Repository of a Bachelor Thesis
 about the topic of "Learning-based inverse Kinematics: A quantitative Comparison".
 
