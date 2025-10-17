@@ -1,4 +1,4 @@
-# Learning-based Inverse Kinematics: A Quantitative Comparison
+# Learning-based Inverse Kinematics
 
 This repository contains code to train and compare:
 - Analytical supervised models for inverse kinematics (direct and probabilistic outputs)
