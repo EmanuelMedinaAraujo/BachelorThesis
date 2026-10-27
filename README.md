@@ -26,8 +26,11 @@ Supervised models on planar arms with 2 and 3 joints (link lengths 0.3–0.5 m),
 | Two-peak Normal, LSTM (`TwoPeakNormalLstmDistrNetwork`) | 67.71 % | 92.99 % | 366 / 514 µs |
 | Two-peak Normal, LSTM+MLP (`TwoPeakNormalLstmVariantDistrNetwork`) | 91.21 % | 67.63 % | 759 / 863 µs |
 | Beta, MLP (`BetaDistrRSampleMeanNetwork`) | 5.19 % | 8.48 % | 207 / 257 µs |
+| PPO, Stable-Baselines3 ([networks/stb3](networks/stb3)) ¹ | 69.98 % | 56.45 % | 444 / 465 µs |
 
-The simplest model, a direct MLP regressing joint angles, solved every test problem and had the fastest inference. Of the probabilistic models, the two-peak Normal distribution came closest. The two-peak models also capture that most goals have two valid solutions (elbow up / elbow down):
+¹ PPO numbers are from Table 5.1 of the thesis, not from `performance_summary.txt`. PPO was trained for 50M (2 joints) and 45M (3 joints) environment steps instead of 10,000 epochs, with a mean end-effector error of 13.6 mm and 20.4 mm.
+
+The simplest model, a direct MLP regressing joint angles, solved every test problem and had the fastest inference. PPO trailed the MLP and LSTM models and took far longer to train (1.5–3.7 · 10⁵ s vs. about 600 s): it is built for multi-step tasks, and IK here is a single-step problem. Of the probabilistic models, the two-peak Normal distribution came closest. The two-peak models also capture that most goals have two valid solutions (elbow up / elbow down):
 
 | Direct MLP, 3 joints | Two-peak LSTM: end-effector density, 2 joints |
 |---|---|
