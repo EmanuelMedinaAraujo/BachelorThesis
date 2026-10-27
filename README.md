@@ -13,6 +13,26 @@ It includes synthetic problem generation, visualization utilities, hyperparamete
 - Data generation: [data_generation/parameter_generator.py](data_generation/parameter_generator.py) via [`ParameterGeneratorForPlanarRobot`](data_generation/parameter_generator.py), and [data_generation/goal_generator.py](data_generation/goal_generator.py) via [`generate_achievable_goal`](data_generation/goal_generator.py)
 - Visualization: [vis/planar_robot_vis.py](vis/planar_robot_vis.py) via [`visualize_planar_robot`](vis/planar_robot_vis.py)
 
+## Key Results
+
+Supervised models on planar arms with 2 and 3 joints (link lengths 0.3–0.5 m), each evaluated on 10,000 test problems. A problem counts as solved when the end effector lands within 1 cm of the goal. Accuracy is the mean of 5 runs; inference time is the mean single-query runtime over 1,000 repeats. Full numbers: [comparison_results/summaries/performance_summary.txt](comparison_results/summaries/performance_summary.txt).
+
+| Model | Solved (2 joints) | Solved (3 joints) | Inference (2 / 3 joints) |
+|---|---|---|---|
+| **Direct MLP** (`SimpleKinematicsNetwork`) | **100 %** | **100 %** | **154 / 157 µs** |
+| Two-peak Normal, MLP (`TwoPeakNormalDistrNetwork`) | 99.94 % | 99.72 % | 269 / 337 µs |
+| One-peak Normal, LSTM (`NormalDistrRandomSampleLSTMDistNetwork`) | 99.96 % | 93.25 % | 474 / 526 µs |
+| One-peak Normal, MLP (`NormalDistrManualReparameterizationNetwork`) | 97.50 % | 75.59 % | 321 / 372 µs |
+| Two-peak Normal, LSTM (`TwoPeakNormalLstmDistrNetwork`) | 67.71 % | 92.99 % | 366 / 514 µs |
+| Two-peak Normal, LSTM+MLP (`TwoPeakNormalLstmVariantDistrNetwork`) | 91.21 % | 67.63 % | 759 / 863 µs |
+| Beta, MLP (`BetaDistrRSampleMeanNetwork`) | 5.19 % | 8.48 % | 207 / 257 µs |
+
+The simplest model, a direct MLP regressing joint angles, solved every test problem and had the fastest inference. Of the probabilistic models, the two-peak Normal distribution came closest. The two-peak models also capture that most goals have two valid solutions (elbow up / elbow down):
+
+| Direct MLP, 3 joints | Two-peak LSTM: end-effector density, 2 joints |
+|---|---|
+| ![Direct MLP reaching a goal with 3 joints](comparison_results/visualizations/SimpleDirect_3.png) | ![End-effector density of the two-peak LSTM model, with one mode per IK solution](comparison_results/visualizations/heatmap/2P_LSTM_2.png) |
+
 ## Setup
 
 - Create and activate the environment:
